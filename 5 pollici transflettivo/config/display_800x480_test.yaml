@@ -1,0 +1,28 @@
+# Variante solo bring-up. Pin da spec scheda WB-B p.9; timing da spec pannello
+# UEED050WV-RB40-L001 p.10. L'interpretazione dei porch va verificata al banco.
+# HBP/VBP della tabella includono qui gli impulsi HS/VS: totali 1000 x 540.
+# Pixel clock 32.4 MHz / (1000*540) = 60 Hz. Nessun controller touch.
+display:
+  - platform: mipi_rgb
+    model: RPI
+    id: transflective_panel
+    dimensions: 800x480
+    color_order: RGB
+    pclk_pin: GPIO42
+    pclk_frequency: 32.4MHz
+    pclk_inverted: true
+    de_pin: GPIO40
+    hsync_pin: GPIO39
+    vsync_pin: GPIO41
+    hsync_pulse_width: 24
+    hsync_back_porch: 136
+    hsync_front_porch: 40
+    vsync_pulse_width: 2
+    vsync_back_porch: 21
+    vsync_front_porch: 37
+    data_pins:
+      red: [GPIO45, GPIO48, GPIO47, GPIO21, GPIO14]
+      green: [GPIO5, GPIO6, GPIO7, GPIO15, GPIO16, GPIO4]
+      blue: [GPIO8, GPIO3, GPIO46, GPIO9, GPIO1]
+    show_test_card: true
+    update_interval: 1s

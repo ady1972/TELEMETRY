@@ -1,0 +1,12 @@
+# Bring-up opzionale del pannello: mostra soltanto la test card ESPHome.
+# Non e' la schermata Racing e non avvia cronometraggio o salvataggi SD.
+packages:
+  application: !include goats_5_transflettivo.yaml
+  display_bringup: !include config/display_800x480_test.yaml
+
+esphome:
+  name: ${device_name}-display
+  on_boot:
+    priority: -100
+    then:
+      - light.turn_on: display_backlight

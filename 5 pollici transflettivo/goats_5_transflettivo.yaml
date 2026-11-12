@@ -1,0 +1,28 @@
+# Progetto autonomo da zero. Nessun motore di cronometraggio ancora attivo.
+substitutions:
+  device_name: goats-5-transflettivo
+  firmware_version: "0.1.0"
+
+esphome:
+  name: ${device_name}
+  friendly_name: GOATS RT 5 pollici transflettivo
+  project:
+    name: goats_rt.transflettivo5
+    version: ${firmware_version}
+
+packages:
+  hardware: !include config/board_viewe_b.yaml
+  gnss: !include config/gnss_passivo.yaml
+
+external_components:
+  - source:
+      type: local
+      path: components
+    components: [goats_core]
+
+goats_core:
+  id: goats_application
+  uart_id: gnss_uart
+  firmware_version: ${firmware_version}
+
+# Nessun Wi-Fi, OTA, API di rete, touch o protocollo Manager in questo scaffold.
