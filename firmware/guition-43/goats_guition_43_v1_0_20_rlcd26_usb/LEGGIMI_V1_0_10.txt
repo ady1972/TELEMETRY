@@ -1,0 +1,6 @@
+GOATS Guition V1.0.10 TEST SD BATTERIA - 10/11/2026
+Base: V1.0.9 GNSS PASSIVO. Nessun comando GNSS reintrodotto.
+BATTERIA: media ADC 15 campioni; filtro antiglitch con conferma 4 letture; aggiornamento percentuale ogni secondo.
+SD/MANAGER: mantenuti GSD_LIST e GSD_GET della Guition (protocollo binario), aggiunti GSD_PING e GSD_STATUS.
+ATTENZIONE: il protocollo TEST22 RLCD usa GSD_ITEM e GSD_NEXT con dati esadecimali, DIVERSO dal GSD_FILE e streaming binario Guition. NON e' stata ancora portata la gestione RLCD TEST22 completa e non e' stata aggiunta cancellazione multipla da Manager. Questa versione e' un test intermedio, non una integrazione completa.
+Non compilato o provato su hardware. Conservare V1.0.9.
