@@ -3,13 +3,26 @@
 PR: https://github.com/ady1972/TELEMETRY/pull/2
 Branch: porting/guition-v1.0.22-rlcd26
 
-La revisione 567943375d758775040009b592c49ebd0d29a44e ha superato test C++,
-invarianti, config e compilazione ESPHome 2026.7.3 su Linux:
-https://github.com/ady1972/TELEMETRY/actions/runs/43251108462
-RAM statica 169123 / 341760 byte (49,5%); immagine 1206519 / 1835008 byte (65,8%).
+Revisione del codice verificata: 6070b97904a08d964ec55ffc8ec10b65625b293c.
+Esito finale: SUCCESS, test C++ e compilazione ESPHome 2026.7.3 su Linux.
+https://github.com/ady1972/TELEMETRY/actions/runs/43252047337
 
-La protezione finale sul cambio pista/catalogo e' sottoposta a una nuova
-esecuzione CI; aggiornare questo rapporto con il risultato prima di distribuire.
+- PASS: invarianti (motore, GNSS/UART, Racing, GSA3/CSV/protocollo).
+- PASS: FIFO, rollover iTOW, duplicati e controllo CRC GSE.
+- PASS: 250 punti distinti con passo di 40 ms, attribuzione al giro corretto
+  e assenza di I/O nel consumatore NAV.
+- PASS: lettura con il codice GSA3 originale V1.0.20, riapertura con settori,
+  recupero NVS senza SD e protezione dei metadati legacy in conflitto.
+- PASS: scarto senza perdita di giri storici, chiusura libera, fix invalidi,
+  scrittura CSV fallita e indisponibilita' simultanea di SD/NVS.
+- PASS: adattatore delle due API dropdown e richiesta di chiusura differita.
+- PASS: config, compilazione/link ESP32-S3 e generazione firmware.factory.bin.
+- RAM statica: 169139 / 341760 byte (49,5%).
+- Immagine applicazione: 1206767 / 1835008 byte (65,8%).
+- Artifact: GOATS-Guition-V1.0.22-USB, ID 13961290339.
+  SHA256 dello ZIP CI: dd4502bcadaef4fbcd9f9997ae5792d66ee40f4a39aa6e2745b55cdfb5d84f14.
+
+Gli aggiornamenti successivi del solo rapporto non cambiano il codice compilato.
 
 Verificato staticamente: goats_laptimer.h identico byte per byte alla V1.0.20;
 dipendenze GNSS, UART/pin/230400/25 Hz, logger e layout Racing preservati.
