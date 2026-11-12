@@ -1,0 +1,12 @@
+GOATS RLCD MG902 TEST26 - OTTIMIZZAZIONE SESSIONI
+
+Base: TEST25. Nessuna modifica a GNSS/UART/25 Hz, algoritmi di telemetria, traguardo o trasferimento Manager/USB MSC.
+
+- Browser sessioni: cache RAM degli ultimi 80 record NVS; un solo caricamento iniziale, aggiornamento automatico al salvataggio/scarto. Il display non ripete accessi flash durante lo scorrimento.
+- Conferma su un giro: apre una schermata dettaglio con tempo, velocita media e settori. Pressione lunga BOOT torna ai giri.
+- Chiusura traccia: eliminata sincronizzazione FatFS duplicata immediatamente prima di f_close (FatFS effettua gia la sincronizzazione).
+- Log: aggiunta durata (duration_ms) della fase di finalizzazione CSV nel log GPS_TRACE.
+
+NOTA: La schermata Sessioni visualizza il journal degli ultimi 80 giri in flash, non l'intero archivio CSV su microSD. L'esistenza dei file CSV e indipendente da tale elenco.
+
+Da compilare e provare su ESPHome. Test non compilato su hardware. Conservare TEST25 come fallback.
