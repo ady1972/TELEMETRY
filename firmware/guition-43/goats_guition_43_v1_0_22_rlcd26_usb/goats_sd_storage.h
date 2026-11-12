@@ -689,7 +689,7 @@ static inline bool write_sector_file(uint32_t sid, const std::vector<uint8_t> &d
   char name[40], tmp[40];
   std::snprintf(name,sizeof(name),"0:/GOATS/E%06lu.GSE",(unsigned long)sid);
   std::snprintf(tmp,sizeof(tmp),"0:/GOATS/E%06lu.TMP",(unsigned long)sid);
-  return fat_write_blob_atomic_(name,tmp,data);
+  return fat_write_blob_atomic_(name,tmp,data,"SECTORS_WRITE");
 }
 static inline bool read_sector_file(uint32_t sid, std::vector<uint8_t> &data) {
   if (!ready() || !sid) return false;

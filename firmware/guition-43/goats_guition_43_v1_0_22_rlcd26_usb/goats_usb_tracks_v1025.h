@@ -1110,6 +1110,24 @@ inline esphome::FixedVector<const char *> goats_track_dropdown_options() {
   return result;
 }
 
+// GUI adapter only: ESPHome 2026.7 takes vector<string>, newer versions take
+// FixedVector<const char*>. Both paths build the same sorted AUTO/track list.
+template<class Dropdown>
+inline auto goats_track_apply_options_(Dropdown *widget,int)
+    -> decltype(widget->set_options(std::vector<std::string>{}),void()) {
+  std::vector<std::string> options{"AUTO"};
+  for(size_t index:goats_track_sorted_indices()) options.emplace_back(goats_track_name(index));
+  widget->set_options(std::move(options));
+}
+template<class Dropdown>
+inline void goats_track_apply_options_(Dropdown *widget,long) {
+  widget->set_options(goats_track_dropdown_options());
+}
+template<class Dropdown>
+inline void goats_track_set_dropdown_options(Dropdown *widget) {
+  goats_track_apply_options_(widget,0);
+}
+
 inline int goats_track_dropdown_to_physical(int menu_index) {
   if (menu_index <= 0) return 0;
   const auto idx = goats_track_sorted_indices();

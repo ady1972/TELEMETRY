@@ -1326,7 +1326,7 @@ lvgl:
                     id(track_menu_open) = true;
                     id(track_delete_armed) = false;
                     id(track_menu_index) = 0;
-                    id(dd_track_select)->set_options(goats_track_dropdown_options());
+                    goats_track_set_dropdown_options(id(dd_track_select));
                     id(dd_track_select)->set_selected_index(static_cast<size_t>(id(track_menu_index)), LV_ANIM_OFF);
                     lv_label_set_text(id(lbl_delete_track), "ELIMINA");
                 - lvgl.widget.show: track_select_panel
@@ -4033,7 +4033,7 @@ lvgl:
                           }
                           id(track_menu_index) = 0;
                           id(track_delete_armed) = false;
-                          id(dd_track_select)->set_options(goats_track_dropdown_options());
+                          goats_track_set_dropdown_options(id(dd_track_select));
                           id(dd_track_select)->set_selected_index(0, LV_ANIM_OFF);
                           lv_label_set_text(id(lbl_delete_track), "ELIMINA");
                           lv_label_set_text(id(lbl_track), "AUTO RICERCA");

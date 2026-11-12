@@ -21,8 +21,18 @@ inline uint32_t goats_laptimer_last_timing_sector_ms(size_t i){return i==0?2000:
 // Prepared from the actual header; only the SD adapter is replaced for the host.
 #include "sessions_host.h"
 #include "legacy_sessions_host.h"
+inline std::vector<size_t> goats_track_sorted_indices(){return {1,0};}
+inline const char* goats_track_name(size_t i){return i==0?"BETA":"ALFA";}
+inline std::vector<const char*> goats_track_dropdown_options(){return {"AUTO","ALFA","BETA"};}
+#include "dropdown_host.h"
+struct OldDropdown{std::vector<std::string> options;void set_options(std::vector<std::string> v){options=std::move(v);}};
+struct NewDropdown{std::vector<const char*> options;void set_options(std::vector<const char*> v){options=std::move(v);}};
 
 int main(){
+  OldDropdown old_dropdown;NewDropdown new_dropdown;
+  goats_track_set_dropdown_options(&old_dropdown);goats_track_set_dropdown_options(&new_dropdown);
+  assert(old_dropdown.options==std::vector<std::string>({"AUTO","ALFA","BETA"}));
+  assert(std::string(new_dropdown.options[1])=="ALFA");
   using namespace goats_port;
   Ring<int,2> ring;assert(ring.push(1)&&ring.push(2)&&!ring.push(3));
   int v;assert(ring.pop(v)&&v==1&&ring.push(3));assert(ring.pop(v)&&v==2);assert(ring.pop(v)&&v==3&&!ring.pop(v));
@@ -81,5 +91,27 @@ int main(){
   recovery.prepare_free(10000,"12/11/2026","14:00");recovery.attach_free_storage();
   recovery.update(false,0,0,0,0,20,1,10,10040,"", "","",45,9,true,8040);
   recovery.discard_current();assert(recovery.count()==before && !recovery.accepts_samples());
+  // Free-mode close, invalid fixes and repeated epochs must not synthesize CSV points.
+  goats_sd_storage::card_ready=true;GoatsSessionManager free_record;free_record.setup();
+  free_record.prepare_free(20000,"12/11/2026","15:00");free_record.attach_free_storage();
+  free_record.update(false,0,0,0,0,20,1,10,20000,"","","",45,9,true,20000);
+  free_record.update(false,0,0,0,0,20,1,10,20040,"","","",45,9,false,20040);
+  free_record.update(false,0,0,0,0,20,1,10,20080,"","","",45,9,true,20000);
+  free_record.storage_tick();assert(goats_sd_storage::rows.size()==1);
+  assert(free_record.finish_free(20200) && goats_sd_storage::last_trace_ok);
+  // A failed CSV write stops that trace; completed laps still persist with explicit trace failure.
+  GoatsSessionManager bad_sd;bad_sd.setup();goats_sd_storage::fail_write=true;engine_running=true;
+  bad_sd.update(true,1,0,0,0,50,1,10,30000,"BAD_SD","12/11/2026","16:00",45,9,true,30000);
+  bad_sd.storage_tick();
+  bad_sd.update(true,2,8000,8000,38000,50,1,10,38000,"BAD_SD","12/11/2026","16:00",45,9,true,38000);
+  bad_sd.finish_manual(38000);
+  assert(!goats_sd_storage::last_trace_ok && bad_sd.trace_dropped()>=1 && !goats_sd_storage::live_open());
+  goats_sd_storage::fail_write=false;
+  // Simultaneous SD/NVS failure must not be advertised as a successful save or loop forever.
+  goats_sd_storage::card_ready=false;fake_nvs_fail=true;GoatsSessionManager failed;failed.setup();engine_running=true;
+  failed.update(true,1,0,0,0,50,1,10,40000,"FAIL","12/11/2026","17:00",45,9,true,40000);
+  failed.update(true,2,8000,8000,48000,50,1,10,48000,"FAIL","12/11/2026","17:00",45,9,true,48000);
+  failed.finish_manual(48000);assert(!failed.last_save_ok());
+  fake_nvs_fail=false;
   std::puts("PASS: FIFO, epoch wrap, GSE CRC, 25 Hz trace, deferred I/O, lap attribution, legacy GSA3 reader, SD/NVS recovery, discard");
 }

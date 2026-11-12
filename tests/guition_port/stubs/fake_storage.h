@@ -5,6 +5,7 @@
 namespace goats_sd_storage {
 inline bool card_ready=true,opened=false,fail_write=false;
 inline unsigned io_calls=0;
+inline bool last_trace_ok=false;
 inline std::vector<uint8_t> archive;
 inline std::map<uint32_t,std::vector<uint8_t>> meta,sectors;
 struct SavedTraceRow {uint32_t elapsed_ms,lap;double latitude,longitude;float speed_kmh,hdop;int satellites;};
@@ -30,7 +31,7 @@ inline void remove_sector_file(uint32_t id){sectors.erase(id);}
 inline bool read_checkpoint(std::vector<uint8_t>&){return false;}
 inline bool write_checkpoint(const std::vector<uint8_t>&){return card_ready;}
 inline void remove_checkpoint(){}
-inline void write_last_save_status(uint32_t,bool,bool,bool){}
+inline void write_last_save_status(uint32_t,bool,bool,bool trace_ok){last_trace_ok=trace_ok;}
 inline void remove_trace(uint32_t){}
 inline void clear_session_files(){meta.clear();sectors.clear();archive.clear();}
 template<class F>bool visit_saved_trace(uint32_t,F&&f,size_t){for(const auto&r:rows)f(r);return true;}

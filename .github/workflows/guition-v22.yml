@@ -6,6 +6,7 @@ on:
       - 'firmware/guition-43/goats_guition_43_v1_0_22_rlcd26_usb/**'
       - 'tests/guition_port/**'
       - '.github/workflows/guition-v22.yml'
+      - '!**/*.md'
   workflow_dispatch:
 permissions:
   contents: read

@@ -10,6 +10,7 @@ for file in ['goats_ubx_m9n_v11.h','goats_gnss_assist_v1023.h','goats_usb_tracks
     new=(b/file).read_text(encoding='utf-8')
     if file=='goats_usb_tracks_v1025.h':
         new=re.sub(r'  // Read-only guard:.*?\n  void suspend_for_msc','  void suspend_for_msc',new,flags=re.S)
+        new=re.sub(r'// GUI adapter only:.*?inline int goats_track_dropdown_to_physical','inline int goats_track_dropdown_to_physical',new,flags=re.S)
     assert old==new,file
 def section(text,key):
     return re.search(r'^'+key+r':\n.*?(?=^[A-Za-z_]+:|\Z)',text,re.M|re.S)[0]
@@ -17,6 +18,7 @@ old=(base/'goats_guition_43_v1_0_20_rlcd26_usb.yaml').read_text(encoding='utf-8'
 new=(base/'goats_guition_43_v1_0_22_rlcd26_usb.yaml').read_text(encoding='utf-8')
 for key in ['uart','esp32','logger','display','globals']:assert section(old,key)==section(new,key),key
 ui=section(old,'lvgl').replace('V1.0.20 RLCD26 USB','V1.0.22 RLCD26 USB').replace('Build: 05/11/2026 LAYOUT8','Build: 12/11/2026 RLCD26 USB')
+ui=ui.replace('id(dd_track_select)->set_options(goats_track_dropdown_options());','goats_track_set_dropdown_options(id(dd_track_select));')
 assert ui==section(new,'lvgl'),'LVGL geometry/content changed'
 assert not re.search(r'^(wifi|ota|web_server|api):',new,re.M)
 text=(b/'goats_sessions.h').read_text(encoding='utf-8')

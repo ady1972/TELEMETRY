@@ -58,6 +58,8 @@ il BEST come RLCD. La pagina post-giro Guition mantiene le informazioni sul pass
 Il dettaglio sessioni estende verticalmente le colonne esistenti con S1/S2/...;
 gli altri campi aggiungono righe vuote per mantenere l'allineamento. Le sessioni
 vecchie senza settori continuano a mostrare solo i valori originali.
+Un adattatore C++ seleziona l'API set_options del selettore piste disponibile
+in ESPHome 2026.7 o nelle versioni successive: ordine AUTO/piste e layout invariati.
 
 ## Archivio compatibile e recupero
 

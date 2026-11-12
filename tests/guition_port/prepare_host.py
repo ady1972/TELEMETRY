@@ -14,3 +14,6 @@ for new,name in [(True,'sessions_host.h'),(False,'legacy_sessions_host.h')]:
             text=text.replace(original,'Legacy'+original)
     (out/name).write_text(text,encoding='utf-8')
 print(out)
+usb=(base/'goats_guition_43_v1_0_22_rlcd26_usb/goats_usb_tracks_v1025.h').read_text(encoding='utf-8')
+adapter=usb[usb.index('// GUI adapter only:'):usb.index('inline int goats_track_dropdown_to_physical')]
+(out/'dropdown_host.h').write_text(adapter,encoding='utf-8')
