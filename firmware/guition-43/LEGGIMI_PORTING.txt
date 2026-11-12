@@ -1,0 +1,15 @@
+GOATS GUITION 4.3 V1.0.20 - RLCD TEST26 TIMING PORT - SOLO USB
+
+BASE: Guition V1.0.15 TEST AUTO FISSO SENZA BORDI.
+PORTING EFFETTIVO: goats_laptimer.h sostituito con il motore RLCD TEST26
+(inclusi attraversamento traguardo, settori, delta filtrato e logiche giro).
+Compatibilita GUI Guition: aggiunto adattatore sector_delta_best_seconds.
+
+NON PRESENTI: WiFi, SoftAP, web_server, OTA. Caricamento via USB.
+INVARIATI: parser e impostazioni GNSS, UART, 230400 baud, 25 Hz,
+configurazione display, SD, sessioni, USB, alimentazione, batteria.
+
+ATTENZIONE: questa e' una prima integrazione REALE DEL MOTORE RLCD26,
+NON il porting completo di tutte le funzioni RLCD26. Le componenti
+archivio sessioni e SD restano quelle Guition V1.0.15.
+Non compilato e non testato su hardware. Fare backup del firmware stabile.
