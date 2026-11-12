@@ -54,6 +54,19 @@ int main(){
   LegacyGoatsSessionManager legacy;legacy.setup();assert(legacy.count()==1);
   assert(legacy.display_session(0)->laps[0].lap_time_ms==8000);
   GoatsSessionManager reboot;reboot.setup();assert(reboot.display_session(0)->laps[0].sectors_ms==laps[0].sectors);
+  reboot.discard_current();
+  GoatsSessionManager after_idle_discard;after_idle_discard.setup();
+  assert(after_idle_discard.count()==1); // An idle discard must not erase historical NVS laps.
+  const auto saved_nvs=fake_nvs["lap00"];
+  goats_lap_journal::Record conflict{};
+  std::memcpy(&conflict,saved_nvs.data(),sizeof(conflict));
+  conflict.lap_ms=7000;conflict.best_ms=7000;
+  conflict.checksum=crc32(reinterpret_cast<const uint8_t*>(&conflict),offsetof(goats_lap_journal::Record,checksum));
+  fake_nvs["lap00"]={reinterpret_cast<const uint8_t*>(&conflict),reinterpret_cast<const uint8_t*>(&conflict)+sizeof(conflict)};
+  GoatsSessionManager conflicting_card;conflicting_card.setup();
+  assert(conflicting_card.display_session(0)->best_lap_ms==8000);
+  assert(conflicting_card.display_session(0)->laps[0].lap_time_ms==8000);
+  fake_nvs["lap00"]=saved_nvs;
 
   // SD absent: keep timing/metadata and recover the lap journal after restart.
   goats_sd_storage::card_ready=false;GoatsSessionManager no_sd;no_sd.setup();engine_running=true;

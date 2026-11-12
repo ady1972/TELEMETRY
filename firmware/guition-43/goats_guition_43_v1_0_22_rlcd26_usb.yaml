@@ -28,6 +28,8 @@ esphome:
   includes:
     - goats_guition_43_v1_0_22_rlcd26_usb/goats_version.h
     - goats_guition_43_v1_0_22_rlcd26_usb/goats_diagnostics.h
+    - goats_guition_43_v1_0_22_rlcd26_usb/goats_port_types.h
+    - goats_guition_43_v1_0_22_rlcd26_usb/goats_lap_journal.h
     - goats_guition_43_v1_0_22_rlcd26_usb/goats_sd_storage.h
     - goats_guition_43_v1_0_22_rlcd26_usb/goats_crash_diag.h
     - goats_guition_43_v1_0_22_rlcd26_usb/goats_usb_activity_v11.h

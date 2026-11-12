@@ -311,7 +311,7 @@ class GoatsSessionManager {
   void discard_current() {
     goats_laptimer_reset();
     pending_open_=false;trace_queue_.clear();journal_queue_.clear();
-    (void)goats_lap_journal::erase_session(checkpoint_session_id_);
+    if(checkpoint_session_id_!=0)(void)goats_lap_journal::erase_session(checkpoint_session_id_);
     goats_sd_storage::discard_live_session();
     goats_sd_storage::remove_checkpoint();
     reset_runtime();
@@ -357,7 +357,7 @@ class GoatsSessionManager {
     archive_.erase(archive_.begin() + real_index);
     goats_sd_storage::remove_trace(session_id);
     goats_sd_storage::remove_session_meta(session_id);
-    return save_archive_();
+    return !goats_sd_storage::ready() || save_archive_();
   }
 
   bool clear_archive() {
@@ -366,7 +366,7 @@ class GoatsSessionManager {
     for(const auto &item:archive_)goats_sd_storage::remove_sector_file(item.session_id);
     archive_.clear();
     goats_sd_storage::clear_session_files();
-    return goats_sd_storage::remove_archive();
+    return !goats_sd_storage::ready() || goats_sd_storage::remove_archive();
   }
 
 
@@ -630,17 +630,24 @@ class GoatsSessionManager {
       auto it=std::find_if(archive_.begin(),archive_.end(),[r](const auto &item){return item.session_id==r->session;});
       if(it==archive_.end()) { GoatsSessionRecord item;item.session_id=r->session;archive_.push_back(item);it=archive_.end()-1; }
       auto &item=*it;
+      // Never overwrite a different legacy session that happens to reuse an ID
+      // (for example a card moved from another device).
+      if((!item.date.empty() && item.date.substr(0,15)!=r->date) ||
+         (!item.time.empty() && item.time.substr(0,11)!=r->time) ||
+         (!item.track_name.empty() && item.track_name.substr(0,63)!=r->track))continue;
+      auto lap=std::find_if(item.laps.begin(),item.laps.end(),[r](const auto&l){return l.number==r->number;});
+      if(lap!=item.laps.end() && lap->lap_time_ms!=r->lap_ms)continue;
       if(item.date.empty())item.date=r->date;
       if(item.time.empty())item.time=r->time;
       if(item.track_name.empty())item.track_name=r->track;
       item.duration_ms=std::max(item.duration_ms,r->duration);
       item.best_lap_ms=item.best_lap_ms?std::min(item.best_lap_ms,r->best_ms):r->best_ms;
       item.max_speed_kmh=std::max(item.max_speed_kmh,r->max_speed);
-      auto lap=std::find_if(item.laps.begin(),item.laps.end(),[r](const auto&l){return l.number==r->number;});
       if(lap==item.laps.end()){item.laps.emplace_back();lap=item.laps.end()-1;}
       lap->number=r->number;lap->lap_time_ms=r->lap_ms;lap->max_speed_kmh=r->max_speed;
       lap->average_speed_kmh=r->average_speed;lap->sectors_ms.assign(r->sectors,r->sectors+r->sector_count);
-      item.last_lap_ms=r->lap_ms;
+      uint16_t newest=0;for(const auto &l:item.laps)newest=std::max(newest,l.number);
+      if(r->number>=newest)item.last_lap_ms=r->lap_ms;
     }
     for(auto &item:archive_) {
       std::sort(item.laps.begin(),item.laps.end(),[](const auto&a,const auto&b){return a.number<b.number;});
