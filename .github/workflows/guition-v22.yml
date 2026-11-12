@@ -1,0 +1,38 @@
+name: Guition V1.0.22 verification
+on:
+  pull_request:
+    paths:
+      - 'firmware/guition-43/goats_guition_43_v1_0_22_rlcd26_usb*'
+      - 'firmware/guition-43/goats_guition_43_v1_0_22_rlcd26_usb/**'
+      - 'tests/guition_port/**'
+      - '.github/workflows/guition-v22.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - name: Check invariants and compile/run integration tests
+        run: |
+          python tests/guition_port/check_invariants.py
+          python tests/guition_port/prepare_host.py /tmp/port-host
+          g++ -std=c++17 -Wall -Wextra -Wno-misleading-indentation -I /tmp/port-host -I tests/guition_port/stubs -I firmware/guition-43/goats_guition_43_v1_0_22_rlcd26_usb tests/guition_port/test_port.cpp -o /tmp/test_port
+          /tmp/test_port
+      - name: Install ESPHome
+        run: pip install esphome==2026.7.3
+      - name: Validate YAML and build firmware
+        run: |
+          esphome config firmware/guition-43/goats_guition_43_v1_0_22_rlcd26_usb.yaml > /tmp/esphome-config.txt
+          esphome compile firmware/guition-43/goats_guition_43_v1_0_22_rlcd26_usb.yaml
+      - name: Collect firmware
+        uses: actions/upload-artifact@v4
+        with:
+          name: GOATS-Guition-V1.0.22-USB
+          path: firmware/guition-43/.esphome/build/goats-rt-laptimer-v2/**/*.bin
+          if-no-files-found: error
