@@ -4391,6 +4391,10 @@ interval:
     then:
       - lambda: |-
           goats_tracks_loop();
+          const GoatsTrackUsb *catalog_track=nullptr;
+          if(id(selected_circuit)>0 && static_cast<size_t>(id(selected_circuit))<=goats_track_count())
+            catalog_track=goats_track(id(selected_circuit)-1);
+          goats_pipeline::observe_track(catalog_track);
 
   # Aggiorna la selezione quando viene caricato un nuovo catalogo.
   - interval: 500ms

@@ -111,6 +111,7 @@ class GoatsSessionManager {
     journal_saved_ = 0;
     journal_failed_ = false;
     journal_retry_at_ = 0;
+    close_requested_ = false;
     current_track_name_.clear();
     current_date_.clear();
     current_time_.clear();
@@ -188,6 +189,13 @@ class GoatsSessionManager {
   // RLCD-style bounded I/O slices on the application task, outside acquisition.
   // Individual FatFS/NVS calls can still block: this is not a real-time worker.
   void storage_tick() {
+    if(close_requested_) {
+      const uint32_t at=close_at_;
+      close_requested_=false;
+      finish_(at,false);
+      summary_visible_request_=true;
+      return;
+    }
     if(pending_open_) {
       pending_open_=false;
       storage_failed_=!goats_sd_storage::begin_live_session(
@@ -209,7 +217,11 @@ class GoatsSessionManager {
     }
   }
   uint64_t trace_dropped()const{return trace_dropped_;}
-  bool accepts_samples()const{return !finished_;}
+  bool accepts_samples()const{return !finished_ && !close_requested_;}
+  void request_finish(uint32_t now_ms) {
+    if(!active() || free_mode_ || close_requested_)return;
+    close_at_=now_ms;close_requested_=true;goats_laptimer_reset();
+  }
 
   bool prepare_free(uint32_t now_ms,
                     const char *date_text,
@@ -580,6 +592,8 @@ class GoatsSessionManager {
   goats_port::EpochClock epoch_;
   bool pending_open_{false},storage_failed_{false},journal_failed_{false};
   uint32_t journal_retry_at_{0};
+  bool close_requested_{false};
+  uint32_t close_at_{0};
   uint64_t trace_dropped_{0},journal_dropped_{0};
   size_t journal_saved_{0};
   bool sector_save_ok_{true};
@@ -671,6 +685,7 @@ class GoatsSessionManager {
   }
 
   void finish_(uint32_t now_ms, bool automatic) {
+    close_requested_=false;
     storage_tick();
     while(!trace_queue_.empty() && goats_sd_storage::live_open())flush_trace_(64);
     while(!journal_queue_.empty()) {

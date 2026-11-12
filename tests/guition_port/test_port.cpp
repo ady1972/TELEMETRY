@@ -113,5 +113,12 @@ int main(){
   failed.update(true,2,8000,8000,48000,50,1,10,48000,"FAIL","12/11/2026","17:00",45,9,true,48000);
   failed.finish_manual(48000);assert(!failed.last_save_ok());
   fake_nvs_fail=false;
-  std::puts("PASS: FIFO, epoch wrap, GSE CRC, 25 Hz trace, deferred I/O, lap attribution, legacy GSA3 reader, SD/NVS recovery, discard");
+  // Catalog changes request a close without I/O in the consumer; storage owns finalization.
+  goats_sd_storage::card_ready=true;GoatsSessionManager changed_track;changed_track.setup();engine_running=true;
+  changed_track.update(true,1,0,0,0,50,1,10,50000,"CHANGED","12/11/2026","18:00",45,9,true,50000);
+  const unsigned before_request=goats_sd_storage::io_calls;
+  changed_track.request_finish(50040);
+  assert(!changed_track.accepts_samples() && !engine_running && goats_sd_storage::io_calls==before_request);
+  changed_track.storage_tick();assert(!changed_track.active() && changed_track.summary_visible_request());
+  std::puts("PASS: FIFO, epoch wrap, GSE CRC, 25 Hz trace, deferred I/O, legacy GSA3, NVS recovery, discard, free recording, SD/NVS failures, dropdown APIs, deferred catalog close");
 }

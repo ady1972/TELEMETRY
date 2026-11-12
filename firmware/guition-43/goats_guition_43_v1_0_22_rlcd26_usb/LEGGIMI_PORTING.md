@@ -80,6 +80,9 @@ informazioni non vengono inserite nel payload GSES/GSES2 o nel CSV dei punti.
   non ha un record da recuperare. Una sessione libera viene registrata alla chiusura.
 - Chiusura e scarto fermano il motore; ulteriori campioni non riaprono una
   sessione chiusa. Il reset sessione esplicito riabilita l'acquisizione.
+- Il cambio pista o revisione del catalogo durante una sessione circuito
+  richiede la chiusura della sessione precedente. Il consumatore ferma il motore
+  senza I/O; la chiusura viene eseguita nel tick storage, senza mescolare piste.
 - Lo scarto elimina il diario della sessione corrente. La cancellazione di
   una sessione elimina anche il relativo GSE e i record NVS, oltre ai file originali.
 
