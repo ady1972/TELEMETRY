@@ -1,0 +1,28 @@
+# Profilo previsto: PLCM-UEDX80480050E-WB-B, ESP32-S3, N16R8.
+# Il pannello utilizzato NON e' touch: nessun GT911 o bus I2C configurato.
+esp32:
+  board: esp32-s3-devkitc-1
+  variant: esp32s3
+  flash_size: 16MB
+  framework:
+    type: esp-idf
+
+psram:
+  mode: octal
+  speed: 80MHz
+
+logger:
+  level: WARN
+  baud_rate: 0
+
+output:
+  - platform: gpio
+    id: backlight_enable
+    pin: GPIO2
+
+light:
+  - platform: binary
+    id: display_backlight
+    name: Retroilluminazione
+    output: backlight_enable
+    restore_mode: ALWAYS_OFF
