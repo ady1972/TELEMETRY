@@ -10,7 +10,7 @@ for source in reference.glob('*.h'):
 def section(text, name):
     return re.search(r'^' + name + r':\n.*?(?=^[a-z_]+:|\Z)', text, re.M | re.S)[0]
 original = (reference / (reference.name + '.yaml')).read_text()
-current = (port / 'goats_42_color_v0406_test26.yaml').read_text()
+current = (port.parent / 'goats_42_color_v0406_test26.yaml').read_text()
 for name in ['uart', 'esp32', 'logger']:
     assert section(original, name) == section(current, name), name
 expected = section(original, 'interval').replace(

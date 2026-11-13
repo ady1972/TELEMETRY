@@ -23,32 +23,27 @@ Non sono stati copiati i firmware RLCD o Guition, ne' modificati file esterni.
 ## Struttura
 
 ```text
-5 pollici transflettivo/
-  goats_5_transflettivo.yaml               # Base GNSS, display spento
-  goats_5_transflettivo_display_test.yaml  # Bring-up RGB opzionale
+goats_5_transflettivo.yaml
+goats_5_transflettivo_display_test.yaml
+GOATS_5_TRANSFLETTIVO_V010/
   config/
-    board_viewe_b.yaml
-    gnss_passivo.yaml
-    display_800x480_test.yaml
-  components/goats_core/                  # Componente locale ESPHome Python/C++
-  src/timing/timing_contract.h            # Interfaccia, senza motore fittizio
-  src/ui/layout_reference.h               # Geometria di riferimento
-  src/storage/                           # Area per lo sviluppo storage
+  components/goats_core/
+  src/timing/
+  src/ui/
+  src/storage/
   docs/
-    riferimento_rlcd.md
-    hardware.md
-    verifica.md
   tests/
-    check_contracts.py
-    test_nav_pvt.cpp
   requirements-dev.txt
 ```
 
 ## Apertura in ESPHome Builder su Windows
 
-Selezionare **questa cartella**, non la root della repository e non `firmware/`.
-Aprire `goats_5_transflettivo.yaml` per il progetto base. Mantenere accanto al YAML
-le cartelle `config` e `components`: non copiare il solo file YAML.
+Copiare nel workspace ESPHome Builder i due YAML e l'intera cartella
+`GOATS_5_TRANSFLETTIVO_V010`, mantenendoli affiancati. Aprire
+`goats_5_transflettivo.yaml` per il progetto base. Tutti i componenti e gli
+include puntano alla cartella dedicata; non serve una cartella `components`
+comune agli altri dispositivi. È possibile anche usare direttamente questa
+cartella del repository come workspace.
 
 Per la sola test card del pannello aprire invece
 `goats_5_transflettivo_display_test.yaml`. Il test non contiene un'interfaccia Racing.
@@ -61,9 +56,9 @@ python -m esphome compile goats_5_transflettivo.yaml
 ```
 
 Versione ESPHome usata per i controlli: 2026.7.3. Nessun caricamento sul dispositivo
-viene eseguito automaticamente. Stato delle verifiche in `docs/verifica.md`.
-I contratti in `src/` documentano i moduli futuri e non vengono ancora compilati
-nel firmware; il componente attivo e' quello locale in `components/goats_core`.
+viene eseguito automaticamente. Stato delle verifiche in `GOATS_5_TRANSFLETTIVO_V010/docs/verifica.md`.
+I contratti in `GOATS_5_TRANSFLETTIVO_V010/src/` documentano i moduli futuri e non vengono ancora compilati
+nel firmware; il componente attivo e' quello locale in `GOATS_5_TRANSFLETTIVO_V010/components/goats_core`.
 
 ## GPS: collegamenti previsti
 
@@ -87,7 +82,7 @@ non modifica costellazioni e non trasmette configurazioni al GNSS.
 
 Layout Racing, rilevamento traguardo, intermedi, interpolazione eventualmente
 prevista dal riferimento, tempi giro, BEST, delta e sessioni vanno sviluppati
-rispettando il contratto in `docs/riferimento_rlcd.md`. Lo stato di ogni ambito
+rispettando il contratto in `GOATS_5_TRANSFLETTIVO_V010/docs/riferimento_rlcd.md`. Lo stato di ogni ambito
 e' esplicito: l'interfaccia timing non e' un motore implementato.
 
 Sviluppi successivi: motore e tracce di test, renderer Racing, due comandi fisici

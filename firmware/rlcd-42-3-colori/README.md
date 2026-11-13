@@ -18,14 +18,27 @@ La V0.40.5 originale qui descritta rimane invariata.
 
 ## Apertura del progetto
 
-Aprire la sottocartella della versione e usare `v0405_boot_fast_font_test.yaml`,
-mantenendo accanto la cartella `components`. Il componente locale richiede
-ESPHome, framework Arduino per ESP32-S3, libreria SPI e API NVS ESP-IDF.
+Copiare nel workspace ESPHome Builder gli YAML di ingresso e le cartelle
+omonime di supporto, mantenendoli affiancati:
+
+```text
+goats_42_color_v0405_boot_fast_font_test.yaml
+GOATS_V0405_BOOT_FAST_FONT_TEST/
+goats_42_color_v0406_test26.yaml
+GOATS_V0406_TEST26/
+```
+
+Ogni YAML punta esclusivamente ai componenti e alle risorse della propria
+cartella. Non condividere cartelle generiche `components` fra i progetti.
+Per V0.40.6 aprire `goats_42_color_v0406_test26.yaml`.
+Per V0.40.5 usare `goats_42_color_v0405_boot_fast_font_test.yaml`.
+Il vecchio YAML dentro l'archivio V0.40.5 resta conservato come originale;
+per Builder usare l'ingresso esterno con i percorsi aggiornati.
 
 ```sh
-cd firmware/rlcd-42-3-colori/GOATS_V0405_BOOT_FAST_FONT_TEST
-python -m esphome config v0405_boot_fast_font_test.yaml
-python -m esphome compile v0405_boot_fast_font_test.yaml
+cd firmware/rlcd-42-3-colori
+python -m esphome config goats_42_color_v0405_boot_fast_font_test.yaml
+python -m esphome compile goats_42_color_v0405_boot_fast_font_test.yaml
 ```
 
 Nessun caricamento sul dispositivo viene eseguito dall'importazione.

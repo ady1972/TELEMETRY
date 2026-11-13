@@ -5,7 +5,7 @@ root=Path(__file__).resolve().parents[1]
 gnss=(root/'config/gnss_passivo.yaml').read_text(encoding='utf-8')
 assert 'rx_pin: GPIO17' in gnss and 'baud_rate: 230400' in gnss
 assert 'rx_buffer_size: 8192' in gnss and 'tx_pin:' not in gnss
-for path in [*root.glob('*.yaml'),*root.glob('config/*.yaml')]:
+for path in [*root.parent.glob('*.yaml'),*root.glob('config/*.yaml')]:
     text=path.read_text(encoding='utf-8')
     assert not re.search(r'^(wifi|ota|api|web_server|touchscreen|i2c):',text,re.M),path
 cpp=(root/'components/goats_core/goats_core.cpp').read_text(encoding='utf-8')

@@ -19,20 +19,20 @@ esphome:
     name: goats_rt.rlcd42_color
     version: "0.40.6"
   includes:
-    - goats_usb_msc.h
-    - goats_session_control.h
-    - goats_test_b.h
-    - goats_track_types.h
-    - goats_laptimer.h
-    - goats_racing_bridge.h
-    - m9n_passive.h
-    - goats_postlap_ui.h
-    - goats_session_archive.h
-    - goats_legacy_menu_ui.h
-    - goats_sd_storage.h
-    - goats_sd_r14_bridge.h
-    - goats_gps_trace.h
-    - goats_sd_usb_export.h
+    - GOATS_V0406_TEST26/goats_usb_msc.h
+    - GOATS_V0406_TEST26/goats_session_control.h
+    - GOATS_V0406_TEST26/goats_test_b.h
+    - GOATS_V0406_TEST26/goats_track_types.h
+    - GOATS_V0406_TEST26/goats_laptimer.h
+    - GOATS_V0406_TEST26/goats_racing_bridge.h
+    - GOATS_V0406_TEST26/m9n_passive.h
+    - GOATS_V0406_TEST26/goats_postlap_ui.h
+    - GOATS_V0406_TEST26/goats_session_archive.h
+    - GOATS_V0406_TEST26/goats_legacy_menu_ui.h
+    - GOATS_V0406_TEST26/goats_sd_storage.h
+    - GOATS_V0406_TEST26/goats_sd_r14_bridge.h
+    - GOATS_V0406_TEST26/goats_gps_trace.h
+    - GOATS_V0406_TEST26/goats_sd_usb_export.h
 
 esp32:
   board: esp32-s3-devkitc-1
@@ -54,7 +54,7 @@ logger:
 external_components:
   - source:
       type: local
-      path: components
+      path: GOATS_V0406_TEST26/components
     components: [goats_st7306]
 
 uart:
@@ -124,7 +124,7 @@ font:
     bpp: 1
 
 image:
-  - file: splash_assets/goats_splash_static.png
+  - file: GOATS_V0406_TEST26/splash_assets/goats_splash_static.png
     id: goats_splash_static
     type: BINARY
 
