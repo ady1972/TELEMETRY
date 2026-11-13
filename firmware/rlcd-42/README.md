@@ -1,5 +1,14 @@
 # GOATS RLCD 4.2"
 
+## RC2 per il prossimo collaudo
+
+Ingresso ESPHome: `goats_rlcd_rc2.yaml`, affiancato alla cartella `GOATS_RLCD_RC2`.
+[Correzioni, formato TA06NO01.CSV e piano di prova](GOATS_RLCD_RC2/RC2.md).
+RC2 applica orario locale, nomi con giorno e data di registrazione nei dettagli.
+Collaudo hardware previsto dall'utente nella settimana 16–22 novembre 2026.
+Le note RC1 sotto descrivono la precedente base, conservata invariata.
+
+
 Firmware ESP32-S3 con display RLCD. Motore di cronometraggio GNSS 25 Hz.
 
 ## RC1 corrente

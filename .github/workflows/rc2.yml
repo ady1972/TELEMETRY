@@ -1,0 +1,36 @@
+name: RC2 data and time verification
+on:
+  pull_request:
+    paths:
+      - 'firmware/rlcd-42/GOATS_RLCD_RC2/**'
+      - 'firmware/rlcd-42/goats_rlcd_rc2.yaml'
+      - 'firmware/guition-43/goats_guition_43_rc2*'
+      - 'firmware/guition-43/goats_guition_43_rc2/**'
+      - 'tests/rc2/**'
+      - 'tests/guition_port/**'
+      - '.github/workflows/rc2.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: python tests/rc2/run.py
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    strategy:
+      matrix:
+        firmware: [rlcd-42/goats_rlcd_rc2.yaml, guition-43/goats_guition_43_rc2.yaml]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.13'
+      - run: pip install esphome==2026.7.3
+      - run: esphome compile firmware/${{ matrix.firmware }}

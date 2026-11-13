@@ -11,8 +11,8 @@ Sistema di telemetria e cronometraggio GPS per kart.
 - Acquisizione GPS UBX a 25 Hz
 
 ## Firmware
-- [Guition 4.3 RC1](firmware/guition-43/README.md): base V1.0.22 RLCD26 USB.
-- [RLCD 4.2 RC1](firmware/rlcd-42/README.md): base TEST26.
+- [Guition 4.3 RC2](firmware/guition-43/README.md): correzioni data/ora, base RC1 V1.0.22.
+- [RLCD 4.2 RC2](firmware/rlcd-42/README.md): correzioni data/ora, base RC1 TEST26.
 - [5 pollici transflettivo](firmware/5%20pollici%20transflettivo/README.md):
   progetto ESPHome 0.1.0 con acquisizione GNSS passiva e test card display opzionale;
   cronometraggio, Racing, sessioni e microSD ancora da implementare.
@@ -28,7 +28,7 @@ Sistema di telemetria e cronometraggio GPS per kart.
 
 RC1 recepisce l’allineamento di tempi e funzionamento riferito dall’utente
 nell’ultimo test comparativo, comunicato il 13/11/2026; le anomalie di data/ora restano
-aperte nella roadmap.
+da collaudare in RC2.
 
 ## Workspace ESPHome Builder
 
@@ -53,9 +53,9 @@ nel workspace. I sorgenti, il pinout e le logiche dei firmware restano invariati
 
 ## Roadmap
 
-Le prossime correzioni, in ordine, sono orario RLCD, data/progressivo nei nomi
-dei file e data esatta di registrazione nei dettagli. Stato e criteri di
-verifica sono in [ROADMAP.md](ROADMAP.md).
+Le tre correzioni di [ROADMAP.md](ROADMAP.md) sono implementate in RC2:
+orario Europe/Rome, nomi `TA06NO01.CSV` e data effettiva nei dettagli.
+Prove hardware previste dall'utente nella settimana 16–22 novembre 2026.
 
 ## Sviluppo
 - ESPHome

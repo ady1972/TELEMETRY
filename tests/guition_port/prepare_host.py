@@ -5,7 +5,7 @@ out=Path(sys.argv[1]).resolve()
 out.mkdir(parents=True,exist_ok=True)
 base=root/'firmware/guition-43'
 for new,name in [(True,'sessions_host.h'),(False,'legacy_sessions_host.h')]:
-    folder='goats_guition_43_v1_0_22_rlcd26_usb' if new else 'goats_guition_43_v1_0_20_rlcd26_usb'
+    folder=(sys.argv[2] if len(sys.argv)>2 else 'goats_guition_43_v1_0_22_rlcd26_usb') if new else 'goats_guition_43_v1_0_20_rlcd26_usb'
     text=(base/folder/'goats_sessions.h').read_text(encoding='utf-8')
     text=text.replace('#include "goats_sd_storage.h"','#include "fake_storage.h"')
     if not new:

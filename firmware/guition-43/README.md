@@ -1,5 +1,14 @@
 # GOATS Guition 4.3"
 
+## RC2 per il prossimo collaudo
+
+Ingresso ESPHome: `goats_guition_43_rc2.yaml`, affiancato alla cartella `goats_guition_43_rc2`.
+[Correzioni, formato TA06NO01.CSV e piano di prova](goats_guition_43_rc2/RC2.md).
+RC2 applica orario locale, nomi con giorno e data di registrazione nei dettagli.
+Collaudo hardware previsto dall'utente nella settimana 16–22 novembre 2026.
+Le note RC1 sotto descrivono la precedente base, conservata invariata.
+
+
 Firmware ESP32-S3 per display Guition 480x272.
 
 Versione corrente: **V1.0.22 RC1 RLCD26 USB**, base V1.0.22.
