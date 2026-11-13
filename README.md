@@ -25,6 +25,27 @@ Sistema di telemetria e cronometraggio GPS per kart.
   allinea GNSS, logiche e menu a TEST26 e aggiunge microSD SDMMC e USB nativa;
   mantiene la Racing e i font del display tricolore. Da collaudare su hardware.
 
+## Workspace ESPHome Builder
+
+Gli ingressi dei progetti nuovi seguono il layout del Guition 4.3: YAML nella
+radice del workspace, componenti e risorse in una cartella dedicata per versione.
+Copiare da `firmware/rlcd-42-3-colori` e `firmware/5 pollici transflettivo`
+gli YAML e le rispettive cartelle `GOATS_*` nello stesso workspace:
+
+```text
+workspace/
+  goats_42_color_v0405_boot_fast_font_test.yaml
+  GOATS_V0405_BOOT_FAST_FONT_TEST/
+  goats_42_color_v0406_test26.yaml
+  GOATS_V0406_TEST26/
+  goats_5_transflettivo.yaml
+  goats_5_transflettivo_display_test.yaml
+  GOATS_5_TRANSFLETTIVO_V010/
+```
+
+La variante display 5 pollici include anche lo YAML base: tenerli entrambi
+nel workspace. I sorgenti, il pinout e le logiche dei firmware restano invariati.
+
 ## Sviluppo
 - ESPHome
 - Codex per analisi e modifiche ai sorgenti

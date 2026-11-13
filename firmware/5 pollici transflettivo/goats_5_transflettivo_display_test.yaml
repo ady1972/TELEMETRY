@@ -2,7 +2,7 @@
 # Non e' la schermata Racing e non avvia cronometraggio o salvataggi SD.
 packages:
   application: !include goats_5_transflettivo.yaml
-  display_bringup: !include config/display_800x480_test.yaml
+  display_bringup: !include GOATS_5_TRANSFLETTIVO_V010/config/display_800x480_test.yaml
 
 esphome:
   name: ${device_name}-display

@@ -1,0 +1,40 @@
+esphome:
+  name: goats-42-color
+  friendly_name: GOATS 4.2 COLOR V0.40.5 BOOT FAST + FONT TEST
+  comment: "03/11/2026 - Avvio rapido LCD + font piccoli nativi 16px; Fix dipendenze header laptimer e UART, grafica identica V0.40.3; NVS backend di test; RLCD V1.7.18 core laptimer + M9N MG902 UBX 25 Hz + 4 buttons"
+
+esp32:
+  board: esp32-s3-devkitc-1
+  flash_size: 16MB
+  partitions:
+    - name: goatsfs
+      type: data
+      subtype: spiffs
+      size: 0x200000
+  framework:
+    type: arduino
+
+logger:
+  level: INFO
+  baud_rate: 0
+
+uart:
+  - id: gps_uart
+    rx_pin: GPIO1      # MG902 TX -> ESP RX
+    tx_pin: GPIO2      # MG902 RX <- ESP TX
+    baud_rate: 38400  # profilo RLCD, bootstrap a 230400 in RAM
+    rx_buffer_size: 16384
+
+external_components:
+  - source:
+      type: local
+      path: GOATS_V0405_BOOT_FAST_FONT_TEST/components
+    components: [goats_spi_diag]
+
+goats_spi_diag:
+  id: goats_controller
+  gps_uart_id: gps_uart
+
+# ST7306: CS10 DC9 RST8 MOSI11 CLK12, SPI 4 MHz, TE scollegato.
+# Tasti INPUT_PULLUP: UP4 DOWN5 BACK6 OK7, chiusura verso GND.
+# Sessioni: NVS interno, salvate per giro. NO export CSV in questa RC.

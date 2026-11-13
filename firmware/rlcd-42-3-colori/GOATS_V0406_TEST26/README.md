@@ -89,10 +89,18 @@ non disponibile; non si inventano percentuali senza un partitore definito.
 Opzioni gara, circuiti, info GPS, sessioni, dettagli giro, salvataggio/scarto,
 timeout automatico 30/60/90 s e doppia conferma USB conservano le logiche TEST26.
 
+## Layout del workspace ESPHome Builder
+
+Lo YAML di ingresso `goats_42_color_v0406_test26.yaml` si trova **accanto**
+a questa cartella `GOATS_V0406_TEST26`. Gli header, il componente display e
+lo splash sono referenziati mediante il prefisso della cartella dedicata.
+Copiare entrambi nel workspace. Non estrarre `components` o gli header
+nella radice e non aprire uno YAML dall'interno della cartella di supporto.
+
 ## Build e verifiche
 
 ```sh
-cd firmware/rlcd-42-3-colori/GOATS_V0406_TEST26
+cd firmware/rlcd-42-3-colori
 python -m esphome config goats_42_color_v0406_test26.yaml
 python -m esphome compile goats_42_color_v0406_test26.yaml
 ```

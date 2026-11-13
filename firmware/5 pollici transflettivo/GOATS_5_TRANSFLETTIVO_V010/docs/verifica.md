@@ -28,7 +28,7 @@ il vincolo che tutti i nuovi file siano esclusivamente in questa cartella.
 Dalla cartella `5 pollici transflettivo`:
 
 ```powershell
-python tests/check_contracts.py
+python GOATS_5_TRANSFLETTIVO_V010/tests/check_contracts.py
 python -m esphome config goats_5_transflettivo.yaml
 python -m esphome config goats_5_transflettivo_display_test.yaml
 python -m esphome compile --only-generate goats_5_transflettivo.yaml
@@ -38,9 +38,17 @@ python -m esphome compile --only-generate goats_5_transflettivo_display_test.yam
 Test C++ puro, con G++/Clang funzionante, senza dipendenze ESPHome:
 
 ```text
-c++ -std=c++17 -Wall -Wextra -I components/goats_core tests/test_nav_pvt.cpp components/goats_core/nav_pvt.cpp -o test_nav_pvt
+c++ -std=c++17 -Wall -Wextra -I GOATS_5_TRANSFLETTIVO_V010/components/goats_core GOATS_5_TRANSFLETTIVO_V010/tests/test_nav_pvt.cpp GOATS_5_TRANSFLETTIVO_V010/components/goats_core/nav_pvt.cpp -o test_nav_pvt
 ```
 
 Eseguire l'eseguibile risultante. Controlla checksum, campi PVT, duplicati,
 fix non valido e risincronizzazione dopo un frame corrotto. Test presente come
 base per la futura CI, non dichiarato superato su questo host.
+
+## Layout ESPHome Builder — 13/11/2026
+
+Gli YAML di ingresso restano nella radice del workspace; config, componenti,
+sorgenti, documentazione e test sono in `GOATS_5_TRANSFLETTIVO_V010`.
+La variante display include lo YAML base affiancato. Conservare i due YAML
+insieme alla cartella dedicata. La struttura delle verifiche storiche sopra
+rimane riferita alla versione 0.1.0; i percorsi dei comandi sono aggiornati.

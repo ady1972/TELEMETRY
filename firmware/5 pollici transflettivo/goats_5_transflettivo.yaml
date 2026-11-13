@@ -11,13 +11,13 @@ esphome:
     version: ${firmware_version}
 
 packages:
-  hardware: !include config/board_viewe_b.yaml
-  gnss: !include config/gnss_passivo.yaml
+  hardware: !include GOATS_5_TRANSFLETTIVO_V010/config/board_viewe_b.yaml
+  gnss: !include GOATS_5_TRANSFLETTIVO_V010/config/gnss_passivo.yaml
 
 external_components:
   - source:
       type: local
-      path: components
+      path: GOATS_5_TRANSFLETTIVO_V010/components
     components: [goats_core]
 
 goats_core:
