@@ -2,6 +2,17 @@
 
 Firmware ESP32-S3 con display RLCD. Motore di cronometraggio GNSS 25 Hz.
 
+## RC1 corrente
+
+[GOATS RLCD RC1](GOATS_RLCD_RC1/RC1.md), basata su **TEST26**.
+Ingresso ESPHome: `goats_rlcd_rc1.yaml`, affiancato alla cartella
+`GOATS_RLCD_RC1`. L'utente conferma tempi e funzionamento allineati
+con Guition V1.0.22 nell'ultimo test comparativo, comunicato il 13/11/2026.
+La versione TEST28 non è la base di questa promozione.
+
+Orario indietro di un'ora, nomi file e data esatta di registrazione nei dettagli
+restano nella [roadmap](../../ROADMAP.md).
+
 ## Versioni conservate
 
 | Versione | Configurazione ESPHome | Stato |
@@ -14,6 +25,6 @@ TEST27 e TEST28 sono importate dagli ZIP forniti dall’utente, senza modifiche 
 
 Le configurazioni nella radice di questa cartella includono il rispettivo YAML completo nella sottocartella della versione. Conservare insieme tutti i file di ciascun pacchetto.
 
-## Prossima verifica
+## Verifica storica TEST28
 
 Provare TEST28 per più giri consecutivi, verificando assenza di riavvii e presenza dei giri e della traccia salvata. Se il reset si ripete, acquisire il log seriale con motivo del reset e backtrace prima di attribuirlo alla gestione dual-core.

@@ -11,8 +11,8 @@ Sistema di telemetria e cronometraggio GPS per kart.
 - Acquisizione GPS UBX a 25 Hz
 
 ## Firmware
-- Guition: porting del motore RLCD TEST26
-- RLCD: firmware di riferimento TEST26
+- [Guition 4.3 RC1](firmware/guition-43/README.md): base V1.0.22 RLCD26 USB.
+- [RLCD 4.2 RC1](firmware/rlcd-42/README.md): base TEST26.
 - [5 pollici transflettivo](firmware/5%20pollici%20transflettivo/README.md):
   progetto ESPHome 0.1.0 con acquisizione GNSS passiva e test card display opzionale;
   cronometraggio, Racing, sessioni e microSD ancora da implementare.
@@ -24,6 +24,11 @@ Sistema di telemetria e cronometraggio GPS per kart.
   La nuova [V0.40.6 TEST26](firmware/rlcd-42-3-colori/GOATS_V0406_TEST26/README.md)
   allinea GNSS, logiche e menu a TEST26 e aggiunge microSD SDMMC e USB nativa;
   mantiene la Racing e i font del display tricolore. Da collaudare su hardware.
+
+
+RC1 recepisce l’allineamento di tempi e funzionamento riferito dall’utente
+nell’ultimo test comparativo, comunicato il 13/11/2026; le anomalie di data/ora restano
+aperte nella roadmap.
 
 ## Workspace ESPHome Builder
 
@@ -45,6 +50,12 @@ workspace/
 
 La variante display 5 pollici include anche lo YAML base: tenerli entrambi
 nel workspace. I sorgenti, il pinout e le logiche dei firmware restano invariati.
+
+## Roadmap
+
+Le prossime correzioni, in ordine, sono orario RLCD, data/progressivo nei nomi
+dei file e data esatta di registrazione nei dettagli. Stato e criteri di
+verifica sono in [ROADMAP.md](ROADMAP.md).
 
 ## Sviluppo
 - ESPHome
