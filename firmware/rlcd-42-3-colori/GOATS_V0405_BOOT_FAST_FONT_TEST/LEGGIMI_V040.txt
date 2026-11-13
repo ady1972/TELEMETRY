@@ -1,0 +1,83 @@
+GOATS V0.40.4 RC - SOLO RIFINITURA GRAFICA
+
+Partenza: V0.40.2 RC, NVS backend invariato.
+- Punto decimale DELTA GIRO traslato di 8 pixel verso il basso.
+- Rifinitura dei numeri del DELTA: rimozione di soli fori interni isolati
+  da 1 pixel; nessuna modifica ai bordi esterni, segni o decimali.
+- Mappatura ST7306, pulsanti, GPS, engine RLCD e NVS non modificati.
+- Driver e logiche di gara ancora da collaudare sul kart.
+
+INSTALLAZIONE: estrarre ZIP, sostituire tutta la cartella
+components/goats_spi_diag e usare v0404.yaml.
+
+GOATS RT 4.2 COLOR V0.40 RC - 28 ottobre 2026
+================================================
+BASE GRAFICA: V0.39 ST7306 RBW, 300x400 fisici, Layout 8 400x300.
+BASE TELEMETRIA: GoatsLaptimerEngine ORIGINALE da RLCD V1.7.18.
+BASE GNSS: goats_m9n_cfg.h originale V1.7.18 25Hz UBX, 230400
+            piu parser NAV-PVT originale.
+
+ATTENZIONE: RELEASE DI INTEGRAZIONE / COLLAUDO, NON ANCORA VALIDATA PER GARA.
+Non e' stata compilata su ESPHome e non e' stata provata sul kart.
+
+INSTALLAZIONE
+- Estrarre tutta la cartella components + v040.yaml nella directory ESPHome.
+- Sostituire l'intera vecchia cartella components/goats_spi_diag.
+- Flash via USB. La tabella partizioni ora riserva 2 MB per la memoria
+  interna: potrebbero andare persi dati NVS presenti sul nuovo ESP32.
+  Fare backup prima di flashare. NON formattare la flash con log utili.
+- I log di sessione richiedono partizione goatsfs montabile; se manca
+  sul display INFO compare FLASH LOG NON DISP.
+
+DISPLAY: CS10 DC9 RESET8 MOSI11 SCLK12, TE NON COLLEGATO.
+GPS MG902/M9N: TX modulo -> GPIO1 (RX ESP), RX modulo <- GPIO2
+                (TX ESP), GND comune; VCC secondo scheda del MODULO.
+TASTI a massa (INPUT_PULLUP): GPIO4 SU, GPIO5 GIU,
+  GPIO6 INDIETRO, GPIO7 CONFERMA.
+NON applicare 5V ai GPIO ESP32-S3 o al display.
+
+MENU
+OK: apre menu principale solo a velocita' inferiore a 3 km/h.
+SU/GIU: navigazione dei menu, BACK: indietro, OK: conferma.
+Durante la gara i tasti SU/GIU non hanno effetto: il display riflettivo
+non ha retroilluminazione regolabile. MENU: GPS, CIRCUITO, AUTOTRACK,
+FINE SESSIONE, INFO, INDIETRO.
+
+CIRCUITI
+Il firmware legge il catalogo originale formato GTC3 da NVS
+namespace goats_tracks / key catalog (con validazione CRC opzionale).
+Un nuovo ESP32 non ha ancora quel catalogo: dovra' essere caricato o
+trasferito. SENZA CIRCUITO non vengono rilevati giri/traguardo/settori.
+L'import da PC/MANAGER non e' ancora implementato in questa release.
+La lista sul menu permette selezione manuale dei circuiti GIA' PRESENTI.
+Autotrack cerca la linea di arrivo a meno di 350 m.
+
+SESSIONI
+Inizia quando il motore originale rileva il primo attraversamento
+valido del traguardo, salva un CSV per ogni sessione in LittleFS;
+una riga per giro completato. Non equivale all'archivio GSA4 RLCD:
+per ora NON sono disponibili export USB Manager, statistiche dettagliate,
+registrazione libera, download sessioni o logging GNSS completo.
+Premere FINE SESSIONE da menu arresta la sessione e azzera il lap timer.
+
+DA VALIDARE: compilazione; bootstrap GPS MG902; 25 Hz reali; fix e HDOP;
+orientamento finish; settori; prestazioni cronometro 20ms con GNSS attivo;
+pulsanti/menu; salvataggi e durata sessioni; import catalogo circuiti;
+terminazione automatica dopo 60s (NON ancora portata).
+
+
+V0.40.1 RC: fix compilazione ESPHome con Arduino/ESP-IDF.
+Registrata la libreria Arduino LittleFS nel codegen ESPHome, evitando
+l errore fatal error: LittleFS.h: No such file or directory.
+Nessuna modifica al codice GPS, lap timer, display o pulsanti.
+
+
+V0.40.2: risoluzione del blocco LittleFS.h eliminando la dipendenza
+Arduino LittleFS nel modulo storage e usando NVS nativo per i giri.
+Questa RC salva record di giri su NVS ma NON esporta file CSV.
+Non e' ancora una release definitiva da gara.
+
+V0.40.4: Correzione dipendenze header che causavano errori in main.cpp su ESPHome 2026.10.1:
+- goats_laptimer.h include direttamente goats_track_catalog.h
+- goats_m9n_cfg.h e goats_ubx_m9n_ak97_full.h includono UART invece di esphome.h
+Non modificati algoritmi GPS, lap timer, NVS o grafica della V0.40.3.
