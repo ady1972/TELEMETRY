@@ -12,11 +12,11 @@ con cronometraggio GNSS a 25 Hz.
 
 ## Firmware di riferimento
 - Guition V1.0.15: riferimento stabile.
-- Guition V1.0.22 RC1: candidata al rilascio, base V1.0.22 RLCD26 USB.
-- RLCD RC1: candidata al rilascio basata su TEST26.
+- Guition V1.0.22 RC2: correzioni data/ora, da collaudare; RC1 conservata.
+- RLCD RC2: correzioni data/ora, base RC1 TEST26, da collaudare.
 - RLCD TEST26: riferimento per cronometraggio e settori, conservato invariato.
 - Allineamento tempi/funzionamento TEST26 e Guition V1.0.22 confermato
-  dall’utente il 13/11/2026. Problemi data/ora aperti in ROADMAP.md.
+  dall’utente il 13/11/2026. Correzioni data/ora RC2 e prove pendenti in ROADMAP.md.
 
 ## Vincoli GNSS
 Non modificare senza autorizzazione:
