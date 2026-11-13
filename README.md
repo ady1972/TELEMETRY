@@ -57,6 +57,14 @@ Le tre correzioni di [ROADMAP.md](ROADMAP.md) sono implementate in RC2:
 orario Europe/Rome, nomi `TA06NO01.CSV` e data effettiva nei dettagli.
 Prove hardware previste dall'utente nella settimana 16–22 novembre 2026.
 
+Dopo il collaudo RC2, la roadmap prevede nell'ordine:
+
+1. RLCD: riavvio dalla modalità USB Mass Storage premendo KEY o BOOT.
+2. RLCD e Guition: OTA Wi-Fi attivabile dal menu opzioni, con radio normalmente spenta.
+3. Valutazione delle interazioni con action cam GoPro, Insta360 e altri modelli.
+
+Queste fasi sono pianificate e non incluse in RC2.
+
 ## Sviluppo
 - ESPHome
 - Codex per analisi e modifiche ai sorgenti

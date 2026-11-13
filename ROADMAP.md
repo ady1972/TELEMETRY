@@ -56,6 +56,70 @@ informazione mostrare "data non disponibile", senza inventare una data.
 Verifica hardware prevista: confronto con l'ora reale di registrazione su dispositivo,
 file esportato e dettagli nel Manager/PC; riapertura di file storici.
 
+## Fasi successive al collaudo RC2
+
+Le fasi seguenti sono pianificate, in questo ordine, dopo realizzazione e
+collaudo di RC2 su RLCD e Guition. Non sono implementate in RC2; il loro
+inserimento nella roadmap non modifica lo stato delle prove hardware RC2.
+
+### Fase 1. RLCD: riavvio da USB Mass Storage — da fare
+
+Consentire di riavviare RLCD dopo l'ingresso in modalità USB Mass Storage
+premendo **uno qualsiasi dei due tasti esistenti**, KEY o BOOT, senza dover
+spegnere il dispositivo o scollegare l'alimentazione.
+
+Prima del riavvio, richiedere l'espulsione sicura della scheda dal PC e
+completare gli I/O pendenti; gestire il distacco USB senza interrompere
+scritture in corso. Il successivo avvio deve tornare alla normale modalità
+laptimer, senza rientrare automaticamente in Mass Storage.
+Gestire debounce e tasti già premuti all'ingresso per evitare riavvii involontari.
+
+Verifica prevista: leggere/copiare file tramite MSC, espellere dal PC e
+provare separatamente KEY e BOOT. Controllare riavvio normale, integrità dei
+file e nuova registrazione; verificare anche pressione prolungata e tasto
+mantenuto premuto all'ingresso in MSC.
+
+### Fase 2. RLCD e Guition: aggiornamento OTA Wi-Fi su richiesta — da fare
+
+Aggiungere per **entrambi i dispositivi** una voce nel menu delle opzioni
+per attivare la modalità di aggiornamento firmware tramite OTA Wi-Fi.
+Il Wi-Fi deve essere **spento all'avvio e durante il normale uso**: niente
+connessione permanente o attivazione automatica della radio.
+
+L'ingresso in modalità aggiornamento deve essere esplicito e avvenire a
+gara/registrazione ferme, dopo la chiusura delle eventuali sessioni.
+Mostrare stato della connessione e dell'aggiornamento; prevedere uscita
+manuale e spegnimento della radio per inattività. Dopo uscita o riavvio,
+il Wi-Fi deve tornare spento.
+
+Definire configurazione della rete e credenziali OTA senza inserire segreti
+nei sorgenti pubblici. Verificare compatibilità con ESPHome, dimensioni delle
+partizioni/immagini e recupero da aggiornamento interrotto prima di abilitare
+questa funzione sulle release distribuite.
+
+Verifica prevista su entrambi: abilitazione dal menu, aggiornamento riuscito,
+rete assente, connessione persa e interruzione dell'aggiornamento. Controllare
+che i dati registrati restino disponibili, che il Wi-Fi si spenga all'uscita
+e che tempi giro e acquisizione GNSS a 25 Hz restino allineati alla base.
+
+### Fase 3. Valutazione delle interazioni con action cam — da valutare
+
+Studiare possibili integrazioni con **GoPro, Insta360 e altre action cam**,
+partendo da modelli e protocolli effettivamente supportati. L'obiettivo di
+questa fase è una valutazione di fattibilità, non una promessa di compatibilità
+con tutte le camere o un'implementazione già prevista in RC2.
+
+Casi d'uso da valutare: avvio/arresto della registrazione in relazione alla
+sessione del laptimer, marcatori di giro/evento e sincronizzazione fra video
+e telemetria. Confrontare disponibilità di API/SDK, Wi-Fi/Bluetooth o altri
+collegamenti supportati, limiti dei modelli, riconnessione e comportamento
+quando la camera è assente o non risponde.
+
+Esito atteso: matrice di compatibilità per modello e funzione, scelta di un
+primo caso d'uso e piano di prova. Misurare impatto su consumi, memoria e
+latenza; l'eventuale integrazione deve restare opzionale e non compromettere
+cronometraggio, logging GNSS o modalità OTA.
+
 ## Vincoli comuni
 
 Preservare il comportamento di cronometraggio allineato in RC1, i parametri
