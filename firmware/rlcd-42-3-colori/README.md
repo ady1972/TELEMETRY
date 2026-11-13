@@ -9,6 +9,13 @@ I 14 file originali sono conservati senza modifiche nella sottocartella
 Le note originali descrivono anche release precedenti: per lo stato attuale
 fare riferimento all'analisi dei sorgenti qui sotto.
 
+## Versione allineata a TEST26
+
+Disponibile anche [V0.40.6 TEST26](GOATS_V0406_TEST26/README.md), sviluppata
+su richiesta dell'utente: GNSS passivo e logiche/menu della RLCD TEST26,
+con driver ST7306 tricolore, quattro pulsanti e microSD SDMMC.
+La V0.40.5 originale qui descritta rimane invariata.
+
 ## Apertura del progetto
 
 Aprire la sottocartella della versione e usare `v0405_boot_fast_font_test.yaml`,

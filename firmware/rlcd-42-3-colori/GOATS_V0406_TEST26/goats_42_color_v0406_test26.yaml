@@ -1,0 +1,468 @@
+# FASE2 R12.1 - LAP TIME in alto, DELTA/BEST/VELOCITA al centro, GPS/AUTO/BAT in basso
+# GOATS RLCD V1.5 — FASE 2 R12.1 — GPS GRANDE AUTO CENTRO — 2026-11-02
+# GOATS RLCD — TEST C3: V3 GPS intoccato + grafica geometria Layout 8 originale
+# MG902: gestione microSD differita al primo fix valido oppure richiesta esplicita del Manager; nessun test di scrittura SD.
+# File m9n_passive.h identico alla V3 diagnostica funzionante.
+esphome:
+  on_boot:
+    priority: -100
+    then:
+      - lambda: |-
+          if(!goats_usb_msc::boot_if_requested()) {
+            goats_b::setup();
+            goats_archive::setup();
+            goats_menu::init();
+          }
+  name: goats-42-color-test26
+  friendly_name: GOATS 4.2 COLOR V0.40.6 TEST26
+  project:
+    name: goats_rt.rlcd42_color
+    version: "0.40.6"
+  includes:
+    - goats_usb_msc.h
+    - goats_session_control.h
+    - goats_test_b.h
+    - goats_track_types.h
+    - goats_laptimer.h
+    - goats_racing_bridge.h
+    - m9n_passive.h
+    - goats_postlap_ui.h
+    - goats_session_archive.h
+    - goats_legacy_menu_ui.h
+    - goats_sd_storage.h
+    - goats_sd_r14_bridge.h
+    - goats_gps_trace.h
+    - goats_sd_usb_export.h
+
+esp32:
+  board: esp32-s3-devkitc-1
+  flash_size: 16MB
+  framework:
+    type: esp-idf
+    # Espressif TinyUSB abilita le dipendenze FATFS nel build ESPHome.
+    # Stessa strategia gia usata nelle build R13.0.7.
+    components:
+      - espressif/esp_tinyusb^2.0.1
+    sdkconfig_options:
+      CONFIG_TINYUSB_MSC_ENABLED: "y"
+      CONFIG_TINYUSB_MSC_BUFSIZE: "8192"
+
+logger:
+  level: INFO
+  hardware_uart: UART0  # USB_SERIAL_JTAG reserved for Manager GTRK protocol
+
+external_components:
+  - source:
+      type: local
+      path: components
+    components: [goats_st7306]
+
+uart:
+  - id: gps_uart
+    rx_pin: GPIO1
+    # TEST C4: UART a 230400 fissi; il M9N deve essere configurato allo stesso baud.
+    # TX assente: nessuna possibilità di inizializzazione M9N.
+    baud_rate: 230400
+    rx_buffer_size: 8192
+
+spi:
+  clk_pin: GPIO12
+  mosi_pin: GPIO11
+
+font:
+  - file: {type: gfonts, family: Roboto Condensed, weight: 700}
+    id: f13
+    size: 13
+    bpp: 1
+  - file: {type: gfonts, family: Roboto Condensed, weight: 700}
+    id: f16
+    size: 16
+    bpp: 1
+  - file: {type: gfonts, family: Roboto Condensed, weight: 700}
+    id: f20
+    size: 20
+    bpp: 1
+  - file: {type: gfonts, family: Roboto Condensed, weight: 700}
+    id: f28
+    size: 28
+    bpp: 1
+  - file: {type: gfonts, family: Roboto Condensed, weight: 700}
+    id: f36
+    size: 36
+    bpp: 1
+  - file: {type: gfonts, family: Roboto Condensed, weight: 700}
+    id: f42
+    size: 42
+    bpp: 1
+  - file: {type: gfonts, family: Roboto Condensed, weight: 700}
+    id: f44
+    size: 44
+    bpp: 1
+  - file: {type: gfonts, family: Roboto Condensed, weight: 700}
+    id: f52
+    size: 52
+    bpp: 1
+  - file: {type: gfonts, family: Roboto Condensed, weight: 700}
+    id: f60
+    size: 60
+    bpp: 1
+  - file: {type: gfonts, family: Roboto Condensed, weight: 700}
+    id: f64
+    size: 64
+    bpp: 1
+  - file: {type: gfonts, family: Roboto Condensed, weight: 700}
+    id: f72
+    size: 72
+    bpp: 1
+  - file: {type: gfonts, family: Roboto Condensed, weight: 700}
+    id: f78
+    size: 78
+    bpp: 1
+  - file: {type: gfonts, family: Roboto Condensed, weight: 700}
+    id: f82
+    size: 82
+    bpp: 1
+
+image:
+  - file: splash_assets/goats_splash_static.png
+    id: goats_splash_static
+    type: BINARY
+
+# Nessun partitore batteria definito sulla nuova scheda: nessun ADC su GPIO4.
+sensor:
+  - platform: template
+    id: bat_percent
+    internal: true
+    update_interval: 1s
+    lambda: return NAN;
+
+
+display:
+  - platform: goats_st7306
+    id: rlcd
+    cs_pin: GPIO10
+    dc_pin: GPIO9
+    reset_pin: GPIO8
+    data_rate: 4MHz
+    update_interval: 100ms
+    lambda: |-
+      // TEST 13: splash statico unico 400x300 per 3 secondi.
+      // Nessuna animazione, nessun cambio di refresh, nessuna modifica GNSS/UART.
+      if(goats_usb_msc::active()){
+        it.fill(COLOR_OFF);
+        it.print(200,55,id(f28),COLOR_ON,TextAlign::CENTER,"USB MASS STORAGE");
+        it.print(200,115,id(f20),COLOR_ON,TextAlign::CENTER,
+          goats_usb_msc::failed()?"ERRORE SD / USB":"SCHEDA CONDIVISA CON PC");
+        it.print(200,163,id(f20),COLOR_ON,TextAlign::CENTER,"RIMUOVI IN SICUREZZA DAL PC");
+        it.print(200,204,id(f20),COLOR_ON,TextAlign::CENTER,"POI RIAVVIA IL LAPTIMER");
+        return;
+      }
+      static uint32_t splash_started=millis();
+      if((millis()-splash_started)<3000U){
+        it.image(0,0,id(goats_splash_static), COLOR_OFF, COLOR_ON);
+        return;
+      }
+      // V1.5 FASE1 R05: layout lap time esteso con settori interni.
+      // La ricezione V3 (m9n_passive.h) e il rilevatore giri TEST B non vengono modificati.
+      const auto W=COLOR_ON;
+      const auto B=COLOR_OFF;
+      it.fill(B);
+      const uint32_t now=millis();
+      const auto &s=goats_diag::data();
+      const auto &b=goats_b::state();
+      const bool fresh_pvt=s.last_pvt && (now-s.last_pvt<3000U);
+      const bool fresh_dop=s.last_dop && (now-s.last_dop<5000U);
+      const bool fresh_sat=s.last_sat && (now-s.last_sat<5000U);
+      auto fmt_ms=[](uint32_t ms)->std::string {
+        if(!ms) return "--:--.---";
+        char t[24]; snprintf(t,sizeof(t),"%lu:%02lu.%03lu",
+          (unsigned long)(ms/60000U),(unsigned long)((ms/1000U)%60U),
+          (unsigned long)(ms%1000U));
+        return std::string(t);
+      };
+      auto choose_font=[&](const char *txt,int max_w,int max_h)->esphome::font::Font*{
+        for(auto *f : {id(f82),id(f78),id(f72),id(f64),id(f60),id(f52),id(f44),id(f42),id(f36),id(f28),id(f20)}) {
+          int x,y,w,h; it.get_text_bounds(0,0,txt,f,TextAlign::TOP_LEFT,&x,&y,&w,&h);
+          if(w<=max_w && h<=max_h) return f;
+        }
+        return id(f20);
+      };
+       // Render UI: menu a schermo pieno, priorita prima di racing.
+      // RACING V2: compact rows, stronger type, thin separators, inverted selection.
+      // Graphics only: KEY/BOOT navigation and GPS sampling remain unchanged.
+      if(goats_menu::screen()!=0){
+        const int page=goats_menu::screen();
+        const int cur=goats_menu::cursor();
+         // it.fill(B) e gia stato chiamato: menu senza trasparenza sulla Racing.
+         it.filled_rectangle(0,0,400,34,W);
+        const char *hdr=page==12?"USB MASS STORAGE?":page==13?"USB NON DISPONIBILE":page==11?"OPZIONI GARA":page==1?"MENU":page==2?"POST GIRO":page==3?"CIRCUITI":page==4?"INFO GPS":page==5?"AVVISO BEST LAP":page==6?"SESSIONI":page==7?"GIRI SESSIONE":page==14?"DETTAGLIO GIRO":page==8?"TERMINARE SESSIONE?":page==9?"SCARTARE I DATI?":"FINE SESSIONE AUTO";
+         it.print(200,17,id(f28),B,TextAlign::CENTER,hdr);
+         it.line(12,74,388,74,W);
+        // One selection bar; the other rows have only a narrow separator.
+        auto racing_row=[&](int y,int h,const char *txt,bool selected,esphome::font::Font *font){
+          if(selected) it.filled_rectangle(23,y,354,h,W);
+          it.print(34,y+5,font,selected?B:W,TextAlign::TOP_LEFT,txt);
+          it.line(25,y+h,375,y+h,W);
+        };
+        if(page==1){
+          const char* names[]={"OPZIONI GARA","CIRCUITI","INFO GPS","SESSIONI","USB MASS STORAGE","TORNA AL RACING"};
+          for(int i=0;i<6;i++) racing_row(78+i*31,29,names[i],cur==i,id(f20));
+        } else if(page==12){
+          it.print(200,85,id(f20),W,TextAlign::CENTER,"IL MANAGER SI SCOLLEGHERA'");
+          it.print(200,109,id(f20),W,TextAlign::CENTER,"E LA MICROSD PASSERA' AL PC");
+          const char* names[]={"CONFERMA ATTIVAZIONE","ANNULLA"};
+          for(int i=0;i<2;i++) racing_row(148+i*45,40,names[i],cur==i,id(f20));
+        } else if(page==13){
+          it.print(200,122,id(f20),W,TextAlign::CENTER,"TERMINA LA SESSIONE O VERIFICA SD");
+          racing_row(177,42,"INDIETRO",true,id(f20));
+        } else if(page==11){
+          const char* names[]={"POST GIRO","AVVISO BEST LAP","FINE SESSIONE AUTO","INDIETRO"};
+          for(int i=0;i<4;i++) racing_row(80+i*43,40,names[i],cur==i,id(f20));
+        } else if(page==2){
+          const char *m=goats_ui::mode()==0?"OFF":goats_ui::mode()==1?"POPUP":"LAMPEGGIO";
+          std::string row0=std::string("MODALITA: ")+m;
+          char row1[48]; snprintf(row1,sizeof(row1),"DURATA: %lus",(unsigned long)(goats_ui::duration_ms()/1000));
+          const char* row2=goats_ui::content()==0?"CONTENUTO: LAST + DELTA":"CONTENUTO: ULTIMO GIRO";
+          const char* rows[]={row0.c_str(),row1,row2,"INDIETRO"};
+          for(int i=0;i<4;i++) racing_row(82+i*43,40,rows[i],cur==i,id(f20));
+        } else if(page==3){
+          const auto &ts=goats_b::state();
+          if(ts.tracks.empty())it.print(200,135,id(f28),W,TextAlign::CENTER,"NESSUN CIRCUITO");
+          else {
+            const int n=(int)ts.tracks.size();
+            const int base=std::max(0,std::min(cur-2,n-5));
+            for(int k=base;k<n && k<base+5;k++){
+              std::string label=ts.tracks[k].name + (ts.active_track==k?" *":"");
+              racing_row(79+(k-base)*35,34,label.c_str(),cur==k,id(f20));
+            }
+          }
+        } else if(page==8){
+          const char* rows[]={"SALVA E TERMINA","TERMINA SENZA SALVARE","TORNA ALLA TELEMETRIA"};
+          for(int i=0;i<3;i++)racing_row(87+i*49,45,rows[i],cur==i,id(f20));
+        } else if(page==9){
+          it.print(200,75,id(f20),W,TextAlign::CENTER,"LA SESSIONE NON SARA SALVATA");
+          const char* rows[]={"CONFERMA SCARTO","ANNULLA"};
+          for(int i=0;i<2;i++)racing_row(110+i*55,49,rows[i],cur==i,id(f20));
+        } else if(page==10){
+          const char* rows[]={"30 SECONDI","60 SECONDI","90 SECONDI","INDIETRO"};
+          for(int i=0;i<4;i++)racing_row(80+i*43,39,rows[i],cur==i,id(f20));
+        } else if(page==6){
+          const int n=goats_archive::session_count();
+          if(!goats_archive::ready()) it.print(200,130,id(f20),W,TextAlign::CENTER,"FLASH NON DISPONIBILE");
+          else if(n==0) it.print(200,130,id(f28),W,TextAlign::CENTER,"NESSUNA SESSIONE");
+          else {
+            const int base=std::max(0,std::min(cur-2,n-5));
+            for(int i=base;i<n && i<base+5;i++){
+              uint32_t sid=0;goats_archive::Record r{};
+              if(!goats_archive::session_at(i,sid,r))continue;
+              char row[96];snprintf(row,sizeof(row),"S%lu  %.18s  %d GIRI",(unsigned long)sid,r.track,goats_archive::laps_in_session(i));
+              racing_row(79+(i-base)*35,34,row,cur==i,id(f20));
+            }
+          }
+        } else if(page==7){
+          const int n=goats_archive::laps_in_session(goats_menu::selected_session());
+          if(n==0)it.print(200,130,id(f20),W,TextAlign::CENTER,"NESSUN GIRO SALVATO");
+          else {
+            const int base=std::max(0,std::min(cur-2,n-5));
+            for(int i=base;i<n && i<base+5;i++){
+              goats_archive::Record r{};
+              if(!goats_archive::lap_in_session(goats_menu::selected_session(),i,r))continue;
+              char row[96];snprintf(row,sizeof(row),"G%lu  %lu:%02lu.%03lu  %.1f km/h",
+                (unsigned long)r.lap,(unsigned long)(r.lap_ms/60000),
+                (unsigned long)((r.lap_ms/1000)%60),(unsigned long)(r.lap_ms%1000),(double)r.avg_kmh);
+              racing_row(79+(i-base)*35,34,row,cur==i,id(f20));
+            }
+          }
+        } else if(page==14){
+          goats_archive::Record r{};
+          if(goats_archive::lap_in_session(goats_menu::selected_session(),goats_menu::selected_lap(),r)){
+            char row[96];
+            snprintf(row,sizeof(row),"GIRO %lu",(unsigned long)r.lap);
+            it.print(200,81,id(f28),W,TextAlign::CENTER,row);
+            snprintf(row,sizeof(row),"TEMPO  %lu:%02lu.%03lu",(unsigned long)(r.lap_ms/60000),
+              (unsigned long)((r.lap_ms/1000)%60),(unsigned long)(r.lap_ms%1000));
+            it.print(200,133,id(f20),W,TextAlign::CENTER,row);
+            snprintf(row,sizeof(row),"MEDIA %.1f km/h",(double)r.avg_kmh);
+            it.print(200,174,id(f20),W,TextAlign::CENTER,row);
+            snprintf(row,sizeof(row),"S1 %lu  S2 %lu  S3 %lu ms",
+              (unsigned long)r.sector_ms[0],(unsigned long)r.sector_ms[1],(unsigned long)r.sector_ms[2]);
+            it.print(200,215,id(f20),W,TextAlign::CENTER,row);
+          } else it.print(200,140,id(f20),W,TextAlign::CENTER,"GIRO NON DISPONIBILE");
+        } else if(page==5){
+          char row0[48]; snprintf(row0,sizeof(row0),"SEGNALAZIONE: %s",goats_ui::best_enabled()?"ON":"OFF");
+          char row1[48]; snprintf(row1,sizeof(row1),"DURATA: %lus",(unsigned long)(goats_ui::best_duration_ms()/1000));
+          const char* rows[]={row0,row1,"INDIETRO"};
+          for(int i=0;i<3;i++) racing_row(93+i*51,46,rows[i],cur==i,id(f28));
+        } else if(page==4){
+          char line0[48]; snprintf(line0,sizeof(line0),"SAT USATI: %u",(unsigned)s.used);
+          char line1[48]; snprintf(line1,sizeof(line1),"SAT VISTI: %u",(unsigned)s.seen);
+          char line2[48]; snprintf(line2,sizeof(line2),"HDOP: %.2f",s.hdop);
+          char line3[48]; snprintf(line3,sizeof(line3),"NAV-PVT: %.1f Hz",s.pvt_hz);
+          char line4[48];
+          if(id(bat_percent).has_state() && std::isfinite(id(bat_percent).state)) {
+            const int pct=std::max(0,std::min(100,(int)lroundf(id(bat_percent).state)));
+            snprintf(line4,sizeof(line4),"BATTERIA: %d%%",pct);
+          } else snprintf(line4,sizeof(line4),"BATTERIA: --%%");
+          const char* rows[]={line0,line1,line2,line3,line4,"FW: COLOR 0.40.6 TEST26"};
+          for(int i=0;i<6;i++){
+            const int y=76+i*29;
+            it.print(34,y+5,id(f20),W,TextAlign::TOP_LEFT,rows[i]);
+            it.line(25,y+28,375,y+28,W);
+          }
+        }
+        it.line(24,260,376,260,W);
+        it.print(200,267,id(f13),W,TextAlign::BOTTOM_CENTER,"SU/GIU: SCORRI  OK: CONFERMA  BACK: INDIETRO");
+        return;  // Menu a schermo intero: evita il disegno racing sottostante.
+      }
+
+      // Geometria e font della V0.40.5 tricolore, dati dal motore TEST26.
+      goats_st7306::RacingData race;
+      const bool showing_post=goats_ui::active(now);
+      race.clock_ms=showing_post?goats_ui::last_ms():goats_laptimer_display_current_ms(now);
+      race.blink_clock=showing_post && goats_ui::mode()==2 && !goats_ui::best_active(now);
+      race.blink_delta=race.blink_clock && goats_ui::content()==0;
+      race.lit=goats_ui::lit(now);
+      race.delta=race.blink_delta?goats_ui::last_delta():goats_laptimer_display_delta_seconds(now);
+      race.best_ms=goats_laptimer_best_lap_ms();
+      race.best=goats_laptimer_best_text();
+      race.laps=goats_laptimer_lap_number();
+      race.speed=fresh_pvt?s.speed_kmh:0.f;
+      race.used=s.used; race.seen=s.seen; race.manual=b.manual_track;
+      race.track=(b.active_track>=0 && b.active_track<(int)b.tracks.size())
+        ?b.tracks[b.active_track].name:"NO TRACK";
+      for(int i=0;i<3;i++)race.sectors[i]=goats_laptimer_sector_display_delta_seconds(i,now);
+      static_cast<goats_st7306::GoatsST7306 &>(it).draw_racing(race);
+      const bool post=goats_ui::active(now);
+      // Post-giro popup (non confondere con il timer in-line).
+      if(post && goats_ui::mode()==1 && !goats_ui::settings() && !goats_ui::best_active(now)){
+        it.filled_rectangle(34,90,332,130,B);
+        it.rectangle(34,90,332,130,W);
+        it.print(200,98,id(f20),W,TextAlign::TOP_CENTER,"ULTIMO GIRO");
+        char tt[24]; snprintf(tt,sizeof(tt),"%lu:%02lu.%03lu",
+          (unsigned long)(goats_ui::last_ms()/60000U),
+          (unsigned long)((goats_ui::last_ms()/1000U)%60U),
+          (unsigned long)(goats_ui::last_ms()%1000U));
+        it.print(200,151,id(f42),W,TextAlign::CENTER,tt);
+        if(goats_ui::content()==0 && std::isfinite(goats_ui::last_delta())){
+          const bool better=goats_ui::last_delta()<0.0f;
+          if(better) it.filled_rectangle(85,175,230,32,W);
+          it.printf(200,190,id(f20),better?B:W,TextAlign::CENTER,"DELTA %+.3f",goats_ui::last_delta());
+        }
+      }
+
+      // Best Lap alert: priority over ordinary post-lap view; no GPS changes.
+      if(goats_ui::best_active(now) && goats_menu::screen()==0){
+        it.filled_rectangle(20,82,360,149,B);
+        it.rectangle(20,82,360,149,W);
+        it.print(200,98,id(f28),W,TextAlign::TOP_CENTER,"NEW BEST LAP");
+        const std::string record=fmt_ms(goats_ui::best_time_ms());
+        it.print(200,169,choose_font(record.c_str(),340,67),W,TextAlign::CENTER,record.c_str());
+      }
+
+
+
+interval:
+  - interval: 1s
+    then:
+      - lambda: |-
+          // Nessun mount/scansione SD finche non arriva il primo fix valido.
+          // Il Manager puo comunque richiedere il mount dalla USB in qualsiasi momento.
+          if(!goats_usb_msc::active() && !goats_sd_storage::ready()) {
+            const auto &gps=goats_b::state();
+            if(gps.fix_type>=3 && gps.fix_ok && gps.num_sv>=4 &&
+               gps.pvt_samples>0) goats_sd_r14_bridge::begin();
+          }
+  - interval: 10ms
+    then:
+      - lambda: |-
+          if(goats_usb_msc::active())return;
+          goats_diag::poll(id(gps_uart));
+          goats_b::tick_usb();
+          goats_sd_usb_export::tick();
+          goats_gps_trace::tick();
+          goats_ui::capture(millis());
+          if(goats_session_ctl::has_started() && !goats_session_ctl::paused() &&
+             goats_session_ctl::last_moving_ms()!=0 &&
+             millis()-goats_session_ctl::last_moving_ms()>=goats_session_ctl::auto_timeout_ms()){
+            goats_menu::finish(true);
+          }
+          // The UI consumes the lap event; archive when its lap timestamp changes.
+          // Track switching resets lap count, so guard with the session key.
+          static uint32_t logged_finish=0;
+          static int logged_track=-999;
+          auto &state=goats_b::state();
+          if(state.active_track!=logged_track){logged_track=state.active_track;logged_finish=0;}
+          const uint32_t finish=goats_laptimer_last_finish_ms();
+          if(!goats_session_ctl::paused() && goats_laptimer_last_lap_ms() && finish && finish!=logged_finish){
+            logged_finish=finish;
+            const char *name=(state.active_track>=0 && state.active_track<(int)state.tracks.size())
+              ?state.tracks[state.active_track].name.c_str():"AUTO";
+            const bool archive_ok=goats_archive::save(goats_laptimer_lap_number(),goats_laptimer_last_lap_ms(),
+                 goats_laptimer_best_lap_ms(),goats_laptimer_last_lap_average_speed_kmh(),name);
+            if(!archive_ok) ESP_LOGW("archive","Salvataggio giro fallito");
+            if(archive_ok) goats_sd_r14_bridge::save_lap(goats_archive::session(),goats_laptimer_lap_number(),
+                 goats_laptimer_last_lap_ms(),goats_laptimer_best_lap_ms(),goats_laptimer_last_lap_average_speed_kmh(),name);
+          }
+          goats_menu::arm_if_ready(!id(key_button).state && !id(up_button).state && !id(back_button).state,!id(boot_button).state);
+  - interval: 5s
+    then:
+      - lambda: |-
+          if(goats_usb_msc::active())return;
+          auto &s=goats_diag::data();
+          ESP_LOGI("m9n", "baud=%lu locked=%d ubx=%d raw=%lu ubx_ok=%lu ck_err=%lu nmea_ok=%lu PVT=%.1fHz seen=%u used=%u hdop=%.2f",(unsigned long)s.rate,s.locked,s.found_ubx,(unsigned long)s.bytes,(unsigned long)s.good,(unsigned long)s.bad,(unsigned long)s.nmea_valid,s.pvt_hz,s.seen,s.used,s.hdop);
+
+# Legacy pins and short/long press navigation.
+binary_sensor:
+  - platform: gpio
+    id: key_button
+    internal: true
+    pin: {number: GPIO5, mode: INPUT_PULLUP, inverted: true}
+    filters: [{delayed_on: 5ms}, {delayed_off: 5ms}]
+    on_press:
+      - lambda: 'if(!goats_usb_msc::active())goats_menu::key_press();'
+      - component.update: rlcd
+    on_release:
+      # Se KEY ha gia' spostato la selezione alla pressione, evita un secondo
+      # refresh SPI inutile al rilascio. Ridisegna solo se cambia lo stato.
+      - lambda: |-
+          const int old_screen=goats_menu::screen();
+          const int old_cursor=goats_menu::cursor();
+          goats_menu::key_release();
+          if(old_screen!=goats_menu::screen() || old_cursor!=goats_menu::cursor())
+            id(rlcd).update();
+  - platform: gpio
+    id: boot_button
+    internal: true
+    pin: {number: GPIO7, mode: INPUT_PULLUP, inverted: true}
+    filters: [{delayed_on: 5ms}, {delayed_off: 5ms}]
+    on_press:
+      # BOOT decide breve/lungo al rilascio: non inviare uno schermo identico
+      # durante la pressione (saturava il bus SPI senza feedback utile).
+      - lambda: 'if(!goats_usb_msc::active())goats_menu::boot_press();' 
+    on_release:
+      - lambda: 'if(!goats_usb_msc::active())goats_menu::boot_release();'
+      - component.update: rlcd
+
+  - platform: gpio
+    id: up_button
+    internal: true
+    pin: {number: GPIO4, mode: INPUT_PULLUP, inverted: true}
+    filters: [{delayed_on: 5ms}, {delayed_off: 5ms}]
+    on_press:
+      - lambda: |-
+          if(!goats_usb_msc::active() && goats_menu::armed() && goats_menu::screen()!=0)
+            goats_menu::move(-1);
+      - component.update: rlcd
+  - platform: gpio
+    id: back_button
+    internal: true
+    pin: {number: GPIO6, mode: INPUT_PULLUP, inverted: true}
+    filters: [{delayed_on: 5ms}, {delayed_off: 5ms}]
+    on_press:
+      - lambda: |-
+          if(!goats_usb_msc::active() && goats_menu::armed() && goats_menu::screen()!=0){
+            // Esegue lo stesso percorso BACK di BOOT lungo nel menu originale.
+            goats_menu::boot_down()=millis()-800U;
+            goats_menu::boot_release();
+          }
+      - component.update: rlcd

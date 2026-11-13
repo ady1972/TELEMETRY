@@ -20,7 +20,10 @@ Sistema di telemetria e cronometraggio GPS per kart.
   V0.40.5 BOOT FAST + FONT TEST, driver ST7306, font piccoli nativi 16px,
   motore giri/settori/delta, quattro pulsanti e storage giri NVS.
   Versione sperimentale importata dall'archivio del 03/11/2026;
-  compilazione e funzionamento hardware non verificati in questa importazione.
+  compilazione e funzionamento hardware non verificati per la V0.40.5 originale.
+  La nuova [V0.40.6 TEST26](firmware/rlcd-42-3-colori/GOATS_V0406_TEST26/README.md)
+  allinea GNSS, logiche e menu a TEST26 e aggiunge microSD SDMMC e USB nativa;
+  mantiene la Racing e i font del display tricolore. Da collaudare su hardware.
 
 ## Sviluppo
 - ESPHome
