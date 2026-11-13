@@ -1,0 +1,23 @@
+GOATS RLCD MG902 - TEST27 DUAL CORE (sperimentale)
+
+Base TEST26, GNSS/UBX/UART/lap detector invariati.
+Core 0: task FreeRTOS per scrivere solo il riepilogo CSV dei giri (Gxxxxxx.CSV).
+Core applicativo: GPS, UI, menu, NVS journal, tracciato GPS live e USB/Manager.
+Il task SD usa una coda RAM di 16 giri e mutex per la stessa FAT/SD impiegata dal tracciato live.
+Il loop non aspetta il writer nei normali cicli GPS; fine sessione attende i salvataggi pendenti.
+In caso di coda piena, salvataggio sincrono di emergenza (non perde silenziosamente il record).
+NOTA: il salvataggio NVS e la finalizzazione traccia GPS restano sincroni.
+La cache TEST26 resta invariata.
+NON e una riscrittura completa multicore della pipeline GNSS.
+
+INSTALLAZIONE: estrarre l'intero ZIP nella cartella progetti ESPHome.
+Aprire goats_rlcd_mg902_r12_1_sd_r14_2_test_27.yaml.
+TEST NON COMPILATO SU ESPHOME/ESP32-S3: fare backup e validare con test prima della pista.
+Il firmware precedente TEST26 e il fallback.
+
+VARIANTE GPIO2 PULL-UP (TEST27):
+GPIO2 ESP32-S3, fisicamente connesso a RX MG-902, configurato all'avvio
+come INGRESSO ad alta impedenza con pull-up interno, non come uscita.
+UART GNSS invariata: RX GPIO1, 230400 baud, UBX, nessun TX UART.
+Questa modifica non garantisce un fix piu rapido; valutare tempi e HDOP
+con confronti nelle medesime condizioni.

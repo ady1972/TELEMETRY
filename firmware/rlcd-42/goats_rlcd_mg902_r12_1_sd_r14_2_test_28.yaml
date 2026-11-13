@@ -1,0 +1,2 @@
+packages:
+  base: !include GOATS_RLCD_MG902_R12_1_SD_R14_2_TEST_28/GOATS_RLCD_MG902_R12_1_SD_R14_2_TEST_28.yaml
