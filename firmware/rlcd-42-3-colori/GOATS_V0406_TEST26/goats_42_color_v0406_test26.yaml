@@ -438,7 +438,7 @@ binary_sensor:
     on_press:
       # BOOT decide breve/lungo al rilascio: non inviare uno schermo identico
       # durante la pressione (saturava il bus SPI senza feedback utile).
-      - lambda: 'if(!goats_usb_msc::active())goats_menu::boot_press();' 
+      - lambda: 'if(!goats_usb_msc::active())goats_menu::boot_press();'
     on_release:
       - lambda: 'if(!goats_usb_msc::active())goats_menu::boot_release();'
       - component.update: rlcd
