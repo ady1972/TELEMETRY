@@ -54,7 +54,7 @@ Per la sola test card del pannello aprire invece
 `goats_5_transflettivo_display_test.yaml`. Il test non contiene un'interfaccia Racing.
 
 ```powershell
-Set-Location 'C:\percorso\TELEMETRY\5 pollici transflettivo'
+Set-Location 'C:\percorso\TELEMETRY\firmware\5 pollici transflettivo'
 python -m esphome config goats_5_transflettivo.yaml
 python -m esphome compile --only-generate goats_5_transflettivo.yaml
 python -m esphome compile goats_5_transflettivo.yaml

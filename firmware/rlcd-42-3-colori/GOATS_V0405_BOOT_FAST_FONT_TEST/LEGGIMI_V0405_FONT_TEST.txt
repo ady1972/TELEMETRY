@@ -1,0 +1,7 @@
+GOATS V0.40.5 BOOT FAST + FONT TEST - 03/11/2026
+
+Base: GOATS_V0405_BOOT_FAST_TEST_2026_11_03.zip
+Modifiche: sostituzione testi piccoli 13px con bitmap native 16px (barra GPS, pista, etichette, settori, menu footer). Barra GPS abbreviata a GPS usati/visti; nome pista troncato per evitare sovrapposizioni.
+Numeri grandi e font grandi invariati per test A/B isolato. Nessuna modifica a GPS/UART, telemetria, pulsanti, driver SPI, tempi di boot.
+
+ATTENZIONE: non compilato ne testato su hardware. La nitidezza dipende anche dalla matrice fisica del display.
