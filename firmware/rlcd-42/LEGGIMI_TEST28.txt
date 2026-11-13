@@ -1,0 +1,13 @@
+GOATS TEST28 - RIPRISTINO DI STABILITA (TEST26 + GPIO2 PULL-UP)
+
+- Basato sul firmware TEST26 SESSIONI FLUIDE
+- NON contiene il writer dual-core introdotto nella TEST27
+- GPIO2 e configurato INPUT con pull-up interno, senza TX al GNSS
+- UART GNSS GPIO1 230400 invariata
+- Cronometraggio, menu, archiviazione e SD della TEST26 invariati
+- Corretta la path dello splash per pacchetto autonomo
+
+YAML principale: goats_rlcd_mg902_r12_1_sd_r14_2_test_28.yaml
+
+NON COMPILATO e NON TESTATO su hardware. Verificare prima la compilazione.
+Se questa build continua a riavviarsi al traguardo, recuperare log seriale con messaggi Guru Meditation / panic / watchdog e confrontare con TEST26 originale.
