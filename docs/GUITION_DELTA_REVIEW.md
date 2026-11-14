@@ -59,3 +59,9 @@ certifica la precisione del delta reale e non elimina gli effetti del
 campionamento spaziale o delle latenze sull'acquisizione.
 Suite completa python tests/rc2/run.py PASS. Compilazione ESP32 e collaudo
 hardware di questa revisione non eseguiti; nessun firmware caricato.
+
+Aggiornamento RC2.1: test host e compilazioni complete di entrambi i firmware
+PASS nei controlli GitHub sul commit af03d359b9f987054a96473f837623946c1f7eec.
+Questa verifica supera lo stato di compilazione pendente riportato nelle
+annotazioni iniziali. Collaudo hardware ancora da eseguire; nessun flash.
+Dettagli: docs/MODALITA_SCHERMATA.md.

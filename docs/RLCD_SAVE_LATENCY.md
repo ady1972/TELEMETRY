@@ -49,3 +49,9 @@ Correzione locale RC2: `resume()` dopo reset e passaggio all'ID successivo.
 Prova host del menu/ponte/motore reale RED prima, GREEN dopo la correzione.
 La prova verifica nuovi attraversamenti e giri dopo save/save/discard.
 Questo risolve il blocco logico in host, non dimostra la causa della latenza.
+
+Aggiornamento RC2.1: test host e compilazioni complete di entrambi i firmware
+PASS nei controlli GitHub sul commit af03d359b9f987054a96473f837623946c1f7eec.
+Questa verifica supera lo stato di compilazione pendente riportato nelle
+annotazioni iniziali. Collaudo hardware ancora da eseguire; nessun flash.
+Dettagli: docs/MODALITA_SCHERMATA.md.

@@ -112,3 +112,9 @@ giro e delta nella schermata racing, comprese le etichette; entrambi rimangono
 visibili. LAP TIME conserva la disposizione precedente ed è il default.
 La scelta è salvata in NVS e ricaricata all'avvio, separatamente dalle sessioni.
 Dettagli e piano di collaudo: docs/MODALITA_SCHERMATA.md. Nessun test hardware.
+
+Aggiornamento RC2.1: test host e compilazioni complete di entrambi i firmware
+PASS nei controlli GitHub sul commit af03d359b9f987054a96473f837623946c1f7eec.
+Questa verifica supera lo stato di compilazione pendente riportato nelle
+annotazioni iniziali. Collaudo hardware ancora da eseguire; nessun flash.
+Dettagli: docs/MODALITA_SCHERMATA.md.

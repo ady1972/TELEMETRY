@@ -45,3 +45,12 @@ Prima dell'accettazione sui dispositivi:
 Nessun flash o collaudo hardware è stato eseguito nella preparazione.
 Il riepilogo essenziale dei giri richiesto nella PR #12 resta una modifica
 separata; questo intervento riguarda la schermata racing.
+
+## Esito dei controlli della revisione
+
+Sul commit `af03d359b9f987054a96473f837623946c1f7eec`, GitHub Actions ha completato con
+SUCCESS il test host e le compilazioni di entrambi i firmware con ESPHome
+2026.7.3. Verifica consultabile nella [PR #13](https://github.com/ady1972/TELEMETRY/pull/13/checks).
+Validazione delle configurazioni e generazione sorgenti eseguite anche nel
+workspace. Il collaudo visivo e la persistenza su NVS reale restano da
+verificare sui dispositivi; nessun flash effettuato.
