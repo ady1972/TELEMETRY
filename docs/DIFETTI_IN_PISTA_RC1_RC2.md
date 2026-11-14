@@ -70,6 +70,31 @@ Queste voci provengono dalla [roadmap esistente](../ROADMAP.md), non sono nuove 
 
 Dettagli della baseline: [note RLCD RC2](../firmware/rlcd-42/GOATS_RLCD_RC2/RC2.md) e [note Guition RC2](../firmware/guition-43/goats_guition_43_rc2/RC2.md).
 
+## Richiesta per le versioni da testare — riepilogo giri per sessione
+
+Per **RLCD e Guition**, predisporre un riepilogo consultabile dei giri di ciascuna sessione. Ogni giro deve riportare:
+
+| Giro | Tempo giro | Velocità media | Velocità massima |
+|---|---|---|---|
+| Numero del giro | Minuti, secondi e millesimi | km/h, riferiti al singolo giro | km/h, riferiti al singolo giro |
+
+Nel riepilogo mostrare solo queste tre misure, oltre al numero del giro per identificare la riga; gli altri indicatori e riferimenti statistici sono esclusi da questa vista. Le tre misure richieste sono tempo giro, velocità media e velocità massima; non usare media o massima dell'intera sessione come sostituti dei valori del singolo giro.
+
+**Ambito della richiesta:** il riepilogo delle sessioni archiviate nelle versioni candidate al prossimo test di entrambi i dispositivi. Questa nota registra un requisito da implementare, non una funzione già completata.
+
+**Situazione attuale verificata:** Guition dispone già dei tre valori per giro, con ulteriori informazioni e riferimenti nel riepilogo. RLCD visualizza tempo e media; il record archivio dei giri non conserva la velocità massima, che va quindi acquisita e persistita in modo compatibile.
+
+**Criteri di verifica:**
+
+- Consultare tutti i giri conservati della sessione, con scorrimento quando necessario e ritorno all'elenco delle sessioni.
+- Verificare i tre valori su più giri con velocità diverse, evitando che dati del giro successivo alterino quello appena concluso.
+- Conservare i dati dopo salvataggio e riavvio; mantenere leggibili le registrazioni esistenti.
+- Per vecchi archivi privi della massima, mostrare “—” senza inventare valori o usare la massima di sessione.
+- Preservare tempi giro, acquisizione a 25 Hz, CSV e protocollo Manager. Eventuali estensioni della persistenza richiedono compatibilità con gli archivi precedenti.
+- Verificare leggibilità sui due display mantenendo lo stile di ciascun dispositivo.
+
+La semplificazione richiesta riguarda la presentazione del riepilogo; non implica la cancellazione dei dati storici.
+
 ## Validazione complessiva e lavoro residuo
 
 La suite locale `python tests/rc2/run.py` passa anche con le nuove prove di ripartenza RLCD e filtro Guition. Le prove host usano adattatori per le dipendenze hardware e non misurano i tempi elettrici della microSD.
