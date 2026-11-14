@@ -65,6 +65,16 @@ Dopo il collaudo RC2, la roadmap prevede nell'ordine:
 
 Queste fasi sono pianificate e non incluse in RC2.
 
+## RC2.1 — candidato da collaudare
+
+Le configurazioni RC2 identificano ora la revisione RC2.1: aggiungono
+**Modalità schermata → DELTA / LAP TIME**, con scambio dei due valori e delle
+etichette nella schermata racing e preferenza salvata ai successivi avvii.
+Includono la correzione della ripartenza RLCD e del filtro delta Guition,
+oltre alla diagnostica della lentezza di salvataggio ancora da misurare.
+Dettagli e piano di prova: [Modalità schermata](docs/MODALITA_SCHERMATA.md).
+Nessun collaudo hardware o flash eseguito in questa preparazione.
+
 ## Sviluppo
 - ESPHome
 - Codex per analisi e modifiche ai sorgenti

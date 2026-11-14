@@ -2,7 +2,7 @@
 
 Questa nota raccoglie le segnalazioni dell'utente e le verifiche software effettuate nella discussione successiva alle prove. Per RLCD l'utente ha confermato esplicitamente RC1; il confronto Guition è riferito alla stessa discussione, senza identificativo completo del firmware installato.
 
-**Stato al momento della nota:** le nuove correzioni descritte sotto sono presenti soltanto nel workspace locale, nel ramo `diagnose/rlcd-session-save-latency`. Questa aggiunta documentale non pubblica quelle modifiche al firmware. Non sono ancora compilate per ESP32 né provate sui dispositivi. RC1 rimane invariata. I PASS software non equivalgono a un collaudo in pista.
+**Aggiornamento RC2.1:** le correzioni descritte sotto e la diagnostica sono ora incluse nel ramo `feat/rc2-1-screen-mode`, insieme alla modalità schermata persistente. L’esito della compilazione è registrato in `docs/MODALITA_SCHERMATA.md`; non sono ancora provate sui dispositivi. RC1 rimane invariata. I PASS software non equivalgono a un collaudo in pista.
 
 Baseline della repository verificata: `d61e8a62f1cc4f4322e215147eba2fe86e88d49f`.
 

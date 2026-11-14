@@ -13,18 +13,20 @@ esphome:
             goats_b::setup();
             goats_archive::setup();
             goats_dates::setup();
+            goats_screen_mode::load();
             goats_menu::init();
           }
   name: goats-rlcd-mg902-rc2
-  friendly_name: GOATS RLCD R12.1 SD R14.2 RC2
+  friendly_name: GOATS RLCD R12.1 SD R14.2 RC2.1
   project:
     name: goats_rt.rlcd42
-    version: "R12.1-SD-R14.2-RC2"
+    version: "R12.1-SD-R14.2-RC2.1"
   includes:
     - GOATS_RLCD_RC2/goats_recording_clock.h
     - GOATS_RLCD_RC2/goats_recording_dates.h
     - GOATS_RLCD_RC2/goats_recording_time_runtime.h
     - GOATS_RLCD_RC2/goats_usb_msc.h
+    - GOATS_RLCD_RC2/goats_screen_mode.h
     - GOATS_RLCD_RC2/goats_session_control.h
     - GOATS_RLCD_RC2/goats_test_b.h
     - GOATS_RLCD_RC2/goats_track_types.h
@@ -235,7 +237,7 @@ display:
         const int cur=goats_menu::cursor();
          // it.fill(B) e gia stato chiamato: menu senza trasparenza sulla Racing.
          it.filled_rectangle(0,0,400,34,W);
-        const char *hdr=page==12?"USB MASS STORAGE?":page==13?"USB NON DISPONIBILE":page==11?"OPZIONI GARA":page==1?"MENU":page==2?"POST GIRO":page==3?"CIRCUITI":page==4?"INFO GPS":page==5?"AVVISO BEST LAP":page==6?"SESSIONI":page==7?"GIRI SESSIONE":page==14?"DETTAGLIO GIRO":page==8?"TERMINARE SESSIONE?":page==9?"SCARTARE I DATI?":"FINE SESSIONE AUTO";
+        const char *hdr=page==15?"MODALITA SCHERMATA":page==12?"USB MASS STORAGE?":page==13?"USB NON DISPONIBILE":page==11?"OPZIONI GARA":page==1?"MENU":page==2?"POST GIRO":page==3?"CIRCUITI":page==4?"INFO GPS":page==5?"AVVISO BEST LAP":page==6?"SESSIONI":page==7?"GIRI SESSIONE":page==14?"DETTAGLIO GIRO":page==8?"TERMINARE SESSIONE?":page==9?"SCARTARE I DATI?":"FINE SESSIONE AUTO";
          it.print(200,17,id(f28),B,TextAlign::CENTER,hdr);
          it.line(12,74,388,74,W);
         // One selection bar; the other rows have only a narrow separator.
@@ -256,8 +258,11 @@ display:
           it.print(200,122,id(f20),W,TextAlign::CENTER,"TERMINA LA SESSIONE O VERIFICA SD");
           racing_row(177,42,"INDIETRO",true,id(f20));
         } else if(page==11){
-          const char* names[]={"POST GIRO","AVVISO BEST LAP","FINE SESSIONE AUTO","INDIETRO"};
-          for(int i=0;i<4;i++) racing_row(80+i*43,40,names[i],cur==i,id(f20));
+          const char* names[]={"POST GIRO","AVVISO BEST LAP","FINE SESSIONE AUTO","MODALITA SCHERMATA","INDIETRO"};
+          for(int i=0;i<5;i++) racing_row(80+i*34,32,names[i],cur==i,id(f20));
+        } else if(page==15){
+          const char* names[]={"DELTA","LAP TIME"};
+          for(int i=0;i<2;i++) racing_row(100+i*55,48,names[i],cur==i,id(f28));
         } else if(page==2){
           const char *m=goats_ui::mode()==0?"OFF":goats_ui::mode()==1?"POPUP":"LAMPEGGIO";
           std::string row0=std::string("MODALITA: ")+m;
@@ -347,7 +352,7 @@ display:
           char date[16],time[16],clock[48];
           goats_clock::format(uint32_t(now-goats_clock::observed_ms)<=3000?goats_clock::latest:goats_clock::DateTime{},date,sizeof(date),time,sizeof(time));
           snprintf(clock,sizeof(clock),"%s %s IT",date,time);
-          const char* rows[]={line0,line1,line2,line3,line4,clock,"FW: MG902 RC2"};
+          const char* rows[]={line0,line1,line2,line3,line4,clock,"FW: MG902 RC2.1"};
           for(int i=0;i<7;i++){
             const int y=68+i*26;
             it.print(34,y+5,id(f20),W,TextAlign::TOP_LEFT,rows[i]);
@@ -407,6 +412,11 @@ display:
       // R10: inversione basata sul delta LIVE effettivo, non sul valore
       // trattenuto dal riepilogo del giro precedente.
       // Riempimento completo del riquadro 1..185 x 133..196.
+      const bool screen_delta=goats_screen_mode::delta();
+      const bool post=goats_ui::active(now);
+      const uint32_t lap_ms=(post && goats_ui::mode()==2 && !goats_ui::best_active(now))?goats_ui::last_ms():goats_laptimer_current_ms(now);
+      const std::string lap=fmt_ms(lap_ms);
+      if(!screen_delta){
       const bool invert_delta=delta_negative && (!post_blink || post_visible);
       if(invert_delta) it.filled_rectangle(1,133,185,64,W);
       else it.rectangle(1,133,185,64,W);
@@ -432,6 +442,11 @@ display:
           it.print(109,165,id(f52),W,TextAlign::CENTER,"--.---");
         }
       }
+      }else{
+        it.rectangle(1,133,185,64,W);
+        it.print(9,135,id(f13),W,TextAlign::TOP_LEFT,"LAP TIME");
+        if(post_visible)it.print(94,174,choose_font(lap.c_str(),175,43),W,TextAlign::CENTER,lap.c_str());
+      }
       // Best Lap: identico riquadro/layout, tempo preso dal motore giri TEST B.
       it.rectangle(1,200,185,64,W);
       static const uint8_t label_best[] = {0x00,0x00,0x00,0x3C,0x07,0xE0,0x66,0x06,0x60,0x7F,0xC7,0xFC,0x00,0x00,0x00,0x00,0xC0,0x7C,0x3F,0x07,0x10,0x79,0x01,0xF8,0x03,0xC0,0x0C,0x00,0xC0,0x0C,0x00,0xC7,0xFC,0x7F,0xC0,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x00,0x06,0x00,0x60,0x07,0xFC,0x7F,0xC6,0x00,0x60,0x06,0x00,0x03,0x86,0x7C,0x66,0xC6,0xC4,0x7C,0xC3,0xCC,0x00,0x00,0x00,0x00,0xC6,0x4C,0x64,0xC6,0x4C,0x7F,0xC7,0xFC,0x00,0x00,0x00,0x3F,0xC7,0xFC,0x64,0xC6,0x4C,0x7F,0xC7,0xFC,0x00,0x00,0x00};
@@ -451,15 +466,19 @@ display:
       it.print(389,258,id(f16),W,TextAlign::BOTTOM_RIGHT,"km/h");
       // Lap time esteso fino al bordo inferiore, settori inclusi: usa iTOW letti dalla TEST B per il tempo.
       it.rectangle(1,1,398,128,W);
-      it.print(9,4,id(f13),W,TextAlign::TOP_LEFT,"LAP TIME");
-      const bool post=goats_ui::active(now);
-      const uint32_t lap_ms=(post && goats_ui::mode()==2 && !goats_ui::best_active(now))?goats_ui::last_ms():goats_laptimer_current_ms(now);
-      const std::string lap=fmt_ms(lap_ms);
-      if(!(post && goats_ui::mode()==2 && !goats_ui::lit(now)))
-        it.print(202,50,choose_font(lap.c_str(),382,87),W,TextAlign::CENTER,lap.c_str());
-      if(post && goats_ui::mode()==2 && !goats_ui::best_active(now)){
-        it.print(12,83,id(f13),W,TextAlign::TOP_LEFT,"LAST LAP");
-
+      if(!screen_delta){
+        it.print(9,4,id(f13),W,TextAlign::TOP_LEFT,"LAP TIME");
+        if(post_visible)it.print(202,50,choose_font(lap.c_str(),382,87),W,TextAlign::CENTER,lap.c_str());
+        if(post && goats_ui::mode()==2 && !goats_ui::best_active(now))
+          it.print(12,83,id(f13),W,TextAlign::TOP_LEFT,"LAST LAP");
+      }else{
+        const Color ink=delta_negative?B:W;
+        if(delta_negative)it.filled_rectangle(2,2,396,88,W);
+        it.print(9,4,id(f13),ink,TextAlign::TOP_LEFT,"DELTA");
+        char text[24];
+        if(std::isfinite(delta))snprintf(text,sizeof(text),"%+.3f",(double)delta);
+        else snprintf(text,sizeof(text),"--.---");
+        if(post_visible)it.print(202,50,choose_font(text,382,87),ink,TextAlign::CENTER,text);
       }
       // TEST 13: riquadri settore piu alti e delta molto piu leggibile.
       // Quando il delta e' disponibile, S1/S2/S3 scompare per lasciare tutto lo spazio al valore.

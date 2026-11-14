@@ -66,10 +66,16 @@ inline void tick(){
  flush(8);
 }
 inline void finish(bool save){
+ const uint32_t finish_start=millis();
+ ESP_LOGI("SAVE_DIAG","trace begin save=%d queued=%u points=%lu",save,
+   (wr()+CAP-rd())%CAP,(unsigned long)goats_sd_storage::live_points());
  if(recording()){
    if(pending())tick();
+   const uint32_t drain_start=millis();
    // Fine sessione: svuota la coda prima di chiudere il file.
    while(goats_sd_storage::live_open() && rd()!=wr())flush(64);
+   ESP_LOGI("SAVE_DIAG","drain done duration_ms=%lu remaining=%u",
+     (unsigned long)(millis()-drain_start),(wr()+CAP-rd())%CAP);
    if(goats_sd_storage::live_open()){
      if(save){
        const uint32_t save_start=millis();
@@ -81,5 +87,6 @@ inline void finish(bool save){
    }
  }
  recording()=false;pending()=false;rd()=wr()=0;
+ ESP_LOGI("SAVE_DIAG","trace done duration_ms=%lu",(unsigned long)(millis()-finish_start));
 }
 }

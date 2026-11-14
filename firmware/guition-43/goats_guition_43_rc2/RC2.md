@@ -83,3 +83,29 @@ con ESPHome 2026.7.3 ed ESP-IDF 5.5.5: PASS.
 - Flash: used 1209611 bytes from 1835008 bytes.
 
 Nessuna prova hardware RC2 o caricamento sul dispositivo eseguiti.
+
+## Revisione locale: oscillazioni del delta live Guition
+
+L'utente segnala oscillazioni su RC1 anche lontano dai settori. Riprodotto
+un difetto del filtro quando più campioni sono decodificati con lo stesso
+millisecondo: il delta veniva sostituito dal valore non filtrato. La correzione
+locale conserva il valore fino al successivo avanzamento del tempo del filtro.
+Non modifica tempi giro/settore, ricevitore, frequenza, matching o formato CSV.
+RC1 e motore RLCD restano invariati.
+
+Test RED→GREEN con traiettoria sintetica ripetuta, campioni raggruppati e
+rallentamento reale: PASS; suite RC2 completa PASS. I salti riprodotti di
+0,2/0,4 s nelle letture raggruppate scompaiono sulla traiettoria identica.
+Sono risultati software, non misure sul dispositivo. Resta da verificare
+l'incidenza reale del difetto su Guition e l'eventuale contributo di altre cause.
+La revisione locale non è ancora compilata ESP32 o provata sull'hardware;
+la build del 13/11 citata sopra riguarda la baseline precedente.
+Dossier: docs/GUITION_DELTA_REVIEW.md.
+
+## RC2.1 — modalità schermata persistente
+
+Aggiunta nelle impostazioni la scelta DELTA / LAP TIME. DELTA scambia tempo
+giro e delta nella schermata racing, comprese le etichette; entrambi rimangono
+visibili. LAP TIME conserva la disposizione precedente ed è il default.
+La scelta è salvata in NVS e ricaricata all'avvio, separatamente dalle sessioni.
+Dettagli e piano di collaudo: docs/MODALITA_SCHERMATA.md. Nessun test hardware.

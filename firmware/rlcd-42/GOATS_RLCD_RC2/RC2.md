@@ -83,3 +83,32 @@ con ESPHome 2026.7.3 ed ESP-IDF 5.5.5: PASS.
 - Flash: used 642639 bytes from 8126464 bytes.
 
 Nessuna prova hardware RC2 o caricamento sul dispositivo eseguiti.
+
+## Verifica successiva: ripartenza dopo salvataggio RLCD
+
+Segnalazione su RC1: dopo il primo salvataggio il traguardo non viene più
+riconosciuto fino al riavvio. La chiusura impostava `paused=true` senza alcun
+richiamo a `resume()`; il ponte al cronometro ignorava quindi tutti i campioni.
+Il difetto era presente anche nella baseline RC2.
+
+La revisione locale riabilita l'acquisizione dopo chiusura e reset della
+sessione. Non avvia un giro: occorre un nuovo attraversamento del traguardo.
+RC1 resta invariata. La prova host usa il finalizzatore del menu, il ponte e
+il motore reali: fallisce prima della correzione e passa dopo, con due
+salvataggi consecutivi, uno scarto e nuovi giri senza reboot. Uno scarto
+rifiutato conserva la sessione attiva. Suite RC2 completa PASS.
+
+Questa revisione locale non è ancora compilata per ESP32 né collaudata su
+hardware. L'esito build del 13/11 sopra riguarda la baseline precedente.
+La lentezza di circa un minuto dopo SALVA E TERMINA su RC1 è un problema
+separato, ancora da misurare: aggiunti log INFO SAVE_DIAG per distinguere
+coda, chiusura, ricerca nome, rinomina, mappa, timestamp e NVS. Vedere
+`docs/RLCD_SAVE_LATENCY.md` per limiti e canale UART0.
+
+## RC2.1 — modalità schermata persistente
+
+Aggiunta nelle impostazioni la scelta DELTA / LAP TIME. DELTA scambia tempo
+giro e delta nella schermata racing, comprese le etichette; entrambi rimangono
+visibili. LAP TIME conserva la disposizione precedente ed è il default.
+La scelta è salvata in NVS e ricaricata all'avvio, separatamente dalle sessioni.
+Dettagli e piano di collaudo: docs/MODALITA_SCHERMATA.md. Nessun test hardware.
