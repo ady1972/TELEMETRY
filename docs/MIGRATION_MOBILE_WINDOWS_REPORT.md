@@ -17,7 +17,7 @@ la versione ricevuta costituisce la base per le successive modifiche.
 Questo rapporto documenta anche l'analisi dei sorgenti e i controlli eseguiti
 durante la migrazione. README, manuali e test report negli ZIP sono conservati
 come documentazione del progetto. Il blocco della build CI riguarda la
-disponibilità dell'SDK sul runner; la versione funzionante fornita dall'utente
+nome del pacchetto SDK richiesto dal workflow; la versione funzionante fornita dall'utente
 è stata importata senza modifiche ai sorgenti.
 
 ## Provenienza, struttura e completezza
@@ -208,8 +208,11 @@ Process completed with exit code 1.
 
 La compilazione Java/Kotlin non è quindi iniziata neppure in CI e non è stato
 prodotto un APK. Questo esito non dimostra un errore nei sorgenti Kotlin;
-la compilabilità completa rimane da verificare. Serve un SDK 37 ottenibile
-dall'ambiente di build. `compileSdk`, `targetSdk` e dipendenze originali sono
+la compilabilità completa rimane da verificare. Il catalogo Google pubblica
+l'SDK con l'identificatore `platforms;android-37.0`, mentre il comando originale
+richiedeva `platforms;android-37`, che non esiste nel catalogo. Il workflow
+attivo è stato corretto per installare `platforms;android-37.0`.
+`compileSdk`, `targetSdk` e dipendenze originali sono
 conservati: non sono stati abbassati per aggirare il problema.
 
 ## Incongruenze e limiti già presenti, lasciati invariati
