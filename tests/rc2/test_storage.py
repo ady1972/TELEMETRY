@@ -17,6 +17,9 @@ preamble=r'''
 #include <cstdio>
 #include <cassert>
 #include "goats_recording_clock.h"
+inline uint32_t millis(){return 0;}
+template<typename... Args> void host_log(Args...){}
+#define ESP_LOGI(...) host_log(__VA_ARGS__)
 using FRESULT=int;using UINT=unsigned;using TCHAR=char;
 constexpr int FR_OK=0,FR_NO_FILE=1,FR_NO_PATH=2,FR_DISK_ERR=3,FR_EXIST=4,FR_INVALID_OBJECT=5,FR_INT_ERR=6;
 constexpr int FA_READ=1,FA_WRITE=2,FA_CREATE_ALWAYS=4;

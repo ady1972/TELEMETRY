@@ -18,15 +18,16 @@
 
 substitutions:
   device_name: goats-rt-laptimer-v2
-  friendly_name: "GOATS GUITION 4.3 V1.0.22 RC2 RLCD26 USB"
+  friendly_name: "GOATS GUITION 4.3 V1.0.22 RC2.1 RLCD26 USB"
 
 esphome:
   name: ${device_name}
   friendly_name: ${friendly_name}
   project:
     name: goats_rt.guition43
-    version: "1.0.22-rc2"
+    version: "1.0.22-rc2.1"
   includes:
+    - goats_guition_43_rc2/goats_screen_mode.h
     - goats_guition_43_rc2/goats_recording_clock.h
     - goats_guition_43_rc2/goats_recording_time_runtime.h
     - goats_guition_43_rc2/goats_version.h
@@ -61,6 +62,8 @@ esphome:
           id: boot_progress
           value: 8
       - lambda: |-
+          goats_screen_mode::load();
+          id(apply_screen_mode).execute();
           goats_crash_diag::boot_capture();
           goats_tracks_setup();
           goats_laptimer_reset();
@@ -142,6 +145,26 @@ logger:
 # ============================================================
 
 script:
+  - id: apply_screen_mode
+    then:
+      - lambda: |-
+          const bool delta = goats_screen_mode::delta();
+          lv_obj_set_parent(id(lbl_delta), delta ? id(racing_primary_panel) : id(time_delta_panel));
+          lv_obj_set_parent(id(lbl_current_lap), delta ? id(time_delta_panel) : id(racing_primary_panel));
+          lv_obj_set_pos(id(lbl_delta), delta ? 8 : 45, delta ? 7 : 4);
+          lv_obj_set_width(id(lbl_delta), delta ? 464 : 184);
+          lv_obj_set_style_text_font(id(lbl_delta), delta ? id(roboto_condensed_bold_74)->get_lv_font() : &lv_font_montserrat_48, LV_PART_MAIN);
+          lv_obj_set_pos(id(lbl_current_lap), delta ? 5 : 8, delta ? 15 : 7);
+          lv_obj_set_width(id(lbl_current_lap), delta ? 224 : 464);
+          lv_obj_set_style_text_font(id(lbl_current_lap), delta ? id(roboto_28)->get_lv_font() : id(roboto_condensed_bold_74)->get_lv_font(), LV_PART_MAIN);
+          lv_label_set_text(id(lbl_primary_title), delta ? "DELTA" : "LAP TIME");
+          lv_label_set_text(id(lbl_delta_title), delta ? "LAP TIME" : "DELTA");
+          lv_obj_set_pos(id(lbl_delta_title), delta ? 4 : -16, delta ? 0 : 19);
+          lv_obj_set_width(id(lbl_delta_title), delta ? 224 : 52);
+          lv_obj_set_style_transform_angle(id(lbl_delta_title), delta ? 0 : 2700, LV_PART_MAIN);
+          lv_label_set_text(id(screen_mode_value), delta ? "DELTA" : "LAP TIME");
+          lv_obj_move_foreground(id(btn_finish_session));
+
   - id: sd_postboot_init
     mode: single
     then:
@@ -1083,6 +1106,7 @@ lvgl:
       bg_color: 0x000000
       widgets:
         - obj:
+            id: racing_primary_panel
             pad_all: 0
             scrollable: false
             scrollbar_mode: "OFF"
@@ -1095,7 +1119,7 @@ lvgl:
             border_color: 0xFFFFFF
             border_width: 1
             widgets:
-              - label: {x: 7, y: 0, text: "LAP TIME", text_font: montserrat_18, text_color: 0xFFFFFF}
+              - label: {id: lbl_primary_title, x: 7, y: 0, text: "LAP TIME", text_font: montserrat_18, text_color: 0xFFFFFF}
               - button:
                   id: btn_finish_session
                   x: 424
@@ -1803,6 +1827,79 @@ lvgl:
     # ------------------------------------------------------------
     # V5.7 - IMPOSTAZIONI
     # ------------------------------------------------------------
+    - id: screen_mode_page
+      bg_color: 0x000000
+      widgets:
+        - label:
+            x: 0
+            y: 15
+            width: 480
+            text: "MODALITA SCHERMATA"
+            text_align: CENTER
+            text_font: roboto_24
+            text_color: 0xFFFFFF
+        - button:
+            x: 40
+            y: 65
+            width: 400
+            height: 50
+            bg_color: 0x000000
+            border_color: 0xFFFFFF
+            border_width: 1
+            radius: 10
+            on_click:
+              then:
+                - if:
+                    condition:
+                      lambda: return goats_screen_mode::select(true);
+                    then:
+                      - script.execute: apply_screen_mode
+                      - lvgl.page.show: settings_page
+            widgets:
+              - label:
+                  align: CENTER
+                  text: "DELTA"
+                  text_font: roboto_24
+        - button:
+            x: 40
+            y: 125
+            width: 400
+            height: 50
+            bg_color: 0x000000
+            border_color: 0xFFFFFF
+            border_width: 1
+            radius: 10
+            on_click:
+              then:
+                - if:
+                    condition:
+                      lambda: return goats_screen_mode::select(false);
+                    then:
+                      - script.execute: apply_screen_mode
+                      - lvgl.page.show: settings_page
+            widgets:
+              - label:
+                  align: CENTER
+                  text: "LAP TIME"
+                  text_font: roboto_24
+        - button:
+            x: 140
+            y: 205
+            width: 200
+            height: 45
+            bg_color: 0x242A33
+            border_color: 0x56606B
+            border_width: 1
+            radius: 8
+            on_click:
+              then:
+                - lvgl.page.show: settings_page
+            widgets:
+              - label:
+                  align: CENTER
+                  text: "INDIETRO"
+                  text_font: roboto_18
+
     - id: settings_page
       bg_color: 0x000000
       on_swipe_right:
@@ -1821,7 +1918,9 @@ lvgl:
             border_width: 0
             radius: 0
             pad_all: 0
-            scrollbar_mode: "OFF"
+            scrollable: true
+            scrollbar_mode: AUTO
+            scroll_dir: VER
             widgets:
               - obj:
                   x: 0
@@ -2087,6 +2186,36 @@ lvgl:
                         width: 130
                         text_align: RIGHT
                         text: "60 s"
+                        text_font: roboto_18
+                        text_color: 0x00D084
+
+              - button:
+                  x: 18
+                  y: 274
+                  width: 444
+                  height: 35
+                  bg_color: 0x000000
+                  border_color: 0xFFFFFF
+                  border_width: 1
+                  radius: 10
+                  pad_all: 0
+                  on_click:
+                    then:
+                      - lvgl.page.show: screen_mode_page
+                  widgets:
+                    - label:
+                        x: 10
+                        y: 8
+                        text: "MODALITA SCHERMATA"
+                        text_font: roboto_18
+                        text_color: 0xFFFFFF
+                    - label:
+                        id: screen_mode_value
+                        x: 290
+                        y: 8
+                        width: 134
+                        text: "LAP TIME"
+                        text_align: RIGHT
                         text_font: roboto_18
                         text_color: 0x00D084
 
@@ -5327,7 +5456,7 @@ interval:
       - lambda: |-
           lv_obj_set_style_transform_pivot_x(id(lbl_delta_title), 26, LV_PART_MAIN);
           lv_obj_set_style_transform_pivot_y(id(lbl_delta_title), 9, LV_PART_MAIN);
-          lv_obj_set_style_transform_angle(id(lbl_delta_title), 2700, LV_PART_MAIN);
+          lv_obj_set_style_transform_angle(id(lbl_delta_title), goats_screen_mode::delta()?0:2700, LV_PART_MAIN);
           lv_obj_set_style_transform_pivot_x(id(lbl_best_title), 26, LV_PART_MAIN);
           lv_obj_set_style_transform_pivot_y(id(lbl_best_title), 9, LV_PART_MAIN);
           lv_obj_set_style_transform_angle(id(lbl_best_title), 2700, LV_PART_MAIN);
@@ -5346,7 +5475,7 @@ interval:
       # delle barre settori.
       - lvgl.label.update:
           id: lbl_delta_title
-          text: "DELTA"
+          text: !lambda 'return goats_screen_mode::delta() ? std::string("LAP TIME") : std::string("DELTA");'
 
       # Delta live durante il giro; delta finale lampeggiante per 10 secondi.
       - lvgl.label.update:
@@ -5426,10 +5555,11 @@ interval:
             time_title = white;
           }
 
-          lv_obj_set_style_bg_color(id(time_delta_panel), time_bg,
+          lv_obj_set_style_bg_color(goats_screen_mode::delta() ? id(racing_primary_panel) : id(time_delta_panel), time_bg,
               LV_PART_MAIN | LV_STATE_DEFAULT);
-          lv_obj_set_style_bg_opa(id(time_delta_panel), LV_OPA_COVER,
+          lv_obj_set_style_bg_opa(goats_screen_mode::delta() ? id(racing_primary_panel) : id(time_delta_panel), LV_OPA_COVER,
               LV_PART_MAIN | LV_STATE_DEFAULT);
+          lv_obj_set_style_bg_color(goats_screen_mode::delta() ? id(time_delta_panel) : id(racing_primary_panel), lv_color_hex(0x000000), LV_PART_MAIN);
           lv_obj_set_style_text_color(id(lbl_delta), time_text,
               LV_PART_MAIN | LV_STATE_DEFAULT);
           lv_obj_set_style_text_color(id(lbl_delta_title), time_title,
