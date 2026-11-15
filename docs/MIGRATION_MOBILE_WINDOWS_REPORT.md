@@ -2,15 +2,21 @@
 
 ## Stato della consegna
 
-Importazione locale preparata sul ramo `codex/mobile-windows-handoff`, base
+Importazione pubblicata sul ramo `codex/mobile-windows-handoff`, base
 `76c40855a9c3030c0ce53aaa4436c90bd4941a8f` di `ady1972/TELEMETRY`.
 Modifiche esaminate dall'utente, che ha autorizzato commit e push sul ramo
 di handoff. Nessun merge previsto. `firmware/`, protocolli e riferimenti
 del ramo `main` non modificati. Non sono state riscritte le applicazioni.
 
-Questo rapporto deriva dai sorgenti allegati e da controlli eseguiti durante
-la migrazione. I README, manuali e test report negli ZIP sono documentazione
-storica, non prova di funzionamento delle versioni importate.
+L'utente ha confermato che la versione allegata è già stata testata ed è
+funzionante. Questa conferma è registrata come collaudo effettuato dall'utente;
+la versione ricevuta costituisce la base per le successive modifiche.
+
+Questo rapporto documenta anche l'analisi dei sorgenti e i controlli eseguiti
+durante la migrazione. README, manuali e test report negli ZIP sono conservati
+come documentazione del progetto. Il blocco della build CI riguarda la
+disponibilità dell'SDK sul runner; la versione funzionante fornita dall'utente
+è stata importata senza modifiche ai sorgenti.
 
 ## Provenienza, struttura e completezza
 
@@ -129,6 +135,7 @@ entro i vincoli originali. Nessuna versione delle dipendenze è stata cambiata.
 
 | Controllo | Risultato |
 |---|---|
+| Collaudo precedente | Versione allegata confermata testata e funzionante dall'utente |
 | Identità dei 146 file importati | Tutti i digest corrispondono agli ZIP |
 | Sintassi/compilazione Python | Tutti i 21 moduli delle applicazioni passano `compile(...)` |
 | Manifest e risorse XML Android | Parsing riuscito |
@@ -138,7 +145,7 @@ entro i vincoli originali. Nessuna versione delle dipendenze è stata cambiata.
 | Test motore Android | 10 passati; 3 casi specifici Windows esclusi |
 | Build APK locale | Bloccata dalla mancanza di compilatore Java, nessun APK prodotto |
 | GitHub Actions sul commit di importazione | Test motore Android passati; build bloccata da SDK `platforms;android-37` non trovato |
-| Windows nativo / telefono / hardware / provider cloud | Non collaudati |
+| Windows nativo / telefono / hardware / provider cloud | Prove non ripetute durante questa migrazione |
 
 I 22 test passati coprono GRT8 con CRC, GSA2 v1/v2 e GSA3 sintetici, JSON
 storico, CSV con entrambi i delimitatori, metadati/data/ora e diagnostica,
