@@ -136,7 +136,8 @@ entro i vincoli originali. Nessuna versione delle dipendenze è stata cambiata.
 | Istanziazione finestra Qt senza schermo | Riuscita: 9 pagine di navigazione + confronto; rete HTTP bloccata durante la prova |
 | Test Windows | 12 passati; 1 caso specifico Android escluso |
 | Test motore Android | 10 passati; 3 casi specifici Windows esclusi |
-| Build APK | Tentata; bloccata dall'ambiente prima della compilazione Java/Kotlin, nessun APK prodotto |
+| Build APK locale | Bloccata dalla mancanza di compilatore Java, nessun APK prodotto |
+| GitHub Actions sul commit di importazione | Test motore Android passati; build bloccata da SDK `platforms;android-37` non trovato |
 | Windows nativo / telefono / hardware / provider cloud | Non collaudati |
 
 I 22 test passati coprono GRT8 con CRC, GSA2 v1/v2 e GSA3 sintetici, JSON
@@ -171,9 +172,27 @@ Toolchain installation '/usr/lib/jvm/java-21-openjdk-amd64'
 does not provide the required capabilities: [JAVA_COMPILER]
 ```
 
-Qui sono assenti `javac`, `sdkmanager` e un Android SDK configurato.
-Serve ripetere con JDK completo e SDK 37/Build Tools 36.0.0, oppure eseguire
-il nuovo workflow dopo approvazione e push. Il workflow è preparato, non eseguito.
+Nell'ambiente locale sono assenti `javac`, `sdkmanager` e un Android SDK configurato.
+
+### Verifica GitHub Actions dopo il push autorizzato
+
+Importazione pubblicata con commit
+[`a32c336d6ba84f3f86fc663a7f92bdc2a371abb7`](https://github.com/ady1972/TELEMETRY/commit/a32c336d6ba84f3f86fc663a7f92bdc2a371abb7).
+Il [workflow automatico](https://github.com/ady1972/TELEMETRY/actions/runs/43740817846)
+ha installato JDK 17 e Python 3.13 e superato i test del motore Android.
+L'installazione SDK si è fermata con:
+
+```text
+sdkmanager "platforms;android-37" "build-tools;36.0.0"
+Warning: Failed to find package 'platforms;android-37'
+Process completed with exit code 1.
+```
+
+La compilazione Java/Kotlin non è quindi iniziata neppure in CI e non è stato
+prodotto un APK. Questo esito non dimostra un errore nei sorgenti Kotlin;
+la compilabilità completa rimane da verificare. Serve un SDK 37 ottenibile
+dall'ambiente di build. `compileSdk`, `targetSdk` e dipendenze originali sono
+conservati: non sono stati abbassati per aggirare il problema.
 
 ## Incongruenze e limiti già presenti, lasciati invariati
 
