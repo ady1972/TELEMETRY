@@ -20,10 +20,19 @@ disponibilità dell'SDK sul runner; la versione funzionante fornita dall'utente
 
 ## Provenienza, struttura e completezza
 
+Su richiesta dell'utente, i progetti sono organizzati in sottocartelle per
+versione: `mobile/v0.2.1/` e `windows/v5.4.15.4-burst4/`. Gli indici delle
+piattaforme rimangono in `mobile/README.md` e `windows/README.md`.
+La riorganizzazione sposta insieme tutti i file di ciascun pacchetto,
+preservandone i contenuti e i percorsi relativi interni. Test, workflow e
+documentazione della monorepository fanno riferimento alle nuove posizioni.
+I 22 test di compatibilità sono stati ripetuti con esito positivo dopo lo
+spostamento; tutti i 146 file originali conservano gli stessi digest SHA256.
+
 | Progetto | Archivio | Contenuto importato |
 |---|---|---|
-| Android | `GOATS_RT_Manager_Android_V0_2_1_TRACK_EDITOR_WIFI_CLOUD_SYNC.zip` | 46 file in `mobile/`: 8 Kotlin, 4 Python, Gradle, manifest e risorse, workflow originale e documentazione |
-| Windows | `GOATS_RT_Manager_V5.4.15.4_BURST4.zip` | 100 file in `windows/`: 17 Python, launcher e diagnostica BAT, requisiti, logo, manuali PDF/DOCX, esempi e note storiche |
+| Android | `GOATS_RT_Manager_Android_V0_2_1_TRACK_EDITOR_WIFI_CLOUD_SYNC.zip` | 46 file in `mobile/v0.2.1/`: 8 Kotlin, 4 Python, Gradle, manifest e risorse, workflow originale e documentazione |
+| Windows | `GOATS_RT_Manager_V5.4.15.4_BURST4.zip` | 100 file in `windows/v5.4.15.4-burst4/`: 17 Python, launcher e diagnostica BAT, requisiti, logo, manuali PDF/DOCX, esempi e note storiche |
 
 SHA256 degli archivi ricevuti:
 
@@ -33,14 +42,14 @@ SHA256 degli archivi ricevuti:
 ```
 
 Tutti i 146 file importati sono identici byte per byte agli ZIP; i manifest
-`mobile/IMPORTED_SOURCE_SHA256SUMS.txt` e
-`windows/IMPORTED_SOURCE_SHA256SUMS.txt` ne registrano i digest.
-`mobile/gradlew` è stato reso eseguibile senza cambiarne il contenuto.
+`mobile/v0.2.1/IMPORTED_SOURCE_SHA256SUMS.txt` e
+`windows/v5.4.15.4-burst4/IMPORTED_SOURCE_SHA256SUMS.txt` ne registrano i digest.
+`mobile/v0.2.1/gradlew` è stato reso eseguibile senza cambiarne il contenuto.
 Tutti gli import Python locali delle applicazioni trovano il modulo corrispondente.
 Le dipendenze esterne restano quelle dichiarate dai progetti.
 
-Struttura Android: root Gradle in `mobile/`, modulo `:app` mappato a `fullapp/`,
-output in `mobile/app/build/`. Il launcher dichiarato è `MainActivity`, che apre
+Struttura Android: root Gradle in `mobile/v0.2.1/`, modulo `:app` mappato a `fullapp/`,
+output in `mobile/v0.2.1/app/build/`. Il launcher dichiarato è `MainActivity`, che apre
 la schermata diagnostica; `ManagerActivity` contiene il Manager Compose completo.
 Gli script `gradlew`/`gradlew.bat` scaricano Gradle senza usare un wrapper JAR.
 
@@ -50,8 +59,8 @@ Le altre cinque versioni storiche del file principale sono conservate come ricev
 
 Sono aggiunti README di ingresso, manifest di importazione, esclusioni Git,
 test di compatibilità e un workflow Android alla root della monorepository.
-Il workflow Android originale resta intatto in `mobile/.github/workflows/`;
-in tale posizione GitHub non lo esegue. Quello nuovo usa la directory `mobile/`
+Il workflow Android originale resta intatto in `mobile/v0.2.1/.github/workflows/`;
+in tale posizione GitHub non lo esegue. Quello nuovo usa la directory `mobile/v0.2.1/`
 e il percorso reale dell'APK. I workflow firmware esistenti non cambiano.
 
 ## Esclusioni e dati
@@ -69,7 +78,7 @@ e il percorso reale dell'APK. I workflow firmware esistenti non cambiano.
   artificiale di coordinate e velocità. Nessun archivio personale è allegato.
 - Le regole Git escludono runtime, chiavi, database, log e archivi generati
   nelle posizioni convenzionali. I circuiti Windows creati dall'utente in
-  `windows/tracks/` sono esclusi salvo `esempio.json`.
+  `windows/v5.4.15.4-burst4/tracks/` sono esclusi salvo `esempio.json`.
 
 ## Funzionalità effettivamente presenti
 

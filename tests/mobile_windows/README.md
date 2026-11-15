@@ -3,7 +3,7 @@
 I test usano solo esempi distribuiti e dati sintetici in directory temporanee.
 Non aprono porte seriali, non inviano richieste cloud e non cambiano i sorgenti.
 La variante Windows importa Qt per verificare i cataloghi e richiede le
-dipendenze di `windows/requirements.txt`; la variante Mobile verifica il
+dipendenze di `windows/v5.4.15.4-burst4/requirements.txt`; la variante Mobile verifica il
 motore Python fuori da Android e usa la libreria standard.
 
 Dalla root della repository:

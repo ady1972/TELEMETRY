@@ -1,9 +1,9 @@
-# Extra Android migration rules. The original mobile/.gitignore is preserved.
-/mobile/.kotlin/
-/mobile/.cxx/
-/mobile/captures/
-/mobile/.env
-/mobile/.env.*
+# Extra Android migration rules. The original .gitignore is preserved inside each Android version.
+/mobile/**/.kotlin/
+/mobile/**/.cxx/
+/mobile/**/captures/
+/mobile/**/.env
+/mobile/**/.env.*
 /mobile/**/*.jks
 /mobile/**/*.keystore
 /mobile/**/*.p12

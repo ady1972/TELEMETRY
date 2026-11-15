@@ -11,6 +11,17 @@ test/build results. The user reviewed the changes and authorized commit and
 push to the handoff branch. No merge to `main` is part of this migration.
 The requirements below remain historical context, not implementation claims.
 
+## Version directories
+
+Each complete application version lives in its own directory:
+
+- Android V0.2.1: `mobile/v0.2.1/` (Gradle project root).
+- Windows V5.4.15.4 BURST4: `windows/v5.4.15.4-burst4/` (launcher and modules).
+
+The platform-level READMEs list available versions. Keep each source package
+complete when adding a new version; do not infer complete older releases from
+the historical standalone scripts bundled in the Windows package.
+
 ## Status and provenance
 This document captures requirements and earlier conversation decisions, NOT a verified inventory of application source code. The repository README currently primarily documents firmware. Android/Windows source paths, build systems and current implementation status must be verified before moving or changing code.
 

@@ -6,13 +6,13 @@ on:
     branches: [codex/mobile-windows-handoff]
     paths:
       - 'mobile/**'
-      - 'windows/sample_test.grt'
+      - 'windows/**/sample_test.grt'
       - 'tests/mobile_windows/**'
       - '.github/workflows/mobile-android.yml'
   pull_request:
     paths:
       - 'mobile/**'
-      - 'windows/sample_test.grt'
+      - 'windows/**/sample_test.grt'
       - 'tests/mobile_windows/**'
       - '.github/workflows/mobile-android.yml'
 
@@ -25,7 +25,7 @@ jobs:
     timeout-minutes: 30
     defaults:
       run:
-        working-directory: mobile
+        working-directory: mobile/v0.2.1
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-java@v4
@@ -51,5 +51,5 @@ jobs:
       - uses: actions/upload-artifact@v4
         with:
           name: GOATS-RT-Manager-Android-V0.2.1-debug
-          path: mobile/app/build/outputs/apk/debug/*.apk
+          path: mobile/v0.2.1/app/build/outputs/apk/debug/*.apk
           if-no-files-found: error

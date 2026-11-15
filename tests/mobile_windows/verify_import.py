@@ -14,7 +14,10 @@ REPO = Path(__file__).resolve().parents[2]
 if len(sys.argv) < 2 or sys.argv[1] not in ('windows', 'mobile'):
     raise SystemExit('Usage: python tests/mobile_windows/verify_import.py windows|mobile')
 MODE = sys.argv.pop(1)
-ROOT = REPO / ('windows' if MODE == 'windows' else 'mobile/fullapp/src/main/python')
+MOBILE = REPO / 'mobile/v0.2.1'
+WINDOWS = REPO / 'windows/v5.4.15.4-burst4'
+MOBILE_ENGINE = MOBILE / 'fullapp/src/main/python'
+ROOT = WINDOWS if MODE == 'windows' else MOBILE_ENGINE
 sys.path.insert(0, str(ROOT))
 from goats_formats import parse_any
 from goats_store import SessionStore
@@ -45,7 +48,7 @@ class MigrationChecks(unittest.TestCase):
         return path
 
     def test_01_bundled_grt8(self):
-        s = parse_any(REPO/'windows/sample_test.grt')[0]
+        s = parse_any(WINDOWS/'sample_test.grt')[0]
         self.assertEqual((s.source_format,s.track_name,len(s.points)),('GRT8','TEST',50))
         self.assertTrue(s.legacy_summary['crc_ok'])
         self.assertEqual(s.points[-1].elapsed_ms,1960)
@@ -115,7 +118,7 @@ class MigrationChecks(unittest.TestCase):
     def test_08_android_bridge_crud_and_catalog(self):
         import android_bridge as bridge
         bridge.init_app(str(self.tmp));self.addCleanup(bridge._STORE.conn.close)
-        imported=json.loads(bridge.import_file(str(REPO/'windows/sample_test.grt')))
+        imported=json.loads(bridge.import_file(str(WINDOWS/'sample_test.grt')))
         sid=imported['sessions'][0]['id']
         self.assertEqual(len(json.loads(bridge.analysis_json(sid))['points']),50)
         bridge.set_session_notes(sid,'synthetic note')
@@ -137,8 +140,8 @@ class MigrationChecks(unittest.TestCase):
     @unittest.skipUnless(MODE=='windows','Cross-platform GTC3 using Qt imports')
     def test_09_cross_platform_gtc3(self):
         from goats_track_editor import TrackManager
-        bridge=load_alias('mobile_bridge',REPO/'mobile/fullapp/src/main/python/android_bridge.py')
-        track=json.loads((REPO/'windows/tracks/esempio.json').read_text())
+        bridge=load_alias('mobile_bridge',MOBILE_ENGINE/'android_bridge.py')
+        track=json.loads((WINDOWS/'tracks/esempio.json').read_text())
         track['sectors']=[dict(name='Split',lat1=45.,lon1=9.,lat2=45.001,lon2=9.001)]
         payload,count=TrackManager.build_binary_catalog(TrackManager,tracks=[track])
         self.assertEqual(count,1)
@@ -185,7 +188,7 @@ class MigrationChecks(unittest.TestCase):
             with self.subTest(name=name),self.assertRaises(RuntimeError):local_relative_path(name)
 
     def test_12_cross_platform_sqlite_schema(self):
-        other = REPO / ('mobile/fullapp/src/main/python' if MODE=='windows' else 'windows')
+        other = MOBILE_ENGINE if MODE=='windows' else WINDOWS
         other_store=load_alias('other_store',other/'goats_store.py').SessionStore
         path=self.tmp/'migrated.sqlite3'
         store=SessionStore(path)
@@ -198,7 +201,7 @@ class MigrationChecks(unittest.TestCase):
 
     def test_13_cross_platform_csv_semantics(self):
         from dataclasses import asdict
-        other = REPO / ('mobile/fullapp/src/main/python' if MODE=='windows' else 'windows')
+        other = MOBILE_ENGINE if MODE=='windows' else WINDOWS
         formats=load_alias('other_formats',other/'goats_formats.py')
         path=self.fixture_csv()
         left,right=parse_any(path)[0],formats.parse_any(path)[0]
