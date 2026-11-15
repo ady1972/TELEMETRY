@@ -69,8 +69,8 @@ Non modificare senza autorizzazione:
 
 ## Android e Windows — migrazione Codex (15/11/2026)
 - Leggere `docs/HANDOFF_MOBILE_WINDOWS.md` prima di lavorare sulle app.
-- Conservare intatti i firmware e il ramo main durante la migrazione.
-- Le cartelle `mobile/` e `windows/` sono segnaposto: verificare i sorgenti reali prima di sostituirle.
+- Conservare intatti i firmware durante la migrazione. Integrare le app in `main` solo su richiesta esplicita dell'utente.
+- Le cartelle `mobile/` e `windows/` raccolgono progetti completi per versione: Android in `mobile/v0.2.1/`, Windows in `windows/v5.4.15.4-burst4/`. Conservare ogni versione in una sottocartella distinta.
 - Non considerare implementate funzionalità soltanto perché citate nelle chat.
 - Verificare compatibilità dei protocolli, dei CSV e degli archivi storici.
 - Non caricare credenziali, token o tracciati GPS personali.

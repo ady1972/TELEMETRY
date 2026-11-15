@@ -1,0 +1,78 @@
+name: Build GOATS RT Manager APK
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main", "master" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Java 17
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Android SDK
+        uses: android-actions/setup-android@v4
+        with:
+          packages: ''
+
+      - name: Install Android 37
+        run: sdkmanager "platforms;android-37" "build-tools;36.0.0"
+
+      - name: Gradle 9.4.1
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '9.4.1'
+
+      - name: Verify project root and plugin versions
+        shell: bash
+        run: |
+          set -euo pipefail
+          pwd
+          test -f settings.gradle.kts
+          test -f build.gradle.kts
+          test -f fullapp/build.gradle.kts
+          test -f fullapp/settings.gradle.kts
+          grep -q 'project(":app").projectDir = file("fullapp")' settings.gradle.kts
+          grep -q 'id("com.android.application") version "9.2.0"' fullapp/build.gradle.kts
+          grep -q 'id("org.jetbrains.kotlin.plugin.compose") version "2.2.10"' fullapp/build.gradle.kts
+          grep -q 'id("com.chaquo.python") version "17.0.0"' fullapp/build.gradle.kts
+          echo "Gradle project root: $GITHUB_WORKSPACE"
+
+      - name: Build debug APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          gradle --project-dir "$GITHUB_WORKSPACE" :app:assembleDebug --stacktrace
+
+      - name: Locate and stage APK
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "APK prodotti:"
+          find . -type f -path '*/build/outputs/apk/debug/*.apk' -print
+          if [ -f app/build/outputs/apk/debug/app-debug.apk ]; then
+            APK="app/build/outputs/apk/debug/app-debug.apk"
+          else
+            APK="$(find . -type f -path '*/build/outputs/apk/debug/*.apk' | head -n 1)"
+          fi
+          if [ -z "${APK:-}" ] || [ ! -f "$APK" ]; then
+            echo "ERRORE: build completata ma nessun APK debug trovato"
+            exit 1
+          fi
+          cp "$APK" GOATS_RT_Manager_V0_1_9_3_debug.apk
+          ls -lh "$APK" GOATS_RT_Manager_V0_1_9_3_debug.apk
+
+      - name: Upload APK
+        uses: actions/upload-artifact@v4
+        with:
+          name: GOATS-RT-Manager-Android-V0.1.9.3-USB-FULL-NATIVE-MAP-Z22-FIX-debug
+          path: GOATS_RT_Manager_V0_1_9_3_debug.apk
+          if-no-files-found: error

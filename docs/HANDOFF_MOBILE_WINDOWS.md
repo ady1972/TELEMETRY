@@ -1,6 +1,29 @@
 # GOATS Telemetry — Android / Windows handoff
 Updated: 2026-11-15
 
+## Import verification snapshot — 2026-11-15
+
+Source archives for Android V0.2.1 and Windows V5.4.15.4 BURST4 have been
+inspected and imported locally on `codex/mobile-windows-handoff`.
+See [the verified migration report](MIGRATION_MOBILE_WINDOWS_REPORT.md)
+for source provenance, implemented features, compatibility limits and actual
+test/build results. The user reviewed the changes and authorized commit and
+push to the handoff branch. The user subsequently explicitly requested merging
+the complete application projects into `main`. Preserve the firmware updates
+already present on `main` when integrating the handoff branch.
+The requirements below remain historical context, not implementation claims.
+
+## Version directories
+
+Each complete application version lives in its own directory:
+
+- Android V0.2.1: `mobile/v0.2.1/` (Gradle project root).
+- Windows V5.4.15.4 BURST4: `windows/v5.4.15.4-burst4/` (launcher and modules).
+
+The platform-level READMEs list available versions. Keep each source package
+complete when adding a new version; do not infer complete older releases from
+the historical standalone scripts bundled in the Windows package.
+
 ## Status and provenance
 This document captures requirements and earlier conversation decisions, NOT a verified inventory of application source code. The repository README currently primarily documents firmware. Android/Windows source paths, build systems and current implementation status must be verified before moving or changing code.
 

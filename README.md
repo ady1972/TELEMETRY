@@ -2,6 +2,16 @@
 
 Sistema di telemetria e cronometraggio GPS per kart.
 
+## Applicazioni
+
+I progetti completi sono organizzati per piattaforma e versione:
+
+- [GOATS Mobile — Android V0.2.1](mobile/v0.2.1/README.md)
+- [GOATS Windows — Manager V5.4.15.4 BURST4](windows/v5.4.15.4-burst4/README.md)
+
+Gli indici [mobile/](mobile/README.md) e [windows/](windows/README.md)
+raccolgono le versioni disponibili, ciascuna con sorgenti e dipendenze propri.
+
 ## Hardware
 - Guition 4.3" ESP32-S3
 - RLCD 4.2" ESP32-S3

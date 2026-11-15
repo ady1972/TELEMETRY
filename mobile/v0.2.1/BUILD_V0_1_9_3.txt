@@ -1,0 +1,7 @@
+GOATS RT Manager Android V0.1.9.3 - MAP/TJECTORY FIX
+
+- versionCode: 13
+- Vista mappa: fino a Z22
+- Tile satellitari native: max Z19, scalate oltre Z19
+- Telemetria/traiettoria: piena risoluzione per giro fino a 2500 punti, max 60000
+- Evita i placeholder Esri “Map data not yet available” a Z20-Z22
