@@ -16,9 +16,10 @@ la versione ricevuta costituisce la base per le successive modifiche.
 
 Questo rapporto documenta anche l'analisi dei sorgenti e i controlli eseguiti
 durante la migrazione. README, manuali e test report negli ZIP sono conservati
-come documentazione del progetto. Il blocco della build CI riguarda la
-nome del pacchetto SDK richiesto dal workflow; la versione funzionante fornita dall'utente
-è stata importata senza modifiche ai sorgenti.
+come documentazione del progetto. Il blocco iniziale della build CI era causato
+dal nome del pacchetto SDK richiesto dal workflow. Dopo la correzione,
+la build completa dell'APK debug è riuscita su GitHub Actions; la versione
+funzionante fornita dall'utente mantiene i sorgenti originali.
 
 ## Provenienza, struttura e completezza
 
@@ -156,6 +157,7 @@ entro i vincoli originali. Nessuna versione delle dipendenze è stata cambiata.
 | Test motore Android | 10 passati; 3 casi specifici Windows esclusi |
 | Build APK locale | Bloccata dalla mancanza di compilatore Java, nessun APK prodotto |
 | GitHub Actions sul commit di importazione | Test motore Android passati; build bloccata da SDK `platforms;android-37` non trovato |
+| GitHub Actions dopo la correzione SDK | Installazione SDK, test motore, compilazione APK debug e upload artefatto riusciti |
 | Windows nativo / telefono / hardware / provider cloud | Prove non ripetute durante questa migrazione |
 
 I 22 test passati coprono GRT8 con CRC, GSA2 v1/v2 e GSA3 sintetici, JSON
@@ -206,14 +208,24 @@ Warning: Failed to find package 'platforms;android-37'
 Process completed with exit code 1.
 ```
 
-La compilazione Java/Kotlin non è quindi iniziata neppure in CI e non è stato
-prodotto un APK. Questo esito non dimostra un errore nei sorgenti Kotlin;
-la compilabilità completa rimane da verificare. Il catalogo Google pubblica
+In quella prima esecuzione la compilazione Java/Kotlin non era iniziata e
+non era stato prodotto un APK. Il catalogo Google pubblica
 l'SDK con l'identificatore `platforms;android-37.0`, mentre il comando originale
 richiedeva `platforms;android-37`, che non esiste nel catalogo. Il workflow
 attivo è stato corretto per installare `platforms;android-37.0`.
 `compileSdk`, `targetSdk` e dipendenze originali sono
 conservati: non sono stati abbassati per aggirare il problema.
+
+### Build completa riuscita dopo la correzione SDK
+
+La [build del commit `026b0fa`](https://github.com/ady1972/TELEMETRY/actions/runs/43743779590)
+è terminata con successo: installazione SDK, test del motore Android,
+`:app:assembleDebug` e upload dell'artefatto
+`GOATS-RT-Manager-Android-V0.2.1-debug` sono tutti riusciti.
+L'APK è scaricabile dalla sezione Artifacts dell'esecuzione. La correzione
+riguarda il workflow attivo della monorepository; i file del progetto
+ricevuto e le dipendenze non sono stati modificati. Non sono state ripetute
+prove sul telefono o sull'hardware durante questa verifica di build.
 
 ## Incongruenze e limiti già presenti, lasciati invariati
 
