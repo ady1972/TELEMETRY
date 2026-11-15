@@ -8,7 +8,9 @@ inspected and imported locally on `codex/mobile-windows-handoff`.
 See [the verified migration report](MIGRATION_MOBILE_WINDOWS_REPORT.md)
 for source provenance, implemented features, compatibility limits and actual
 test/build results. The user reviewed the changes and authorized commit and
-push to the handoff branch. No merge to `main` is part of this migration.
+push to the handoff branch. The user subsequently explicitly requested merging
+the complete application projects into `main`. Preserve the firmware updates
+already present on `main` when integrating the handoff branch.
 The requirements below remain historical context, not implementation claims.
 
 ## Version directories

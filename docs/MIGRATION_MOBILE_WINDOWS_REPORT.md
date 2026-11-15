@@ -5,8 +5,10 @@
 Importazione pubblicata sul ramo `codex/mobile-windows-handoff`, base
 `76c40855a9c3030c0ce53aaa4436c90bd4941a8f` di `ady1972/TELEMETRY`.
 Modifiche esaminate dall'utente, che ha autorizzato commit e push sul ramo
-di handoff. Nessun merge previsto. `firmware/`, protocolli e riferimenti
-del ramo `main` non modificati. Non sono state riscritte le applicazioni.
+di handoff e successivamente ha richiesto esplicitamente l'integrazione in
+`main`. L'integrazione conserva gli aggiornamenti firmware già presenti su
+`main`; le app mantengono intatti sorgenti e protocolli ricevuti. Non sono
+state riscritte le applicazioni.
 
 L'utente ha confermato che la versione allegata è già stata testata ed è
 funzionante. Questa conferma è registrata come collaudo effettuato dall'utente;

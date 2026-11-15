@@ -633,9 +633,12 @@ class GoatsLaptimerEngine {
            static_cast<int64_t>(reference_ms)) / 1000.0f;
       if (!std::isfinite(live_delta_seconds_) ||
           last_live_delta_filter_ms_ == 0 ||
-          static_cast<int32_t>(now_ms - last_live_delta_filter_ms_) <= 0) {
+          static_cast<int32_t>(now_ms - last_live_delta_filter_ms_) < 0) {
         live_delta_seconds_ = raw_delta;
-      } else {
+      } else if (now_ms != last_live_delta_filter_ms_) {
+        // Several buffered PVT epochs can be decoded in the same millisecond.
+        // No display time has elapsed: retain the filtered value instead of
+        // resetting it to the unfiltered spatial match for each queued point.
         const uint32_t dt_ms = now_ms - last_live_delta_filter_ms_;
         const float alpha = static_cast<float>(dt_ms) /
                             (live_delta_filter_tau_ms_ + static_cast<float>(dt_ms));

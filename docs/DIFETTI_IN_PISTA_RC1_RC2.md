@@ -2,7 +2,7 @@
 
 Questa nota raccoglie le segnalazioni dell'utente e le verifiche software effettuate nella discussione successiva alle prove. Per RLCD l'utente ha confermato esplicitamente RC1; il confronto Guition è riferito alla stessa discussione, senza identificativo completo del firmware installato.
 
-**Stato al momento della nota:** le nuove correzioni descritte sotto sono presenti soltanto nel workspace locale, nel ramo `diagnose/rlcd-session-save-latency`. Questa aggiunta documentale non pubblica quelle modifiche al firmware. Non sono ancora compilate per ESP32 né provate sui dispositivi. RC1 rimane invariata. I PASS software non equivalgono a un collaudo in pista.
+**Aggiornamento RC2.1:** le correzioni descritte sotto e la diagnostica sono ora incluse nel ramo `feat/rc2-1-screen-mode`, insieme alla modalità schermata persistente. L’esito della compilazione è registrato in `docs/MODALITA_SCHERMATA.md`; non sono ancora provate sui dispositivi. RC1 rimane invariata. I PASS software non equivalgono a un collaudo in pista.
 
 Baseline della repository verificata: `d61e8a62f1cc4f4322e215147eba2fe86e88d49f`.
 
@@ -69,6 +69,31 @@ Queste voci provengono dalla [roadmap esistente](../ROADMAP.md), non sono nuove 
 | Data nei dettagli/proprietà non rappresentativa dell'inizio registrazione | Data iniziale conservata nei metadati; gestione esplicita dei dati mancanti e timestamp FAT | Confronto fra dettagli, CSV, Manager e PC; la data di creazione sul PC può dipendere dalla copia |
 
 Dettagli della baseline: [note RLCD RC2](../firmware/rlcd-42/GOATS_RLCD_RC2/RC2.md) e [note Guition RC2](../firmware/guition-43/goats_guition_43_rc2/RC2.md).
+
+## Richiesta per le versioni da testare — riepilogo giri per sessione
+
+Per **RLCD e Guition**, predisporre un riepilogo consultabile dei giri di ciascuna sessione. Ogni giro deve riportare:
+
+| Giro | Tempo giro | Velocità media | Velocità massima |
+|---|---|---|---|
+| Numero del giro | Minuti, secondi e millesimi | km/h, riferiti al singolo giro | km/h, riferiti al singolo giro |
+
+Nel riepilogo mostrare solo queste tre misure, oltre al numero del giro per identificare la riga; gli altri indicatori e riferimenti statistici sono esclusi da questa vista. Le tre misure richieste sono tempo giro, velocità media e velocità massima; non usare media o massima dell'intera sessione come sostituti dei valori del singolo giro.
+
+**Ambito della richiesta:** il riepilogo delle sessioni archiviate nelle versioni candidate al prossimo test di entrambi i dispositivi. Questa nota registra un requisito da implementare, non una funzione già completata.
+
+**Situazione attuale verificata:** Guition dispone già dei tre valori per giro, con ulteriori informazioni e riferimenti nel riepilogo. RLCD visualizza tempo e media; il record archivio dei giri non conserva la velocità massima, che va quindi acquisita e persistita in modo compatibile.
+
+**Criteri di verifica:**
+
+- Consultare tutti i giri conservati della sessione, con scorrimento quando necessario e ritorno all'elenco delle sessioni.
+- Verificare i tre valori su più giri con velocità diverse, evitando che dati del giro successivo alterino quello appena concluso.
+- Conservare i dati dopo salvataggio e riavvio; mantenere leggibili le registrazioni esistenti.
+- Per vecchi archivi privi della massima, mostrare “—” senza inventare valori o usare la massima di sessione.
+- Preservare tempi giro, acquisizione a 25 Hz, CSV e protocollo Manager. Eventuali estensioni della persistenza richiedono compatibilità con gli archivi precedenti.
+- Verificare leggibilità sui due display mantenendo lo stile di ciascun dispositivo.
+
+La semplificazione richiesta riguarda la presentazione del riepilogo; non implica la cancellazione dei dati storici.
 
 ## Validazione complessiva e lavoro residuo
 

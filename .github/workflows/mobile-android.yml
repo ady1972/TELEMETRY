@@ -3,7 +3,7 @@ name: Build GOATS Mobile Android V0.2.1
 on:
   workflow_dispatch:
   push:
-    branches: [codex/mobile-windows-handoff]
+    branches: [main, codex/mobile-windows-handoff]
     paths:
       - 'mobile/**'
       - 'windows/**/sample_test.grt'

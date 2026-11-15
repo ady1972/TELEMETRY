@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include "goats_screen_mode.h"
 // KEY/BOOT UI navigation following the legacy direction/confirm/back behavior.
 // No serial communication with GPS; legacy SD/session menus are not enabled yet.
 namespace goats_gps_trace { void finish(bool); bool &recording(); }
@@ -21,7 +22,7 @@ inline void init(){guard_until()=millis()+1800;armed()=false;}
 inline void arm_if_ready(bool key_released, bool boot_released){
  if(!armed() && (int32_t)(millis()-guard_until())>=0 && key_released && boot_released)armed()=true;
 }
-inline int count(){return screen()==1?6:screen()==12?2:screen()==13?1:screen()==11?4:screen()==2?4:screen()==5?3:screen()==3?(int)goats_b::state().tracks.size():screen()==6?std::max(1,goats_archive::session_count()):screen()==7?std::max(1,goats_archive::laps_in_session(selected_session())):screen()==8?3:screen()==9?2:screen()==10?4:1;}
+inline int count(){return screen()==1?6:screen()==12?2:screen()==13?1:screen()==15?2:screen()==11?5:screen()==2?4:screen()==5?3:screen()==3?(int)goats_b::state().tracks.size():screen()==6?std::max(1,goats_archive::session_count()):screen()==7?std::max(1,goats_archive::laps_in_session(selected_session())):screen()==8?3:screen()==9?2:screen()==10?4:1;}
 inline void move(int step){int n=count();if(n<=0)return;cursor()=(cursor()+step+n)%n;if(screen()==3)track_cursor()=cursor();}
 inline void key_press(){if(!armed())return; key_down()=millis();key_moved()=false;if(screen()!=0 && screen()!=4){move(1);key_moved()=true;}}
 inline void key_release(){if(!armed())return;uint32_t ms=millis()-key_down();if(key_moved()){key_moved()=false;return;}
@@ -33,17 +34,26 @@ inline void key_release(){if(!armed())return;uint32_t ms=millis()-key_down();if(
 }
 inline void boot_press(){if(!armed())return;boot_down()=millis();}
 inline void finish(bool save){
+ const uint32_t finish_start=millis();
+ ESP_LOGI("SAVE_DIAG","menu begin save=%d",save);
  if(!save && !goats_archive::discard_current()) {screen()=9;cursor()=0;return;}
  goats_gps_trace::finish(save);
  goats_session_ctl::stop();goats_laptimer_reset();
  auto &s=goats_b::state();s.running=false;s.have_prev=false;s.laps=0;s.armed=true;
  s.last_lap=s.best_lap=0;s.last_cross=0;
- goats_archive::next_session();screen()=0;cursor()=0;
+ const uint32_t nvs_start=millis();
+ const bool next_ok=goats_archive::next_session();
+ ESP_LOGI("SAVE_DIAG","next session ok=%d duration_ms=%lu",next_ok,(unsigned long)(millis()-nvs_start));
+ // Closing a session must rearm acquisition for the next finish crossing.
+ // has_started stays false until a fresh lap starts: USB remains available.
+ goats_session_ctl::resume();
+ screen()=0;cursor()=0;
+ ESP_LOGI("SAVE_DIAG","menu done duration_ms=%lu",(unsigned long)(millis()-finish_start));
 }
 inline void boot_release(){if(!armed())return;uint32_t held=millis()-boot_down();bool longp=held>=800;
  if(screen()==0 && held>=3000){screen()=8;cursor()=0;return;}
 
- if(longp){if(screen()==0)return;if(screen()==1)screen()=0;else if(screen()==8){screen()=0;cursor()=0;}else if(screen()==9){screen()=8;cursor()=1;}else if(screen()==10){screen()=11;cursor()=2;}else if(screen()==11){screen()=1;cursor()=0;}else if(screen()==12 || screen()==13){screen()=1;cursor()=4;}else if(screen()==14){screen()=7;cursor()=selected_lap();}else if(screen()==7){screen()=6;cursor()=selected_session();}else if(screen()==2 || screen()==5){screen()=11;cursor()=0;}else {screen()=1;cursor()=0;}return;}
+ if(longp){if(screen()==0)return;if(screen()==1)screen()=0;else if(screen()==8){screen()=0;cursor()=0;}else if(screen()==9){screen()=8;cursor()=1;}else if(screen()==10){screen()=11;cursor()=2;}else if(screen()==15){screen()=11;cursor()=3;}else if(screen()==11){screen()=1;cursor()=0;}else if(screen()==12 || screen()==13){screen()=1;cursor()=4;}else if(screen()==14){screen()=7;cursor()=selected_lap();}else if(screen()==7){screen()=6;cursor()=selected_session();}else if(screen()==2 || screen()==5){screen()=11;cursor()=0;}else {screen()=1;cursor()=0;}return;}
  if(screen()==0){screen()=1;cursor()=0;return;}
  if(screen()==12){
    if(cursor()==0){
@@ -55,6 +65,10 @@ inline void boot_release(){if(!armed())return;uint32_t held=millis()-boot_down()
    return;
  }
  if(screen()==13){screen()=1;cursor()=4;return;}
+ if(screen()==15){
+   if(goats_screen_mode::select(cursor()==0)){screen()=11;cursor()=3;}
+   return;
+ }
  if(screen()==8){if(cursor()==0)finish(true);else if(cursor()==1){screen()=9;cursor()=0;}else {screen()=0;cursor()=0;}return;}
  if(screen()==9){if(cursor()==0)finish(false);else {screen()=8;cursor()=1;}return;}
  if(screen()==10){if(cursor()==0)goats_session_ctl::auto_timeout_ms()=30000;else if(cursor()==1)goats_session_ctl::auto_timeout_ms()=60000;else if(cursor()==2)goats_session_ctl::auto_timeout_ms()=90000;screen()=11;cursor()=2;return;}
@@ -70,6 +84,7 @@ inline void boot_release(){if(!armed())return;uint32_t held=millis()-boot_down()
   case 0:screen()=2;cursor()=0;break;
   case 1:screen()=5;cursor()=0;break;
   case 2:screen()=10;cursor()=1;break;
+  case 3:screen()=15;cursor()=goats_screen_mode::delta()?0:1;break;
   default:screen()=1;cursor()=0;break;
  }return;}
  if(screen()==2){switch(cursor()){

@@ -56,6 +56,35 @@ informazione mostrare "data non disponibile", senza inventare una data.
 Verifica hardware prevista: confronto con l'ora reale di registrazione su dispositivo,
 file esportato e dettagli nel Manager/PC; riapertura di file storici.
 
+## 4. RLCD: ripartenza dopo salvataggio — correzione locale RC2, da compilare e collaudare
+
+L'utente segnala su RC1 mancato riconoscimento del traguardo dopo il primo
+salvataggio, risolto solo con reboot. Causa riprodotta: pausa permanente
+lasciata dalla chiusura. La correzione locale RC2 riabilita l'acquisizione
+per un nuovo attraversamento; prova software RED→GREEN con motore reale.
+RC1 conservata. Nessun caricamento sul dispositivo effettuato.
+
+Separatamente: circa un minuto dopo conferma SALVA E TERMINA per una
+sessione da un'ora su RC1. Timeout automatico escluso; causa non ancora
+identificata. Diagnostica locale in [RLCD_SAVE_LATENCY](docs/RLCD_SAVE_LATENCY.md).
+
+## 5. Guition: oscillazioni del delta — correzione locale RC2, da compilare e collaudare
+
+L'utente conferma oscillazioni anche lontano dai settori. Riprodotto un reset
+improprio del filtro per campioni con lo stesso timestamp software; correzione
+locale nel solo Guition RC2, senza cambiare tempi giro o configurazione GNSS.
+Prova RED→GREEN su campioni raggruppati e prova di risposta a rallentamento,
+suite RC2 PASS. Incidenza sul dispositivo ancora da verificare.
+Dettagli: [GUITION_DELTA_REVIEW](docs/GUITION_DELTA_REVIEW.md).
+
+## 6. Modalità schermata — implementazione RC2.1, da collaudare
+
+Per RLCD e Guition, impostazioni → Modalità schermata → DELTA / LAP TIME.
+La prima scambia delta e tempo giro, comprese le etichette; la seconda mantiene
+la disposizione precedente. Entrambi i valori rimangono visibili. Preferenza
+salvata in NVS e ripristinata ai successivi avvii, default LAP TIME.
+Piano di prova: [MODALITA_SCHERMATA](docs/MODALITA_SCHERMATA.md).
+
 ## Fasi successive al collaudo RC2
 
 Le fasi seguenti sono pianificate, in questo ordine, dopo realizzazione e

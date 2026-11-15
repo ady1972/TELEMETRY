@@ -1126,7 +1126,10 @@ static inline bool finish_live_session(uint32_t session_id) {
   }
 
   // f_close() in FatFS already performs f_sync internally. Avoid double sync.
+  uint32_t stage_start=millis();
+  ESP_LOGI("SAVE_DIAG","CSV close begin");
   FRESULT fr = f_close(&g_live);
+  ESP_LOGI("SAVE_DIAG","CSV close result=%d duration_ms=%lu",int(fr),(unsigned long)(millis()-stage_start));
   g_live_is_open = false;
   if (fr != FR_OK) {
     set_fatfs_error_("LIVE_CLOSE", fr);
@@ -1153,6 +1156,8 @@ static inline bool finish_live_session(uint32_t session_id) {
 
   // TEST25: progressive name independent of GSA metadata (not generated here).
   // No existing CSV is ever unlinked or overwritten.
+  stage_start=millis();
+  ESP_LOGI("SAVE_DIAG","CSV name begin");
   char final_name[64]{};
   if(!progressive_trace_name_(final_name,sizeof(final_name))){
     if(goats_clock::valid(goats_clock::parse(g_live_date_file,g_live_time_file))) return false;
@@ -1166,14 +1171,24 @@ static inline bool finish_live_session(uint32_t session_id) {
     }
   }
 
+  ESP_LOGI("SAVE_DIAG","CSV name done duration_ms=%lu",(unsigned long)(millis()-stage_start));
+  stage_start=millis();
+  ESP_LOGI("SAVE_DIAG","CSV rename begin");
   fr = f_rename(live_name, final_name);
+  ESP_LOGI("SAVE_DIAG","CSV rename result=%d duration_ms=%lu",int(fr),(unsigned long)(millis()-stage_start));
   if (fr != FR_OK) {
     set_fatfs_error_("LIVE_RENAME", fr);
     return false;
   }
 
+  stage_start=millis();
+  ESP_LOGI("SAVE_DIAG","CSV map begin");
   if(!save_trace_map_(session_id,final_name)) {set_fatfs_error_("TRACE_MAP_WRITE",FR_DISK_ERR);return false;}
+  ESP_LOGI("SAVE_DIAG","CSV map done duration_ms=%lu",(unsigned long)(millis()-stage_start));
+  stage_start=millis();
+  ESP_LOGI("SAVE_DIAG","CSV timestamp begin");
   if(!stamp_trace_(final_name))return false;
+  ESP_LOGI("SAVE_DIAG","CSV timestamp done duration_ms=%lu",(unsigned long)(millis()-stage_start));
   FILINFO info{};
   fr = f_stat(final_name, &info);
   if (fr != FR_OK) {
