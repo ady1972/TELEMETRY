@@ -8,6 +8,7 @@ struct EngineStub {uint32_t last_timing_sector_ms(size_t i){return 1000+i;}} GOA
 namespace goats_b {inline void reply(const char*){}}
 #include "goats_session_archive.h"
 #include "goats_lap_speed_stats.h"
+static_assert(sizeof(goats_archive::Record)==72,"Legacy NVS record layout must stay unchanged");
 int main(){
  using namespace goats_archive;
  goats_lap_speed::reset();goats_lap_speed::observe(55);goats_lap_speed::observe(90);

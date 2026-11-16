@@ -52,3 +52,8 @@ parità, riavvio e cancellazione su entrambi i dispositivi, inclusi vecchi dati.
 I file e le cartelle conservano il nome RC2; progetto e informazioni firmware
 identificano questa revisione come RC2.2. RC1 resta invariata. La modalità
 schermata DELTA/LAP TIME introdotta in RC2.1 resta disponibile.
+
+Esito software della revisione: suite RC2 PASS, prova del renderer Guition
+PASS, invarianti e integrazione della versione Guition V1.0.22 storica PASS.
+Compilazioni complete RLCD e Guition con ESPHome 2026.7.3 / ESP-IDF 5.5.5:
+PASS. Nessun collaudo hardware; i due ZIP consegnati contengono i sorgenti.

@@ -30,5 +30,5 @@ with tempfile.TemporaryDirectory() as tmp:
     run([sys.executable,root/'tests/rc2/test_rlcd_restart.py'])
     run([sys.executable,root/'tests/guition_port/prepare_host.py',tmp,'goats_guition_43_rc2'])
     exe=Path(tmp)/'test_port'
-    run(['g++','-std=c++17','-Wall','-Wextra','-Wno-misleading-indentation','-I',tmp,'-I',root/'tests/guition_port/stubs','-I',guition,root/'tests/guition_port/test_port.cpp','-o',exe]);run([exe])
+    run(['g++','-std=c++17','-Wall','-Wextra','-Wno-misleading-indentation','-DGOATS_RC2_SUMMARY','-I',tmp,'-I',root/'tests/guition_port/stubs','-I',guition,root/'tests/guition_port/test_port.cpp','-o',exe]);run([exe])
 print('PASS RC2: date/DST, immutable metadata/NVS recovery, midnight queue, real FAT finalizers and legacy GSA3/25 Hz integration')
