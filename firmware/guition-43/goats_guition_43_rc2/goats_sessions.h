@@ -445,7 +445,7 @@ class GoatsSessionManager {
     for (const auto &lap : sess->laps) {
       out += std::to_string(lap.number);
       out += "\n";
-      out.append(lap.sectors_ms.size(),'\n');
+
     }
     return out;
   }
@@ -457,8 +457,6 @@ class GoatsSessionManager {
     for (const auto &lap : sess->laps) {
       out += format_lap_(lap.lap_time_ms);
       out += "\n";
-      for(size_t j=0;j<lap.sectors_ms.size();++j)
-        out += "S"+std::to_string(j+1)+" "+format_lap_(lap.sectors_ms[j])+"\n";
     }
     return out;
   }
@@ -472,7 +470,7 @@ class GoatsSessionManager {
       std::snprintf(b, sizeof(b), "%.1f", lap.max_speed_kmh);
       out += b;
       out += "\n";
-      out.append(lap.sectors_ms.size(),'\n');
+
     }
     return out;
   }
@@ -486,7 +484,7 @@ class GoatsSessionManager {
       std::snprintf(b, sizeof(b), "%.1f", lap.average_speed_kmh);
       out += b;
       out += "\n";
-      out.append(lap.sectors_ms.size(),'\n');
+
     }
     return out;
   }
@@ -498,7 +496,7 @@ class GoatsSessionManager {
     for (const auto &lap : sess->laps) {
       out += (lap.lap_time_ms == sess->best_lap_ms) ? "BEST" : "";
       out += "\n";
-      out.append(lap.sectors_ms.size(),'\n');
+
     }
     return out;
   }

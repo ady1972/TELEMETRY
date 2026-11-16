@@ -58,6 +58,10 @@ int main(){
   assert(goats_sd_storage::rows.size()==250);
   for(size_t i=0;i<250;++i)assert(goats_sd_storage::rows[i].elapsed_ms==i*40);
   assert(mgr.count()==1 && mgr.display_session(0)->laps[0].sectors_ms==laps[0].sectors);
+  assert(mgr.detail_laps_number(0)=="1\n");
+  assert(mgr.detail_laps_time(0).find("S1")==std::string::npos);
+  assert(mgr.detail_laps_vmax(0)=="60.0\n" && mgr.detail_laps_vavg(0)=="60.0\n");
+  assert(mgr.detail_laps_best(0)=="BEST\n");
   assert(goats_sd_storage::rows[199].lap==1&&goats_sd_storage::rows[200].lap==2);
   assert(!mgr.accepts_samples());
   // Original V1.0.20 reader consumes the unchanged GSA3 wire/disk archive.
