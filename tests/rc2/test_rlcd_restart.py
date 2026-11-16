@@ -70,6 +70,7 @@ int main(){
   start_session(); // Same track, no reboot or catalogue change.
   point(45.0006);point(44.9995);
   assert(goats_laptimer_last_lap_ms()>0);
+  assert(goats_lap_speed::last()==40);
  }
  assert(goats_gps_trace::saves==2 && goats_gps_trace::discards==1);
  // A rejected discard must leave the current session running.

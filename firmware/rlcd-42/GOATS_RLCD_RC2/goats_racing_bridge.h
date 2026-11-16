@@ -2,6 +2,7 @@
 // TEST D: adapts Manager GTC3 tracks and validated V3 samples to the original racing engine.
 // No UART access; no GPS commands; no SD operations.
 #include <cmath>
+#include "goats_lap_speed_stats.h"
 #include <vector>
 #include <string>
 #include "goats_track_types.h"
@@ -19,6 +20,7 @@ inline void consume(bool valid,double lat,double lon,float speed,uint32_t itow){
  if(index!=last_index()||crc!=last_crc()){
    last_index()=index;last_crc()=crc;has_track()=false;
    goats_laptimer_reset();
+   goats_lap_speed::reset();
    if(index>=0 && index<(int)b.tracks.size()){
      const auto &src=b.tracks[(size_t)index];auto &dst=mapped();
      dst.name=src.name;dst.start_lat=src.a;dst.start_lon=src.b;
@@ -33,7 +35,13 @@ inline void consume(bool valid,double lat,double lon,float speed,uint32_t itow){
    }
  }
  if(goats_session_ctl::paused())return;
+ const bool was_running=goats_laptimer_running();
+ const uint32_t prior_lap=goats_laptimer_lap_number();
+ if(!was_running)goats_lap_speed::current()=0;
+ if(was_running && valid)goats_lap_speed::observe(speed);
  goats_laptimer_update(has_track()?&mapped():nullptr,valid,lat,lon,speed,millis(),itow);
+ if(was_running && goats_laptimer_lap_number()!=prior_lap && goats_laptimer_last_lap_ms()>0)
+   goats_lap_speed::complete();
  goats_session_ctl::observe(speed,goats_laptimer_running());
 }
 }

@@ -85,6 +85,13 @@ la disposizione precedente. Entrambi i valori rimangono visibili. Preferenza
 salvata in NVS e ripristinata ai successivi avvii, default LAP TIME.
 Piano di prova: [MODALITA_SCHERMATA](docs/MODALITA_SCHERMATA.md).
 
+## 7. Riepilogo sessioni — RC2.2, da collaudare
+
+Implementato su entrambi: tempo giro, massima e media per giro, BEST
+evidenziato. Rimossi i settori dalla vista Guition, mantenendone i dati.
+Persistenza della massima RLCD compatibile con i record precedenti.
+Dettagli: [RIEPILOGO_SESSIONI_RC2](docs/RIEPILOGO_SESSIONI_RC2.md).
+
 ## Fasi successive al collaudo RC2
 
 Le fasi seguenti sono pianificate, in questo ordine, dopo realizzazione e

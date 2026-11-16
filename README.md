@@ -85,6 +85,14 @@ oltre alla diagnostica della lentezza di salvataggio ancora da misurare.
 Dettagli e piano di prova: [Modalità schermata](docs/MODALITA_SCHERMATA.md).
 Nessun collaudo hardware o flash eseguito in questa preparazione.
 
+## RC2.2 — riepilogo dei giri
+
+RLCD e Guition mostrano tempo, velocità massima e media per ogni giro,
+con BEST evidenziato. Su Guition i settori non compaiono più nel riepilogo.
+Su RLCD la massima dei nuovi giri è conservata dopo il riavvio; i vecchi
+archivi senza questo dato mostrano --. Dettagli e prove:
+[Riepilogo sessioni RC2.2](docs/RIEPILOGO_SESSIONI_RC2.md).
+
 ## Sviluppo
 - ESPHome
 - Codex per analisi e modifiche ai sorgenti

@@ -18,14 +18,14 @@
 
 substitutions:
   device_name: goats-rt-laptimer-v2
-  friendly_name: "GOATS GUITION 4.3 V1.0.22 RC2.1 RLCD26 USB"
+  friendly_name: "GOATS GUITION 4.3 V1.0.22 RC2.2 RLCD26 USB"
 
 esphome:
   name: ${device_name}
   friendly_name: ${friendly_name}
   project:
     name: goats_rt.guition43
-    version: "1.0.22-rc2.1"
+    version: "1.0.22-rc2.2"
   includes:
     - goats_guition_43_rc2/goats_screen_mode.h
     - goats_guition_43_rc2/goats_recording_clock.h
@@ -41,6 +41,7 @@ esphome:
     - goats_guition_43_rc2/goats_laptimer.h
     - goats_guition_43_rc2/goats_nav_sample_queue.h
     - goats_guition_43_rc2/goats_sessions.h
+    - goats_guition_43_rc2/goats_summary_ui.h
     - goats_guition_43_rc2/goats_pipeline.h
     - goats_guition_43_rc2/goats_gnss_assist_v1023.h
     - goats_guition_43_rc2/goats_ubx_m9n_v11.h
@@ -3303,183 +3304,57 @@ lvgl:
                   x: 8
                   y: 65
                   width: 464
-                  height: 62
+                  height: 25
                   bg_color: 0x000000
-                  border_color: 0x303740
-                  border_width: 1
-                  radius: 9
+                  border_width: 0
                   pad_all: 0
                   widgets:
                     - label:
-                        x: 10
-                        y: 6
-                        text: "GIRI"
+                        x: 0
+                        y: 2
+                        width: 46
+                        text: "GIRO"
                         text_font: roboto_14
+                        text_align: CENTER
                         text_color: 0x8F969F
                     - label:
-                        id: session_detail_count
-                        x: 10
-                        y: 28
-                        width: 48
-                        text: "0"
-                        text_font: roboto_18
-                        text_color: 0xFFFFFF
-                    - label:
-                        x: 72
-                        y: 6
-                        text: "DURATA"
+                        x: 48
+                        y: 2
+                        width: 131
+                        text: "TEMPO"
                         text_font: roboto_14
+                        text_align: CENTER
                         text_color: 0x8F969F
                     - label:
-                        id: session_detail_duration
-                        x: 72
-                        y: 28
-                        width: 74
-                        text: "00:00"
-                        text_font: roboto_18
-                        text_color: 0xFFFFFF
-                    - label:
-                        x: 158
-                        y: 6
-                        text: "BEST LAP"
+                        x: 181
+                        y: 2
+                        width: 95
+                        text: "MAX km/h"
                         text_font: roboto_14
+                        text_align: CENTER
                         text_color: 0x8F969F
-                    - label:
-                        id: session_detail_best
-                        x: 158
-                        y: 28
-                        width: 104
-                        text: "--:--.---"
-                        text_font: roboto_18
-                        text_color: 0x00D084
                     - label:
                         x: 278
-                        y: 6
-                        text: "V MAX"
+                        y: 2
+                        width: 96
+                        text: "MEDIA km/h"
                         text_font: roboto_14
+                        text_align: CENTER
                         text_color: 0x8F969F
-                    - label:
-                        id: session_detail_vmax
-                        x: 278
-                        y: 28
-                        width: 72
-                        text: "0.0"
-                        text_font: roboto_18
-                        text_color: 0xFFFFFF
-                    - label:
-                        x: 368
-                        y: 6
-                        text: "V MEDIA"
-                        text_font: roboto_14
-                        text_color: 0x8F969F
-                    - label:
-                        id: session_detail_vavg
-                        x: 368
-                        y: 28
-                        width: 76
-                        text: "0.0"
-                        text_font: roboto_18
-                        text_color: 0xFFFFFF
-
               - obj:
+                  id: session_detail_lap_rows
                   x: 8
-                  y: 133
+                  y: 90
                   width: 464
-                  height: 98
-                  bg_color: 0x10141A
+                  height: 141
+                  bg_color: 0x000000
                   border_color: 0x303740
                   border_width: 1
-                  radius: 9
+                  radius: 4
                   pad_all: 4
+                  scrollable: true
                   scrollbar_mode: AUTO
                   scroll_dir: VER
-                  widgets:
-                    - label:
-                        x: 4
-                        y: 2
-                        width: 50
-                        text: "GIRO"
-                        text_align: CENTER
-                        text_font: roboto_14
-                        text_color: 0x8F969F
-                    - label:
-                        x: 58
-                        y: 2
-                        width: 132
-                        text: "TEMPO"
-                        text_align: CENTER
-                        text_font: roboto_14
-                        text_color: 0x8F969F
-                    - label:
-                        x: 194
-                        y: 2
-                        width: 78
-                        text: "V.MAX"
-                        text_align: CENTER
-                        text_font: roboto_14
-                        text_color: 0x8F969F
-                    - label:
-                        x: 276
-                        y: 2
-                        width: 78
-                        text: "V.MED"
-                        text_align: CENTER
-                        text_font: roboto_14
-                        text_color: 0x8F969F
-                    - label:
-                        x: 358
-                        y: 2
-                        width: 88
-                        text: "BEST"
-                        text_align: CENTER
-                        text_font: roboto_14
-                        text_color: 0x8F969F
-                    - label:
-                        id: session_detail_laps_number
-                        x: 4
-                        y: 23
-                        width: 50
-                        text: ""
-                        text_align: CENTER
-                        text_font: roboto_14
-                        text_color: 0xFFFFFF
-                    - label:
-                        id: session_detail_laps_time
-                        x: 58
-                        y: 23
-                        width: 132
-                        text: ""
-                        text_align: CENTER
-                        text_font: roboto_14
-                        text_color: 0xFFFFFF
-                    - label:
-                        id: session_detail_laps_vmax
-                        x: 194
-                        y: 23
-                        width: 78
-                        text: ""
-                        text_align: CENTER
-                        text_font: roboto_14
-                        text_color: 0xFFFFFF
-                    - label:
-                        id: session_detail_laps_vavg
-                        x: 276
-                        y: 23
-                        width: 78
-                        text: ""
-                        text_align: CENTER
-                        text_font: roboto_14
-                        text_color: 0xFFFFFF
-                    - label:
-                        id: session_detail_laps_best
-                        x: 358
-                        y: 23
-                        width: 88
-                        text: ""
-                        text_align: CENTER
-                        text_font: roboto_14
-                        text_color: 0x00D084
-
 
               - button:
                   x: 322
@@ -4479,44 +4354,10 @@ interval:
           }
 
           const int selected = id(selected_archive_session) - 1;
-          if (selected >= 0 &&
-              static_cast<size_t>(selected) < goats_sessions_count()) {
-            const size_t i = static_cast<size_t>(selected);
-            lv_label_set_text(id(session_detail_header),
-                              goats_sessions_detail_header(i).c_str());
-            lv_label_set_text(id(session_detail_count),
-                              goats_sessions_detail_lap_count(i).c_str());
-            lv_label_set_text(id(session_detail_duration),
-                              goats_sessions_detail_duration(i).c_str());
-            lv_label_set_text(id(session_detail_best),
-                              goats_sessions_detail_best(i).c_str());
-            lv_label_set_text(id(session_detail_vmax),
-                              goats_sessions_detail_vmax(i).c_str());
-            lv_label_set_text(id(session_detail_vavg),
-                              goats_sessions_detail_vavg(i).c_str());
-            lv_label_set_text(id(session_detail_laps_number),
-                              goats_sessions_detail_laps_number(i).c_str());
-            lv_label_set_text(id(session_detail_laps_time),
-                              goats_sessions_detail_laps_time(i).c_str());
-            lv_label_set_text(id(session_detail_laps_vmax),
-                              goats_sessions_detail_laps_vmax(i).c_str());
-            lv_label_set_text(id(session_detail_laps_vavg),
-                              goats_sessions_detail_laps_vavg(i).c_str());
-            lv_label_set_text(id(session_detail_laps_best),
-                              goats_sessions_detail_laps_best(i).c_str());
-          } else {
-            lv_label_set_text(id(session_detail_header), "NESSUNA SESSIONE");
-            lv_label_set_text(id(session_detail_count), "0");
-            lv_label_set_text(id(session_detail_duration), "00:00");
-            lv_label_set_text(id(session_detail_best), "--:--.---");
-            lv_label_set_text(id(session_detail_vmax), "0.0");
-            lv_label_set_text(id(session_detail_vavg), "0.0");
-            lv_label_set_text(id(session_detail_laps_number), "");
-            lv_label_set_text(id(session_detail_laps_time), "");
-            lv_label_set_text(id(session_detail_laps_vmax), "");
-            lv_label_set_text(id(session_detail_laps_vavg), "");
-            lv_label_set_text(id(session_detail_laps_best), "");
-          }
+          const GoatsSessionRecord *session=selected>=0?GOATS_SESSIONS.display_session(static_cast<size_t>(selected)):nullptr;
+          lv_label_set_text(id(session_detail_header),session?goats_sessions_detail_header(static_cast<size_t>(selected)).c_str():"NESSUNA SESSIONE");
+          if(lv_obj_is_visible(id(session_detail_lap_rows)))
+            goats_summary_ui::render(id(session_detail_lap_rows),session,id(roboto_18)->get_lv_font());
 
   # Servizio trasferimento catalogo dalla porta USB.
   - interval: 20ms

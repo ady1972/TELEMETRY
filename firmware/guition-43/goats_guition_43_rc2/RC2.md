@@ -115,3 +115,12 @@ PASS nei controlli GitHub sul commit af03d359b9f987054a96473f837623946c1f7eec.
 Questa verifica supera lo stato di compilazione pendente riportato nelle
 annotazioni iniziali. Collaudo hardware ancora da eseguire; nessun flash.
 Dettagli: docs/MODALITA_SCHERMATA.md.
+
+## RC2.2 — riepilogo giri della sessione
+
+Riepilogo per giro con tempo, velocità massima e media e indicatore BEST
+sul miglior tempo positivo conservato; tutte le parità sono evidenziate.
+Guition rimuove i settori e le statistiche aggregate da questa vista.
+RLCD conserva la massima nei nuovi giri con metadati NVS compatibili con
+gli archivi precedenti; i vecchi dati privi della massima mostrano --.
+Piano di prova e compatibilità: docs/RIEPILOGO_SESSIONI_RC2.md. Nessun flash.

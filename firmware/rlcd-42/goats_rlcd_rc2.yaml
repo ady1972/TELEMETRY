@@ -17,10 +17,10 @@ esphome:
             goats_menu::init();
           }
   name: goats-rlcd-mg902-rc2
-  friendly_name: GOATS RLCD R12.1 SD R14.2 RC2.1
+  friendly_name: GOATS RLCD R12.1 SD R14.2 RC2.2
   project:
     name: goats_rt.rlcd42
-    version: "R12.1-SD-R14.2-RC2.1"
+    version: "R12.1-SD-R14.2-RC2.2"
   includes:
     - GOATS_RLCD_RC2/goats_recording_clock.h
     - GOATS_RLCD_RC2/goats_recording_dates.h
@@ -31,6 +31,7 @@ esphome:
     - GOATS_RLCD_RC2/goats_test_b.h
     - GOATS_RLCD_RC2/goats_track_types.h
     - GOATS_RLCD_RC2/goats_laptimer.h
+    - GOATS_RLCD_RC2/goats_lap_speed_stats.h
     - GOATS_RLCD_RC2/goats_racing_bridge.h
     - GOATS_RLCD_RC2/m9n_passive.h
     - GOATS_RLCD_RC2/goats_postlap_ui.h
@@ -305,18 +306,27 @@ display:
             }
           }
         } else if(page==7){
-          const int n=goats_archive::laps_in_session(goats_menu::selected_session());
+          const int session=goats_menu::selected_session();
+          const int n=goats_archive::laps_in_session(session);
+          const uint32_t best=goats_archive::best_retained_ms(session);
           if(n==0)it.print(200,130,id(f20),W,TextAlign::CENTER,"NESSUN GIRO SALVATO");
-          else {
-            const int base=std::max(0,std::min(cur-2,n-5));
-            for(int i=base;i<n && i<base+5;i++){
-              goats_archive::Record r{};
-              if(!goats_archive::lap_in_session(goats_menu::selected_session(),i,r))continue;
-              char row[96];snprintf(row,sizeof(row),"G%lu  %lu:%02lu.%03lu  %.1f km/h",
-                (unsigned long)r.lap,(unsigned long)(r.lap_ms/60000),
-                (unsigned long)((r.lap_ms/1000)%60),(unsigned long)(r.lap_ms%1000),(double)r.avg_kmh);
-              racing_row(79+(i-base)*35,34,row,cur==i,id(f20));
-            }
+          const int base=std::max(0,std::min(cur-1,n-3));
+          for(int i=base;i<n && i<base+3;i++){
+            goats_archive::Record r{};if(!goats_archive::lap_in_session(session,i,r))continue;
+            const int y=88+(i-base)*54;
+            const bool is_best=r.lap_ms>0 && r.lap_ms==best;
+            const bool selected=cur==i;
+            if(is_best||selected)it.filled_rectangle(23,y,354,51,W);
+            else it.rectangle(23,y,354,51,W);
+            const Color ink=(is_best||selected)?B:W;
+            char line[96],maximum[20];float kmh=0;
+            if(goats_archive::maximum_for(r,kmh))snprintf(maximum,sizeof(maximum),"%.1f",(double)kmh);
+            else snprintf(maximum,sizeof(maximum),"--");
+            snprintf(line,sizeof(line),"%sG%lu  %lu:%02lu.%03lu%s",selected?"> ":"  ",(unsigned long)r.lap,
+              (unsigned long)(r.lap_ms/60000),(unsigned long)((r.lap_ms/1000)%60),(unsigned long)(r.lap_ms%1000),is_best?"  BEST":"");
+            it.print(30,y+2,id(f20),ink,TextAlign::TOP_LEFT,line);
+            snprintf(line,sizeof(line),"MAX %s   MEDIA %.1f km/h",maximum,(double)r.avg_kmh);
+            it.print(30,y+29,id(f16),ink,TextAlign::TOP_LEFT,line);
           }
         } else if(page==14){
           goats_archive::Record r{};
@@ -329,9 +339,12 @@ display:
             it.print(200,133,id(f20),W,TextAlign::CENTER,row);
             snprintf(row,sizeof(row),"MEDIA %.1f km/h",(double)r.avg_kmh);
             it.print(200,174,id(f20),W,TextAlign::CENTER,row);
-            snprintf(row,sizeof(row),"S1 %lu  S2 %lu  S3 %lu ms",
-              (unsigned long)r.sector_ms[0],(unsigned long)r.sector_ms[1],(unsigned long)r.sector_ms[2]);
-            it.print(200,215,id(f20),W,TextAlign::CENTER,row);
+            float maximum=0;
+            if(goats_archive::maximum_for(r,maximum))snprintf(row,sizeof(row),"MAX %.1f km/h",(double)maximum);
+            else snprintf(row,sizeof(row),"MAX -- km/h");
+            it.print(200,210,id(f20),W,TextAlign::CENTER,row);
+            if(r.lap_ms && r.lap_ms==goats_archive::best_retained_ms(goats_menu::selected_session()))
+              it.print(200,105,id(f13),W,TextAlign::CENTER,"BEST LAP");
             it.print(200,242,id(f13),W,TextAlign::CENTER,goats_dates::text(r.session).c_str());
           } else it.print(200,140,id(f20),W,TextAlign::CENTER,"GIRO NON DISPONIBILE");
         } else if(page==5){
@@ -352,7 +365,7 @@ display:
           char date[16],time[16],clock[48];
           goats_clock::format(uint32_t(now-goats_clock::observed_ms)<=3000?goats_clock::latest:goats_clock::DateTime{},date,sizeof(date),time,sizeof(time));
           snprintf(clock,sizeof(clock),"%s %s IT",date,time);
-          const char* rows[]={line0,line1,line2,line3,line4,clock,"FW: MG902 RC2.1"};
+          const char* rows[]={line0,line1,line2,line3,line4,clock,"FW: MG902 RC2.2"};
           for(int i=0;i<7;i++){
             const int y=68+i*26;
             it.print(34,y+5,id(f20),W,TextAlign::TOP_LEFT,rows[i]);
@@ -569,7 +582,7 @@ interval:
             const char *name=(state.active_track>=0 && state.active_track<(int)state.tracks.size())
               ?state.tracks[state.active_track].name.c_str():"AUTO";
             const bool archive_ok=goats_archive::save(goats_laptimer_lap_number(),goats_laptimer_last_lap_ms(),
-                 goats_laptimer_best_lap_ms(),goats_laptimer_last_lap_average_speed_kmh(),name);
+                 goats_laptimer_best_lap_ms(),goats_laptimer_last_lap_average_speed_kmh(),name,goats_lap_speed::last());
             if(!archive_ok) ESP_LOGW("archive","Salvataggio giro fallito");
             if(archive_ok) goats_sd_r14_bridge::save_lap(goats_archive::session(),goats_laptimer_lap_number(),
                  goats_laptimer_last_lap_ms(),goats_laptimer_best_lap_ms(),goats_laptimer_last_lap_average_speed_kmh(),name);

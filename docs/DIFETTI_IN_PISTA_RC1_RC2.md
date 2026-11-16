@@ -108,3 +108,10 @@ Prima di dichiarare risolti i difetti in pista:
 5. Aggiornare questa nota con versione esatta, risultati e problemi residui.
 
 Nessun flash, rilascio firmware o collaudo hardware delle nuove modifiche è stato eseguito durante questa analisi.
+
+## Aggiornamento riepilogo — RC2.2
+
+Il riepilogo essenziale è implementato nel candidato RC2.2 per RLCD e Guition:
+tempo, velocità massima e media per ogni giro, con BEST evidenziato. I settori
+sono rimossi dalla vista Guition mantenendone i dati registrati. Dettagli di
+compatibilità, test e collaudo: [Riepilogo sessioni RC2.2](RIEPILOGO_SESSIONI_RC2.md).

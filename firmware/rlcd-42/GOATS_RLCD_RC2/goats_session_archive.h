@@ -3,12 +3,23 @@
 #include <cstdio>
 #include <cstring>
 #include <algorithm>
+#include <cmath>
 #include "nvs.h"
 #include "nvs_flash.h"
 // FASE2 A: NVS flash journal, writes ONLY on completed laps, not at 25Hz.
 // Up to 80 laps retained. Session identifier increments at each boot.
 namespace goats_archive {
 struct Record { uint32_t session, lap, lap_ms, best_ms; float avg_kmh; uint32_t sector_ms[3]; char track[40]; };
+// Companion records preserve the legacy Record byte layout and CSV/USB formats.
+struct MaxRecord {uint32_t session,lap,lap_ms;float kmh;};
+inline MaxRecord *cache_max(){static MaxRecord items[80]{};return items;}
+inline bool max_matches(const Record &r,const MaxRecord &m){return r.lap_ms>0 && r.session==m.session && r.lap==m.lap && r.lap_ms==m.lap_ms && std::isfinite(m.kmh) && m.kmh>=0;}
+inline bool read_max_slot(uint32_t slot,MaxRecord &out){
+ nvs_handle_t h;if(nvs_open("goats_sess",NVS_READONLY,&h)!=ESP_OK)return false;
+ char key[16];std::snprintf(key,sizeof(key),"max%02lu",(unsigned long)slot);
+ MaxRecord value{};size_t size=sizeof(value);const auto err=nvs_get_blob(h,key,&value,&size);nvs_close(h);
+ const bool ok=err==ESP_OK && size==sizeof(value);out=ok?value:MaxRecord{};return ok;
+}
 inline uint32_t &session(){static uint32_t n=0;return n;}
 inline uint32_t &count(){static uint32_t n=0;return n;}
 inline uint32_t &head(){static uint32_t n=0;return n;}
@@ -28,14 +39,17 @@ inline void setup(){
  if(nvs_set_u32(h,"session",session())==ESP_OK && nvs_commit(h)==ESP_OK)ready()=true;
  nvs_close(h);
 }
-inline bool save(uint32_t lap,uint32_t lap_ms,uint32_t best_ms,float avg,const char*track){
+inline bool save(uint32_t lap,uint32_t lap_ms,uint32_t best_ms,float avg,const char*track,float maximum=NAN){
  if(!ready()||!lap_ms)return false;
  Record r{};r.session=session();r.lap=lap;r.lap_ms=lap_ms;r.best_ms=best_ms;r.avg_kmh=avg;
  std::snprintf(r.track,sizeof(r.track),"%s",track?track:"AUTO");
  for(size_t i=0;i<3;++i)r.sector_ms[i]=GOATS_LAPTIMER.last_timing_sector_ms(i);
  nvs_handle_t h;if(nvs_open("goats_sess",NVS_READWRITE,&h)!=ESP_OK)return false;
- char key[12];std::snprintf(key,sizeof(key),"lap%02lu",(unsigned long)head());
+ char key[16];std::snprintf(key,sizeof(key),"lap%02lu",(unsigned long)head());
  esp_err_t e=nvs_set_blob(h,key,&r,sizeof(r));
+ const MaxRecord maximum_record{r.session,r.lap,r.lap_ms,maximum};
+ std::snprintf(key,sizeof(key),"max%02lu",(unsigned long)head());
+ if(e==ESP_OK)e=nvs_set_blob(h,key,&maximum_record,sizeof(maximum_record));
  uint32_t next=(head()+1)%80, n=std::min<uint32_t>(80,count()+1);
  if(e==ESP_OK)e=nvs_set_u32(h,"head",next);
  if(e==ESP_OK)e=nvs_set_u32(h,"count",n);
@@ -46,19 +60,22 @@ inline bool save(uint32_t lap,uint32_t lap_ms,uint32_t best_ms,float avg,const c
 // Discard only records belonging to the active session; preserve previous sessions.
 inline bool discard_current(){
  if(!ready())return false;
- Record keep[80];uint32_t kept=0;
+ Record keep[80];MaxRecord keep_max[80]{};uint32_t kept=0;
  for(uint32_t i=0;i<count();++i){
    uint32_t slot=(head()+80-count()+i)%80;
-   char key[12];std::snprintf(key,sizeof(key),"lap%02lu",(unsigned long)slot);
+   char key[16];std::snprintf(key,sizeof(key),"lap%02lu",(unsigned long)slot);
    nvs_handle_t h;if(nvs_open("goats_sess",NVS_READONLY,&h)!=ESP_OK)return false;
    Record r{};size_t size=sizeof(r);esp_err_t e=nvs_get_blob(h,key,&r,&size);nvs_close(h);
-   if(e==ESP_OK && size==sizeof(r) && r.session!=session())keep[kept++]=r;
+   if(e==ESP_OK && size==sizeof(r) && r.session!=session()){keep[kept]=r;(void)read_max_slot(slot,keep_max[kept]);++kept;}
  }
  nvs_handle_t h;if(nvs_open("goats_sess",NVS_READWRITE,&h)!=ESP_OK)return false;
  esp_err_t e=ESP_OK;
- for(uint32_t i=0;i<80 && e==ESP_OK;++i){char key[12];std::snprintf(key,sizeof(key),"lap%02lu",(unsigned long)i);
+ for(uint32_t i=0;i<80 && e==ESP_OK;++i){char key[16];std::snprintf(key,sizeof(key),"lap%02lu",(unsigned long)i);
    if(i<kept)e=nvs_set_blob(h,key,&keep[i],sizeof(Record));
    else {esp_err_t del=nvs_erase_key(h,key);if(del!=ESP_OK && del!=ESP_ERR_NVS_NOT_FOUND)e=del;}
+   std::snprintf(key,sizeof(key),"max%02lu",(unsigned long)i);
+   if(e==ESP_OK && i<kept)e=nvs_set_blob(h,key,&keep_max[i],sizeof(MaxRecord));
+   else if(e==ESP_OK){const auto del=nvs_erase_key(h,key);if(del!=ESP_OK && del!=ESP_ERR_NVS_NOT_FOUND)e=del;}
  }
  if(e==ESP_OK)e=nvs_set_u32(h,"count",kept);
  if(e==ESP_OK)e=nvs_set_u32(h,"head",kept%80);
@@ -76,7 +93,7 @@ inline bool next_session(){
 inline bool read_from_nvs(uint32_t index,Record &r){
  if(!ready()||index>=count())return false;
  uint32_t slot=(head()+80-count()+index)%80;
- char key[12];std::snprintf(key,sizeof(key),"lap%02lu",(unsigned long)slot);
+ char key[16];std::snprintf(key,sizeof(key),"lap%02lu",(unsigned long)slot);
  nvs_handle_t h;if(nvs_open("goats_sess",NVS_READONLY,&h)!=ESP_OK)return false;
  size_t size=sizeof(r);esp_err_t e=nvs_get_blob(h,key,&r,&size);nvs_close(h);
  return e==ESP_OK && size==sizeof(r);
@@ -84,8 +101,11 @@ inline bool read_from_nvs(uint32_t index,Record &r){
 inline void build_cache(){
  if(cache_valid())return;
  for(uint32_t i=0;i<80;++i)cache_present()[i]=false;
- for(uint32_t i=0;i<count();++i)
+ for(uint32_t i=0;i<count();++i){
    cache_present()[i]=read_from_nvs(i,cache_records()[i]);
+   cache_max()[i]={};
+   if(cache_present()[i]) (void)read_max_slot((head()+80-count()+i)%80,cache_max()[i]);
+ }
  cache_valid()=true;
 }
 inline bool read(uint32_t index,Record &r){
@@ -115,6 +135,16 @@ inline int laps_in_session(int index){
 inline bool lap_in_session(int index,int lap_index,Record &out){
  uint32_t sid;Record last{};if(!session_at(index,sid,last)||lap_index<0)return false;
  int n=0;for(uint32_t i=0;i<count();++i){Record r{};if(read(i,r)&&r.session==sid){if(n++==lap_index){out=r;return true;}}}return false;
+}
+inline uint32_t best_retained_ms(int index){
+ uint32_t best=0;const int n=laps_in_session(index);
+ for(int i=0;i<n;++i){Record r{};if(lap_in_session(index,i,r)&&r.lap_ms && (!best||r.lap_ms<best))best=r.lap_ms;}
+ return best;
+}
+inline bool maximum_for(const Record &r,float &out){
+ build_cache();
+ for(uint32_t i=0;i<count();++i)if(cache_present()[i] && max_matches(r,cache_max()[i])){out=cache_max()[i].kmh;return true;}
+ return false;
 }
 inline void export_csv(){
  goats_b::reply("GSES_CSV_BEGIN session,lap,lap_ms,best_ms,avg_kmh,s1_ms,s2_ms,s3_ms,track");
