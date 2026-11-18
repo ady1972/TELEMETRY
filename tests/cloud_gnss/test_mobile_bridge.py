@@ -1,3 +1,4 @@
+import os
 import importlib.util
 import json
 from pathlib import Path
@@ -6,7 +7,7 @@ import tempfile
 import unittest
 
 ROOT=Path(__file__).resolve().parents[2]
-sys.path.insert(0,str(ROOT/'mobile/v0.2.2/fullapp/src/main/python'))
+sys.path.insert(0,str(ROOT/('mobile/v'+os.environ.get('GOATS_MOBILE_VERSION','0.2.2')+'/fullapp/src/main/python')))
 import android_bridge as bridge
 import goats_cloud_sync as sync
 

@@ -1,3 +1,4 @@
+import os
 import importlib.util
 import json
 from pathlib import Path
@@ -5,8 +6,8 @@ import tempfile
 import unittest
 
 ROOT = Path(__file__).resolve().parents[2]
-WIN = ROOT / 'windows/v5.4.15.6-burst4'
-MOBILE = ROOT / 'mobile/v0.2.2/fullapp/src/main/python'
+WIN = ROOT / ('windows/v'+os.environ.get('GOATS_WINDOWS_VERSION','5.4.15.6')+'-burst4')
+MOBILE = ROOT / ('mobile/v'+os.environ.get('GOATS_MOBILE_VERSION','0.2.2')+'/fullapp/src/main/python')
 spec = importlib.util.spec_from_file_location('sync_engine', WIN/'goats_cloud_sync.py')
 sync = importlib.util.module_from_spec(spec);spec.loader.exec_module(sync)
 

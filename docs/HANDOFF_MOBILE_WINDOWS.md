@@ -30,6 +30,13 @@ Each complete application version lives in its own directory:
   Rate/baud and firmware remain unchanged. See `docs/CLOUD_SYNC_MOBILE_WINDOWS.md`
   and the version README for capabilities and hardware/provider test limits.
 
+- Android V0.2.3: `mobile/v0.2.3/`, receives Windows session deletion receipts.
+- Windows V5.4.15.7: `windows/v5.4.15.7-burst4/`, managed originals, startup check
+  independent of periodic sync, legacy source adoption and physical session
+  deletion with receipts preventing offline copies from resurrecting files.
+  These session deletions were explicitly requested by the user; track deletions
+  remain local. External sources/microSD and older release folders are retained.
+
 The platform-level READMEs list available versions. Keep each source package
 complete when adding a new version; do not infer complete older releases from
 the historical standalone scripts bundled in the Windows package.

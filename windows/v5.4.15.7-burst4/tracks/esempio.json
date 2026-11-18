@@ -1,0 +1,15 @@
+{
+  "schema_version": 3,
+  "id": "esempio",
+  "name": "Circuito di esempio",
+  "country": "IT",
+  "direction": "unspecified",
+  "start_line": {
+    "lat1": 45.0,
+    "lon1": 9.0,
+    "lat2": 45.0001,
+    "lon2": 9.0001
+  },
+  "trigger_radius_m": 20.0,
+  "sectors": []
+}
