@@ -92,10 +92,24 @@ evidenziato. Rimossi i settori dalla vista Guition, mantenendone i dati.
 Persistenza della massima RLCD compatibile con i record precedenti.
 Dettagli: [RIEPILOGO_SESSIONI_RC2](docs/RIEPILOGO_SESSIONI_RC2.md).
 
+## RC3 — Wi-Fi e sessioni sull’app mobile, prossimo sviluppo
+
+Richiesta dell’utente del 18/11/2026 per **RLCD e Guition**: aggiornamenti
+firmware via Wi-Fi e trasferimento delle sessioni all’app Android.
+Il client Wi-Fi dell’app esiste; nei firmware RC2 mancano i servizi necessari.
+Piano operativo e compatibilità: [RC3_WIFI_MOBILE](docs/RC3_WIFI_MOBILE.md).
+
+Proposta: rete locale creata dal laptimer, attivata solo dal menu a sessione
+terminata; radio spenta in Racing e all’avvio. Base comune → sessioni nell’app
+→ aggiornamento firmware → collaudo combinato, con cartelle RC3 separate.
+Questa voce definisce la nuova priorità RC3; non dichiara implementate le
+funzioni e non modifica il firmware RC2. Il riavvio da USB MSC e la valutazione
+action cam riportati sotto restano attività separate.
+
 ## Fasi successive al collaudo RC2
 
-Le fasi seguenti sono pianificate, in questo ordine, dopo realizzazione e
-collaudo di RC2 su RLCD e Guition. Non sono implementate in RC2; il loro
+Le attività seguenti conservano il piano precedente; la priorità RC3 è ora
+definita nella sezione sopra. Restano subordinate al collaudo di RC2 su RLCD e Guition. Non sono implementate in RC2; il loro
 inserimento nella roadmap non modifica lo stato delle prove hardware RC2.
 
 ### Fase 1. RLCD: riavvio da USB Mass Storage — da fare
