@@ -1,0 +1,21 @@
+#!/usr/bin/env sh
+set -eu
+DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+VER=9.4.1
+BASE="$DIR/.gradle-dist"
+GRADLE="$BASE/gradle-$VER/bin/gradle"
+ZIP="$BASE/gradle-$VER-bin.zip"
+if [ ! -x "$GRADLE" ]; then
+  mkdir -p "$BASE"
+  URL="https://services.gradle.org/distributions/gradle-$VER-bin.zip"
+  if command -v curl >/dev/null 2>&1; then
+    curl -L --fail "$URL" -o "$ZIP"
+  elif command -v wget >/dev/null 2>&1; then
+    wget -O "$ZIP" "$URL"
+  else
+    echo "Serve curl o wget per scaricare Gradle $VER" >&2
+    exit 1
+  fi
+  unzip -q -o "$ZIP" -d "$BASE"
+fi
+exec "$GRADLE" "$@"

@@ -1,0 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Nessun VID/PID fisso: la libreria esegue probing dei dispositivi USB seriali. -->
+</resources>

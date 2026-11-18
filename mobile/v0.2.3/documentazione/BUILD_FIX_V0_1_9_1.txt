@@ -1,0 +1,28 @@
+GOATS RT Manager Android V0.1.9.1 - GRADLE PLUGIN RESOLUTION FIX
+================================================================
+
+Problema corretto
+-----------------
+GitHub Actions poteva valutare fullapp/build.gradle.kts senza avere una
+versione risolvibile per il plugin com.android.application, producendo:
+
+  Plugin [id: 'com.android.application'] was not found...
+  Plugin Repositories (plugin dependency must include a version number...)
+
+Correzione
+----------
+1. Versioni plugin dichiarate esplicitamente in fullapp/build.gradle.kts:
+   - com.android.application 9.2.0
+   - org.jetbrains.kotlin.plugin.compose 2.2.10
+   - com.chaquo.python 17.0.0
+2. Le stesse versioni sono dichiarate in pluginManagement di settings.gradle.kts.
+3. Aggiunto fullapp/settings.gradle.kts, così il modulo resta compilabile anche
+   se un workflow lo usa accidentalmente come project root.
+4. build.gradle.kts root non precarica più i plugin: evita ambiguità di classpath.
+5. Workflow GitHub bloccato esplicitamente su $GITHUB_WORKSPACE.
+6. Output APK sempre in app/build/outputs/apk/debug.
+
+Versione app: 0.1.9.1
+versionCode: 11
+Core telemetria: V5.4.13.4
+Mappa: native satellite + traiettoria offline fallback invariata dalla V0.1.9.

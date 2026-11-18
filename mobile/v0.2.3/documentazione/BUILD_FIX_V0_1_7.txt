@@ -1,0 +1,9 @@
+GOATS RT Manager Android V0.1.7
+
+FIX: compatibilità con workflow GitHub che cerca ancora:
+app/build/outputs/apk/debug/app-debug.apk
+
+Il modulo Gradle :app continua a usare i sorgenti fisici in /fullapp, ma il buildDirectory è ora /app/build.
+Così il vecchio upload-artifact e il nuovo workflow funzionano entrambi.
+
+Funzioni mantenute: USB OTG, Circuiti, [rimosso V0.1.8], Analisi, mappa satellitare Esri, zoom/pan/FIT traiettorie.

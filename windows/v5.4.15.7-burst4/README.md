@@ -1,0 +1,92 @@
+# GOATS Windows — Manager V5.4.15.7 BURST4
+
+Progetto completo derivato dalla [V5.4.15.6](../v5.4.15.6-burst4/README.md).
+Le versioni precedenti sono conservate nelle rispettive cartelle.
+
+## Sessioni e circuiti con Android
+
+Con Android **V0.2.3**, selezionare su entrambi i dispositivi la stessa cartella
+cloud. Sul PC: **Importa Sessioni → Cloud Sync → SINCRONIZZA ORA**.
+L'opzione automatica controlla la cartella ogni 15 secondi mentre il Manager è
+aperto. Usare una cartella locale gestita dal client cloud; non condividere il
+file SQLite. Nel telefono è richiesto un provider con accesso alle cartelle.
+
+I file originali delle sessioni sono deduplicati per SHA-256; i circuiti usano
+revisioni JSON nella sottocartella `circuiti/`. Le modifiche concorrenti sono
+conservate come varianti. Note, database, impostazioni e credenziali rimangono
+locali. Le eliminazioni delle sessioni dal Manager rimuovono i relativi file
+e vengono ricevute anche dal Mobile V0.2.3 al sync successivo. Vedere la
+[guida operativa](../../docs/CLOUD_SYNC_MOBILE_WINDOWS.md).
+
+## Importazione, avvio e cancellazione dei file
+
+- Ogni importazione copia gli originali in `session_files/` nell'archivio sessioni
+  configurato. Il database punta alla copia gestita, disponibile anche dopo aver
+  scollegato la microSD. Con Cloud Sync configurato, i file vengono pubblicati
+  dopo l'importazione anche se il controllo periodico è disattivato.
+- Ad ogni apertura il Manager controlla la cartella condivisa, importa i nuovi
+  file nel proprio database e mantiene gli ID e le note delle sessioni già note.
+  L'opzione ogni 15 secondi serve per ricevere altri aggiornamenti mentre è aperto.
+- Le sessioni storiche vengono collegate a copie gestite quando gli originali
+  indicati nel database sono ancora disponibili. Le sorgenti mancanti sono
+  segnalate; le sessioni nel database non vengono cancellate né ricostruite.
+- **Elimina** chiede conferma e rimuove le voci dal database e i file con lo stesso
+  contenuto nell'archivio e nella cartella condivisa. Se un file contiene più
+  sessioni, la conferma indica che saranno eliminate tutte quelle del file.
+  Non vengono rimossi sorgenti esterni a queste cartelle o file sulla microSD.
+- Una ricevuta in `sessioni_eliminate/` evita che un telefono offline ripubblichi
+  la vecchia copia. Android V0.2.3 rimuove le sessioni e le sue copie al sync.
+  Usare entrambe le nuove versioni: la V0.2.2 non gestisce queste ricevute.
+  I circuiti mantengono la gestione dei conflitti e non propagano eliminazioni.
+- Errori cloud o file bloccati vengono segnalati; il sync successivo ritenta le
+  rimozioni. Non cancellare `sessioni_eliminate/`: contiene lo storico necessario
+  a impedire la ricomparsa di file eliminati. Non è implementato il ripristino
+  automatico di sessioni cancellate.
+
+## Configurazione GNSS diretta USB-UART
+
+Collegare direttamente il ricevitore MG-902/u-blox M9N tramite USB-UART.
+In **GNSS**, scegliere la COM e il baud attuale; leggere la configurazione,
+selezionare GPS, Galileo, GLONASS, BeiDou, SBAS e/o QZSS e il protocollo di uscita:
+
+| Uscita UART1 | Messaggi essenziali automatici |
+|---|---|
+| UBX | NAV-PVT |
+| NMEA | GGA + RMC |
+| UBX + NMEA | NAV-PVT + GGA + RMC |
+
+Almeno una costellazione principale è richiesta; SBAS/QZSS richiedono GPS in
+questo profilo. Il pulsante applica solo dopo conferma, verifica ACK e rilettura
+CFG-VALGET e segnala NAK, timeout o discrepanze. La persistenza BBR/Flash è
+opzionale; per default si modifica la RAM. Non cambia frequenza o baud.
+L'ingresso UBX rimane abilitato per i comandi di configurazione.
+
+Il profilo disabilita NAV-DOP/SAT/STATUS e i messaggi NMEA standard elencati nel
+modulo; eventuali ulteriori messaggi UBX già abilitati restano invariati.
+NMEA da solo non è compatibile con il firmware GOATS che legge NAV-PVT.
+Questa funzione non passa attraverso la USB del laptimer e non modifica firmware,
+pin o protocolli di trasferimento GOATS. Il collaudo su ricevitore reale resta da
+eseguire. Dettagli in [documentazione/GNSS.md](documentazione/GNSS.md).
+
+## Funzionalità conservate e avvio
+
+Sessioni GRT8/GSA2/GSA3/CSV/JSON, archivio SQLite, editor circuiti, note,
+confronto multi-sessione, replay, export JSON/CSV/GPX, AssistNow e USB/BURST4.
+La mappa fullscreen conserva le caselle indipendenti per frenata, velocità in
+curva e grafico velocità; il riquadro descrittivo sulla mappa resta rimosso.
+
+Installare Python 3.10–3.14 (consigliato 3.13) ed eseguire
+`AVVIA_GOATS_RT_MANAGER_V5.bat`. Entrypoint `goats_rt_manager_v5_4_15_7.py`.
+Dipendenze invariate: PySide6 >=6.10,<6.12, pyserial >=3.5, requests >=2.31.
+Il bootstrap usa `%LOCALAPPDATA%/GOATS_RT_Manager`.
+Nelle Impostazioni selezionare gli archivi esistenti se collocati altrove;
+le credenziali e i dati non sono inclusi nel pacchetto.
+
+I `.txt` descrittivi sono raccolti in `documentazione/`. Nella radice restano
+`requirements.txt` e `SHA256SUMS.txt` (file funzionali). I manuali storici
+inclusi descrivono le rispettive versioni. Verifica: `sha256sum -c SHA256SUMS.txt`.
+Test software in `tests/cloud_gnss/` e `tests/windows_fullscreen/`.
+
+Le note aggiunte nel database non vengono sincronizzate. I file sessione originali
+conservano tutti i campi già presenti all’origine, incluse eventuali note in un
+JSON esportato e poi importato come file.

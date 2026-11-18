@@ -1,0 +1,22 @@
+GOATS RT Manager Android V0.1.9 - USB FULL + NATIVE SATELLITE MAP FIX
+
+Fix principale:
+- rimosso il WebView dalla mappa satellitare, causa della schermata nera osservata in V0.1.8;
+- mappa satellitare ora renderizzata nativamente in Jetpack Compose Canvas;
+- tile Esri World Imagery scaricate direttamente via HTTPS e memorizzate nella cache dell'app;
+- traiettoria GPS renderizzata sopra le tile dal Canvas nativo, quindi resta visibile anche se Internet/tile non sono disponibili;
+- auto-FIT sul bounding box dei punti GPS;
+- pinch-to-zoom, pan, pulsanti + / - / FIT;
+- multi-giro con colori distinti e legenda;
+- stato mappa: SAT ONLINE / SAT CARICAMENTO / SAT OFFLINE • TRACCIA ATTIVA.
+
+Funzioni mantenute dalla V0.1.8:
+- USB OTG;
+- import sessioni e archivio SQLite;
+- Circuiti;
+- Analisi, grafico velocita e tempi giro;
+- parser CSV/GRT/GSA/JSON e supporto coordinate E7;
+- core V5.4.13.4.
+
+Versione Android: 0.1.9
+versionCode: 10

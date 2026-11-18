@@ -1,0 +1,18 @@
+GOATS RT Manager Android V0.1.8 - USB FULL + MAP MULTI-LAP
+
+Changes:
+- AssistNow removed from navigation and Android exposed functions.
+- Satellite map viewer rewritten without Leaflet/unpkg runtime dependency.
+- Esri World Imagery tiles load directly; GPS SVG traces remain visible if tiles fail.
+- Full trace mode groups laps and draws every lap with a distinct color.
+- Offline map also draws laps separately with distinct colors.
+- Pinch zoom, pan, +, -, FIT supported.
+- Analysis shows number of GPS points received.
+- CSV parser accepts additional GPS coordinate column aliases and E7 integer coordinates.
+- USB OTG / sessions / circuits retained.
+
+Static checks performed:
+- Python py_compile OK.
+- Map JavaScript node --check OK.
+- Kotlin parser check found no syntax-level errors (Android dependencies unavailable locally).
+- ZIP integrity checked after packaging.

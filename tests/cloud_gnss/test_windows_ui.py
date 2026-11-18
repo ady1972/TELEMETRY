@@ -11,9 +11,9 @@ from unittest.mock import patch
 
 os.environ.setdefault('QT_QPA_PLATFORM','offscreen')
 ROOT=Path(__file__).resolve().parents[2]
-APP=ROOT/'windows/v5.4.15.6-burst4'
+APP=ROOT/('windows/v'+os.environ.get('GOATS_WINDOWS_VERSION','5.4.15.6')+'-burst4')
 sys.path.insert(0,str(APP))
-spec=importlib.util.spec_from_file_location('manager_new',APP/'goats_rt_manager_v5_4_15_6.py')
+spec=importlib.util.spec_from_file_location('manager_new',APP/('goats_rt_manager_v'+os.environ.get('GOATS_WINDOWS_VERSION','5.4.15.6').replace('.','_')+'.py'))
 manager=importlib.util.module_from_spec(spec);spec.loader.exec_module(manager)
 import goats_gnss as gnss
 
@@ -63,6 +63,8 @@ class WindowsUiTests(unittest.TestCase):
             host.store=manager.SessionStore(host.active_sessions_dir/'sessions.sqlite3')
             host._potential_lap_cache={};host._track_data_cache={};host.embedded_tools={}
             host.refresh_sessions=lambda:None
+            if hasattr(manager.Main,'_prepare_session_files'):
+                host._prepare_session_files=MethodType(manager.Main._prepare_session_files,host)
             host._cloud_start=MethodType(manager.Main._cloud_start,host)
             host._cloud_finished=MethodType(manager.Main._cloud_finished,host)
             try:

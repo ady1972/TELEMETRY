@@ -1,0 +1,12 @@
+GOATS RT Manager Android V0.1.9.2 - MAP ZOOM Z22
+
+Base: V0.1.9.1 GRADLE PLUGIN FIX
+
+Modifiche:
+- SAT_MAX_ZOOM: 19 -> 22
+- Pinch satellitare più reattivo: soglie 1.10 / 0.91
+- Vista offline: zoom massimo 20x -> 80x
+- Versione app: 0.1.9.2
+- versionCode: 12
+
+Tutto il resto invariato.
