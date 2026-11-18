@@ -60,3 +60,7 @@ I `.txt` descrittivi sono raccolti in `documentazione/`. Nella radice restano
 `requirements.txt` e `SHA256SUMS.txt` (file funzionali). I manuali storici
 inclusi descrivono le rispettive versioni. Verifica: `sha256sum -c SHA256SUMS.txt`.
 Test software in `tests/cloud_gnss/` e `tests/windows_fullscreen/`.
+
+Le note aggiunte nel database non vengono sincronizzate. I file sessione originali
+conservano tutti i campi già presenti all’origine, incluse eventuali note in un
+JSON esportato e poi importato come file.

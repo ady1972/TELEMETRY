@@ -170,7 +170,18 @@ class RenderedMapTests(unittest.TestCase):
         self.page.wait_for_function("typeof window.goatsSetFullscreenOverlays === 'function'")
 
     def test_all_eight_visibility_combinations_preserve_map(self):
-        self.page.evaluate('window.goatsSetFullscreenMode(true); window.originalMap=map; window.originalZoom=map.getZoom(); window.originalCenter=map.getCenter();')
+        self.page.evaluate('window.goatsSetFullscreenMode(true);')
+        # Initial fitBounds may still animate after the HTML load event, notably
+        # on Windows CI. Measure preservation from the settled initial camera.
+        self.page.wait_for_function("""() => {
+          const now=performance.now();
+          const state=JSON.stringify([map.getZoom(),map.getCenter(),map.getSize()]);
+          if(window.cameraState!==state || map._animatingZoom || map._panAnim?._inProgress){
+            window.cameraState=state;window.cameraStableSince=now;return false;
+          }
+          return now-(window.cameraStableSince??=now)>250;
+        }""", timeout=10000)
+        self.page.evaluate('window.originalMap=map; window.originalZoom=map.getZoom(); window.originalCenter=map.getCenter();')
         for braking, corner, graph in itertools.product((False, True), repeat=3):
             with self.subTest(braking=braking, corner=corner, graph=graph):
                 self.page.evaluate('(flags) => window.goatsSetFullscreenOverlays(...flags)', [braking, corner, graph])

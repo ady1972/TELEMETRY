@@ -55,3 +55,7 @@ del repository. Il workflow annidato è storico e inattivo.
 I `.txt` descrittivi sono in `documentazione/`. `SHA256SUMS.txt` verifica il
 pacchetto corrente; documenti storici descrivono le rispettive versioni.
 Test software in `tests/cloud_gnss/`; provider reali e telefono da collaudare.
+
+Le note aggiunte nel database non vengono sincronizzate. I file sessione originali
+conservano tutti i campi già presenti all’origine, incluse eventuali note in un
+JSON esportato e poi importato come file.

@@ -53,3 +53,7 @@ con nome contenente hash o revisioni corrotte sono segnalati e ignorati; attende
 la fine del trasferimento e riprovare. I provider reali e l'esecuzione su telefono
 richiedono ancora collaudo: i test automatici usano cartelle temporanee e dati
 sintetici, bridge Python/SQLite reali e seriale GNSS simulata.
+
+Le note aggiunte nel database non vengono sincronizzate. I file sessione originali
+conservano tutti i campi già presenti all’origine, incluse eventuali note in un
+JSON esportato e poi importato come file.
