@@ -1,5 +1,5 @@
 # GOATS Telemetry — Android / Windows handoff
-Updated: 2026-11-15
+Updated: 2026-11-18
 
 ## Import verification snapshot — 2026-11-15
 
@@ -22,6 +22,13 @@ Each complete application version lives in its own directory:
 - Windows V5.4.15.5 BURST4: `windows/v5.4.15.5-burst4/`, derived from V5.4.15.4
   with independent fullscreen visibility controls for braking analysis, corner
   speeds and the speed graph; removes the map description overlay in both views.
+
+- Android V0.2.2: `mobile/v0.2.2/`, shared session/track folder with Windows.
+- Windows V5.4.15.6: `windows/v5.4.15.6-burst4/`, shared session/track sync and
+  direct USB-UART M9N constellation/output profiles. The user explicitly requested
+  these GNSS receiver changes and confirmed direct UART, not a laptimer bridge.
+  Rate/baud and firmware remain unchanged. See `docs/CLOUD_SYNC_MOBILE_WINDOWS.md`
+  and the version README for capabilities and hardware/provider test limits.
 
 The platform-level READMEs list available versions. Keep each source package
 complete when adding a new version; do not infer complete older releases from

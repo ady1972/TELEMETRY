@@ -6,10 +6,13 @@ Sistema di telemetria e cronometraggio GPS per kart.
 
 I progetti completi sono organizzati per piattaforma e versione:
 
-- [GOATS Mobile — Android V0.2.1](mobile/v0.2.1/README.md)
-- [GOATS Windows — Manager V5.4.15.5 BURST4](windows/v5.4.15.5-burst4/README.md):
-  selezione delle analisi in fullscreen e mappa senza riquadro descrittivo;
-  la V5.4.15.4 è conservata nell'[indice versioni Windows](windows/README.md).
+- [GOATS Mobile — Android V0.2.2](mobile/v0.2.2/README.md): sessioni e circuiti
+  nella stessa cartella cloud del PC.
+- [GOATS Windows — Manager V5.4.15.6 BURST4](windows/v5.4.15.6-burst4/README.md):
+  sincronizzazione con Android, scelta costellazioni e UBX/NMEA via USB-UART;
+  conservati i controlli delle analisi in fullscreen.
+
+[Guida alla cartella cloud comune](docs/CLOUD_SYNC_MOBILE_WINDOWS.md).
 
 Gli indici [mobile/](mobile/README.md) e [windows/](windows/README.md)
 raccolgono le versioni disponibili, ciascuna con sorgenti e dipendenze propri.

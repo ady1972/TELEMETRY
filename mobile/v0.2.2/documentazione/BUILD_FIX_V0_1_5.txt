@@ -1,0 +1,21 @@
+GOATS RT Manager Android V0.1.5 - USB FULL + MAP BUILD FIX
+=========================================================
+
+Base: user-provided V0.1.4 MAP_ZOOM_SATELLITE.
+
+What changed:
+- The complete V0.1.4 application is preserved: Dashboard, Sessioni, Analisi,
+  Circuiti, [rimosso V0.1.8], USB OTG and diagnostics.
+- Satellite map / trajectory zoom from V0.1.4 is preserved.
+- The Android module is now physically in /fullapp while keeping the logical
+  Gradle path :app.
+- settings.gradle.kts maps :app -> /fullapp.
+- Therefore any stale /app directory left in the GitHub repository is ignored.
+  This prevents old reduced V0.2 sources and mixed packages from entering the build.
+- fullapp retains Chaquopy 17.0.0 and usb-serial-for-android 3.11.0 dependencies.
+- GitHub Actions builds :app and uploads the APK from fullapp/build/outputs/apk/debug.
+- Version bumped to 0.1.5 / versionCode 6.
+
+Installation into the repository:
+Copy/overwrite all files from this ZIP into the repository root. It is not necessary
+for the old /app directory to be deleted immediately because Gradle no longer uses it.
