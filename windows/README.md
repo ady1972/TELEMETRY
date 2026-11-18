@@ -16,5 +16,11 @@ precedenti, conservati nella stessa cartella. Da soli non costituiscono
 progetti completi separati delle rispettive versioni.
 
 Conservare ogni nuova versione completa in una nuova sottocartella e mantenere
-le precedenti. Per provenienza, funzionalità e verifiche, consultare il
+le precedenti. Dalle release successive alla V5.4.15.5, tutti i file `.txt`
+descrittivi e le note di versione saranno in `documentazione/`. Nella radice
+resteranno i file funzionali richiesti da avvio/installazione/verifica,
+come `requirements.txt` e `SHA256SUMS.txt`. I pacchetti già pubblicati mantengono
+la propria struttura.
+
+Per provenienza, funzionalità e verifiche, consultare il
 [rapporto di migrazione](../docs/MIGRATION_MOBILE_WINDOWS_REPORT.md).

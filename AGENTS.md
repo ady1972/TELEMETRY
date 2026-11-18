@@ -71,6 +71,7 @@ Non modificare senza autorizzazione:
 - Leggere `docs/HANDOFF_MOBILE_WINDOWS.md` prima di lavorare sulle app.
 - Conservare intatti i firmware durante la migrazione. Integrare le app in `main` solo su richiesta esplicita dell'utente.
 - Le cartelle `mobile/` e `windows/` raccolgono progetti completi per versione: Android in `mobile/v0.2.1/`, Windows in `windows/v5.4.15.4-burst4/`. Conservare ogni versione in una sottocartella distinta.
+- Dalle release Windows successive alla V5.4.15.5, raccogliere tutti i `.txt` descrittivi e le note di versione in `documentazione/` nella cartella della release. Lasciare nella radice i file funzionali richiesti da launcher, installazione o verifica (per esempio `requirements.txt` e `SHA256SUMS.txt`). Conservare invariati i pacchetti già pubblicati.
 - Non considerare implementate funzionalità soltanto perché citate nelle chat.
 - Verificare compatibilità dei protocolli, dei CSV e degli archivi storici.
 - Non caricare credenziali, token o tracciati GPS personali.
