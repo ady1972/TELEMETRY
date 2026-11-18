@@ -15,8 +15,9 @@ QT_QPA_PLATFORM=offscreen python tests/session_lifecycle/test_windows_flow.py
   ricevute corrotte, rimozioni ritentate, file con più sessioni e import interrotti.
 - 2 test bridge Android/SQLite: ricezione di una cancellazione Windows e ricevuta
   arrivata prima del file, senza ricomparsa al sync successivo.
-- 4 test Qt: controllo all'avvio e pubblicazione import con sync periodico spento,
-  cancellazione confermata e annullamento senza perdita di file.
+- 5 test Qt: controllo all'avvio e pubblicazione import con sync periodico spento,
+  cancellazione confermata, annullamento senza perdita di file e sorgente storica
+  ricollegata dopo l’avvio.
 
 I 29 test precedenti in `tests/cloud_gnss` e `tests/windows_fullscreen` vengono
 rieseguiti sulle nuove versioni con `GOATS_WINDOWS_VERSION=5.4.15.7` e

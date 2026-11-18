@@ -75,6 +75,20 @@ class WindowsFlowTests(unittest.TestCase):
         self.assertEqual(self.host.store.sessions(),[])
         self.assertTrue(self.source.exists())
 
+    def test_import_adopts_a_legacy_source_reconnected_after_startup(self):
+        from goats_formats import parse_any
+        sid=self.host.store.import_session(parse_any(str(self.source))[0])
+        self.host.store.update_notes(sid,'Storica da conservare')
+        disconnected=self.source.with_suffix('.offline');self.source.rename(disconnected)
+        self.host._startup_sync();self.wait()
+        disconnected.rename(self.source)
+        with patch.object(manager.QMessageBox,'information'):
+            self.host.do_import([str(self.source)])
+        self.wait()
+        self.assertEqual(len(self.host.store.sessions()),1)
+        self.assertEqual(self.host.store.session(sid)['notes'],'Storica da conservare')
+        self.assertTrue(self.host.store.session(sid)['source_sha256'])
+
     def test_cancelled_delete_keeps_rows_and_files(self):
         (Path(self.host.cloud_folder)/'from_phone.grt').write_bytes(self.source.read_bytes())
         self.host._startup_sync();self.wait()

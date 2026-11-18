@@ -1015,9 +1015,9 @@ class Main(QMainWindow):
         self._analysis_return_page=None
         if hasattr(self,'analysis_back_btn'):self.analysis_back_btn.setVisible(False)
         self.show_page(2);idx=self.session_combo.findData(sid);self.session_combo.setCurrentIndex(idx if idx>=0 else 0)
-    def _prepare_session_files(self):
+    def _prepare_session_files(self,force=False):
         key=str(self.store.path.resolve())
-        if getattr(self,'_archive_prepared_for',None)==key:return
+        if not force and getattr(self,'_archive_prepared_for',None)==key:return
         from goats_session_archive import adopt_existing
         self._archive_report=adopt_existing(self.store,self.active_sessions_dir/'session_files')
         self._archive_prepared_for=key
@@ -1036,7 +1036,7 @@ class Main(QMainWindow):
             QMessageBox.information(self,'Elimina','Attendi il completamento della sincronizzazione e riprova.')
             return
         from goats_session_archive import deletion_group,delete_session
-        self._prepare_session_files()
+        self._prepare_session_files(force=True)
         ids,h=deletion_group(self.store,sid)
         if not ids:return
         message='Eliminare la sessione dal database e i relativi file dall’archivio e dalla cartella condivisa?'
@@ -1166,7 +1166,7 @@ class Main(QMainWindow):
         self.do_import(sorted(set(files)))
     def do_import(self,files):
         if not files:return
-        self._prepare_session_files()
+        self._prepare_session_files(force=True)
         from goats_session_archive import import_file
         pg=QProgressDialog('Importazione sessioni...','Annulla',0,len(files),self);pg.setWindowModality(Qt.WindowModal);ok=0;errors=[]
         for i,path in enumerate(files):
