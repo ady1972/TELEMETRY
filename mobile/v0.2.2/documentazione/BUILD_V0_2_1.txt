@@ -1,0 +1,13 @@
+GOATS RT Manager Android V0.2.1
+
+- BLE rimosso dal codice e dalla UI di importazione.
+- Import Lap Timer: solo Wi-Fi REST.
+- Nuovo SessionArchiveCloud.kt per archivio file e Cloud Sync.
+- Cartella cloud selezionabile con OpenDocumentTree e permesso persistente.
+- Sincronizzazione bidirezionale manuale.
+- Auto-upload cloud dopo import da file o dal lap timer.
+- Compatibilità con file sessione CSV/GRT/GSA/BIN/JSON.
+- VersionCode 21 / VersionName 0.2.1.
+
+Nota compilazione:
+L'ambiente di generazione non può raggiungere services.gradle.org, quindi l'APK va compilato con il workflow GitHub Actions incluso nel progetto.

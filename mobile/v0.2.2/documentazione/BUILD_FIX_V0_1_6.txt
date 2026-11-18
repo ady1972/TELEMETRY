@@ -1,0 +1,9 @@
+GOATS RT Manager Android V0.1.6 - GitHub Actions artifact fix
+
+- Mantiene il modulo completo USB OTG + Circuiti + [rimosso V0.1.8] + Analisi.
+- Mantiene mappa satellitare e zoom traiettorie della V0.1.5.
+- Il modulo logico Gradle resta :app, fisicamente in /fullapp.
+- Dopo assembleDebug il workflow cerca realmente l'APK prodotto, qualunque sia il nome/percorso modulo.
+- L'APK trovato viene copiato nella root come GOATS_RT_Manager_V0_1_6_debug.apk.
+- upload-artifact carica quel file noto, evitando errori dovuti a percorsi vecchi come app/build/outputs/....
+- Gli avvisi Node 20/Node 24 e punycode di GitHub Actions non sono errori di compilazione dell'app.
