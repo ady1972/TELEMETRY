@@ -19,6 +19,9 @@ Each complete application version lives in its own directory:
 
 - Android V0.2.1: `mobile/v0.2.1/` (Gradle project root).
 - Windows V5.4.15.4 BURST4: `windows/v5.4.15.4-burst4/` (launcher and modules).
+- Windows V5.4.15.5 BURST4: `windows/v5.4.15.5-burst4/`, derived from V5.4.15.4
+  with independent fullscreen visibility controls for braking analysis, corner
+  speeds and the speed graph; removes the map description overlay in both views.
 
 The platform-level READMEs list available versions. Keep each source package
 complete when adding a new version; do not infer complete older releases from
