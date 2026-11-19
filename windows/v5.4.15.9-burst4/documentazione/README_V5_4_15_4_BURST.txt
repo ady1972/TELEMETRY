@@ -1,0 +1,1 @@
+TEST24 / Manager V5.4.15.4: GSD_CAPS e GSD_NEXT4 per 4 blocchi da 1024 byte per richiesta. Fallback GSD_NEXT per firmware precedenti. CRC32 invariato. GNSS, UART GNSS, acquisizione, splash e registrazione invariati. Test hardware/compilazione ESPHome necessari.

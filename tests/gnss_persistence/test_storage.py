@@ -1,3 +1,4 @@
+import os
 """UBX serial device model with distinct RAM, BBR and flash storage."""
 import importlib.util
 from pathlib import Path
@@ -6,7 +7,8 @@ import unittest
 from unittest.mock import patch
 
 ROOT=Path(__file__).resolve().parents[2]
-APP=ROOT/'windows/v5.4.15.8-burst4'
+VERSION=os.environ.get('GOATS_WINDOWS_VERSION','5.4.15.8')
+APP=ROOT/('windows/v'+VERSION+'-burst4')
 spec=importlib.util.spec_from_file_location('gnss_storage',APP/'goats_gnss.py')
 gnss=importlib.util.module_from_spec(spec);spec.loader.exec_module(gnss)
 

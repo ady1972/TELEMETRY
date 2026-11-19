@@ -44,6 +44,11 @@ Each complete application version lives in its own directory:
   saving and frequency readback. New persistence still needs a physical power
   cycle test; UART1 only, no firmware changes. Mobile V0.2.3 remains compatible.
 
+- Windows V5.4.15.9: `windows/v5.4.15.9-burst4/`, adds the already-read
+  GNSS frequency, period, NAV divisor and UART1 baud to the log summary. The user
+  confirmed the selector updates correctly and requested the same data in the log.
+  Receiver backend and persistence are identical to V5.4.15.8.
+
 The platform-level READMEs list available versions. Keep each source package
 complete when adding a new version; do not infer complete older releases from
 the historical standalone scripts bundled in the Windows package.

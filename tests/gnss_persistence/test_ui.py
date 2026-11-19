@@ -6,9 +6,10 @@ import unittest
 from unittest.mock import patch
 
 os.environ.setdefault('QT_QPA_PLATFORM','offscreen')
-ROOT=Path(__file__).resolve().parents[2];APP=ROOT/'windows/v5.4.15.8-burst4'
+ROOT=Path(__file__).resolve().parents[2];VERSION=os.environ.get('GOATS_WINDOWS_VERSION','5.4.15.8')
+APP=ROOT/('windows/v'+VERSION+'-burst4')
 sys.path.insert(0,str(APP))
-spec=importlib.util.spec_from_file_location('manager_flash_ui',APP/'goats_rt_manager_v5_4_15_8.py')
+spec=importlib.util.spec_from_file_location('manager_flash_ui',APP/('goats_rt_manager_v'+VERSION.replace('.','_')+'.py'))
 manager=importlib.util.module_from_spec(spec);spec.loader.exec_module(manager)
 import goats_gnss as gnss
 from test_storage import Device
@@ -43,6 +44,12 @@ class PersistenceUiTests(unittest.TestCase):
     def test_read_updates_hz_selection_and_constellations(self):
         self.read()
         self.assertEqual(tuple(self.combo('gnssRateHz').currentData()),(40,1))
+        if tuple(map(int,VERSION.split('.')))>=(5,4,15,9):
+            log=self.page.findChild(manager.QTextEdit).toPlainText()
+            self.assertIn('navigazione 25 Hz',log)
+            self.assertIn('40 ms',log)
+            self.assertIn('divisore NAV 1',log)
+            self.assertIn('Baud UART1: 230400',log)
         self.assertIn('navigazione 25 Hz',self.page.findChild(manager.QLabel,'gnssReadRate').text())
         self.assertEqual(self.combo('gnssOutputProtocol').currentData(),'UBX+NMEA')
         self.assertFalse(self.page.findChild(manager.QCheckBox,'gnssConstellationGLONASS').isChecked())
@@ -51,6 +58,10 @@ class PersistenceUiTests(unittest.TestCase):
         state=self.read(40,2)
         self.assertEqual(tuple(self.combo('gnssRateHz').currentData()),(40,2))
         self.assertIn('12.5 Hz',self.combo('gnssRateHz').currentText())
+        if tuple(map(int,VERSION.split('.')))>=(5,4,15,9):
+            log=self.page.findChild(manager.QTextEdit).toPlainText()
+            self.assertIn('navigazione 12.5 Hz',log)
+            self.assertIn('divisore NAV 2',log)
         with patch.object(manager.QMessageBox,'question',return_value=manager.QMessageBox.Yes), \
              patch.object(gnss,'set_navigation_rate',return_value=state) as write:
             self.button('gnssApplyRate').click()
