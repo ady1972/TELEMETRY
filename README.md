@@ -8,7 +8,7 @@ I progetti completi sono organizzati per piattaforma e versione:
 
 - [GOATS Mobile — Android V0.2.3](mobile/v0.2.3/README.md): sessioni e circuiti
   nella stessa cartella cloud del PC.
-- [GOATS Windows — Manager V5.4.15.8 BURST4](windows/v5.4.15.8-burst4/README.md):
+- [GOATS Windows — Manager V5.4.15.9 BURST4](windows/v5.4.15.9-burst4/README.md):
   copia file importati, controllo cloud all’avvio, cancellazioni condivise e configurazione GNSS con salvataggio flash e lettura frequenza via USB-UART;
   conservati i controlli delle analisi in fullscreen.
 
