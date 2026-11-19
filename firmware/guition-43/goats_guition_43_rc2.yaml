@@ -1007,6 +1007,13 @@ font:
     id: roboto_condensed_bold_74
     size: 74
     bpp: 4
+  - file:
+      type: gfonts
+      family: Roboto Condensed
+      weight: 700
+    id: roboto_condensed_bold_48
+    size: 48
+    bpp: 4
 
 # ============================================================
 # INTERFACCIA LVGL - DASHBOARD V5.6 RUOTATA 180 GRADI
@@ -3895,39 +3902,39 @@ lvgl:
                       text_font: roboto_14
                       text_color: 0xFFFFFF
 
-      # Popup breve quando viene stabilito un nuovo Best Lap.
+      # Avviso NEW BEST LAP a schermo intero; lampeggia solo il testo.
       - obj:
           id: new_best_popup
-          x: 75
-          y: 72
-          width: 330
-          height: 128
+          x: 0
+          y: 0
+          width: 480
+          height: 272
           hidden: true
-          bg_color: 0x007A4D
+          bg_color: 0x00C853
           bg_opa: COVER
-          border_color: 0x52E3AC
-          border_width: 2
-          radius: 14
-          pad_all: 10
+          border_width: 0
+          radius: 0
+          pad_all: 0
           scrollbar_mode: "OFF"
           widgets:
             - label:
+                id: lbl_new_best_title
                 x: 0
-                y: 12
-                width: 310
+                y: 40
+                width: 480
                 text: "NEW BEST LAP"
                 text_align: CENTER
-                text_font: roboto_24
-                text_color: 0xFFFFFF
+                text_font: roboto_condensed_bold_48
+                text_color: 0x000000
             - label:
                 id: lbl_new_best_time
                 x: 0
-                y: 55
-                width: 310
+                y: 127
+                width: 480
                 text: "--:--.---"
                 text_align: CENTER
-                text_font: roboto_36
-                text_color: 0xFFFFFF
+                text_font: roboto_condensed_bold_74
+                text_color: 0x000000
 
       # Popup mostrato quando AUTO rileva un nuovo circuito.
       - obj:
@@ -4834,10 +4841,12 @@ interval:
             const float delta = goats_laptimer_sector_delta_best_seconds(i);
             const int delta_ms = isnan(delta) ? -2147483647 :
                                  static_cast<int>(lroundf(delta * 1000.0f));
-            if (status != last_sector_status[i]) {
+            const bool negative_delta = !isnan(delta) && delta < 0.0f;
+            if (negative_delta) color = lv_color_hex(0x00C853);
+            if (status != last_sector_status[i] || delta_ms != last_sector_delta_ms[i]) {
               lv_obj_set_style_bg_color(bars[i], color, LV_PART_MAIN | LV_STATE_DEFAULT);
               lv_obj_set_style_text_color(sector_labels[i],
-                  status == 0 || status == 1 ? lv_color_hex(0xFFFFFF) : lv_color_hex(0x000000),
+                  !negative_delta && (status == 0 || status == 1) ? lv_color_hex(0xFFFFFF) : lv_color_hex(0x000000),
                   LV_PART_MAIN | LV_STATE_DEFAULT);
               last_sector_status[i] = status;
             }
@@ -5040,6 +5049,7 @@ interval:
                           millis() +
                           static_cast<uint32_t>(
                               id(best_lap_popup_duration_sec)) * 1000UL;
+                      lv_obj_move_foreground(id(new_best_popup));
                   - lvgl.widget.show: new_best_popup
       - if:
           condition:
@@ -5053,6 +5063,15 @@ interval:
             - lambda: |-
                 id(best_popup_active) = false;
                 id(best_popup_hide_at_ms) = 0;
+      - lambda: |-
+          if (id(best_popup_active)) {
+            const uint32_t started_at = id(best_popup_hide_at_ms) -
+                static_cast<uint32_t>(id(best_lap_popup_duration_sec)) * 1000UL;
+            const bool text_visible = ((millis() - started_at) / 500UL) % 2UL == 0;
+            const lv_opa_t ink_opa = text_visible ? LV_OPA_COVER : LV_OPA_TRANSP;
+            lv_obj_set_style_text_opa(id(lbl_new_best_title), ink_opa, LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_obj_set_style_text_opa(id(lbl_new_best_time), ink_opa, LV_PART_MAIN | LV_STATE_DEFAULT);
+          }
 
   # V8.4.1 - Gestione schermata post-giro.
   # Le pagine ESPHome vengono cambiate tramite l'azione lvgl.page.show.
@@ -5224,7 +5243,11 @@ interval:
               id(post_best_panel), best_color,
               LV_PART_MAIN | LV_STATE_DEFAULT);
 
-          // DELTA VELOCITA MEDIA: maggiore verde, minore rosso.
+          const lv_color_t best_ink = lv_color_hex(!isnan(best_delta) && best_delta < 0.0f ? 0x000000 : 0xFFFFFF);
+          for (uint32_t i=0; i<lv_obj_get_child_count(id(post_best_panel)); ++i)
+            lv_obj_set_style_text_color(lv_obj_get_child(id(post_best_panel), i), best_ink, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+          // Negative deltas use green/black; the other existing colors are retained.
           lv_color_t speed_color = lv_color_hex(0x242A33);
           const float speed_delta =
               goats_laptimer_post_lap_speed_delta_kmh();
@@ -5232,13 +5255,17 @@ interval:
             if (speed_delta > 0.0f)
               speed_color = lv_color_hex(0x00C800);
             else if (speed_delta < 0.0f)
-              speed_color = lv_color_hex(0x2828C6);
+              speed_color = lv_color_hex(0x00C800);
             else
               speed_color = lv_color_hex(0x5C5146);
           }
           lv_obj_set_style_bg_color(
               id(post_speed_panel), speed_color,
               LV_PART_MAIN | LV_STATE_DEFAULT);
+
+          const lv_color_t speed_ink = lv_color_hex(!isnan(speed_delta) && speed_delta < 0.0f ? 0x000000 : 0xFFFFFF);
+          for (uint32_t i=0; i<lv_obj_get_child_count(id(post_speed_panel)); ++i)
+            lv_obj_set_style_text_color(lv_obj_get_child(id(post_speed_panel), i), speed_ink, LV_PART_MAIN | LV_STATE_DEFAULT);
 
           // PASSO GARA: ultimo giro sotto la media = verde;
           // sopra la media = rosso.
@@ -5256,6 +5283,10 @@ interval:
           lv_obj_set_style_bg_color(
               id(post_pace_panel), pace_color,
               LV_PART_MAIN | LV_STATE_DEFAULT);
+          const lv_color_t pace_ink = lv_color_hex(!isnan(pace_delta) && pace_delta < 0.0f ? 0x000000 : 0xFFFFFF);
+          for (uint32_t i=0; i<lv_obj_get_child_count(id(post_pace_panel)); ++i)
+            lv_obj_set_style_text_color(lv_obj_get_child(id(post_pace_panel), i), pace_ink, LV_PART_MAIN | LV_STATE_DEFAULT);
+
 
   # Aggiornamento tempi laptimer.
   - interval: 100ms
@@ -5489,6 +5520,19 @@ interval:
             time_title = white;
           }
 
+          // Preserve the side LAP T title on its separate black panel.
+          const lv_color_t lap_title_ink = time_title;
+          float shown_delta = id(lap_delta_seconds);
+          if (id(post_lap_mode) == 2 && id(post_lap_blink_active) && !id(best_popup_active))
+            shown_delta = id(post_lap_blink_delta);
+          else if (goats_laptimer_sector_hold_active(millis()))
+            shown_delta = goats_laptimer_sector_hold_delta_seconds();
+          if (!isnan(shown_delta) && shown_delta < 0.0f) {
+            time_bg = green;
+            time_text = black;
+            time_title = black;
+          }
+
           lv_obj_set_style_bg_color(goats_screen_mode::delta() ? id(racing_primary_panel) : id(time_delta_panel), time_bg,
               LV_PART_MAIN | LV_STATE_DEFAULT);
           lv_obj_set_style_bg_opa(goats_screen_mode::delta() ? id(racing_primary_panel) : id(time_delta_panel), LV_OPA_COVER,
@@ -5496,7 +5540,9 @@ interval:
           lv_obj_set_style_bg_color(goats_screen_mode::delta() ? id(time_delta_panel) : id(racing_primary_panel), lv_color_hex(0x000000), LV_PART_MAIN);
           lv_obj_set_style_text_color(id(lbl_delta), time_text,
               LV_PART_MAIN | LV_STATE_DEFAULT);
-          lv_obj_set_style_text_color(id(lbl_delta_title), time_title,
+          lv_obj_set_style_text_color(id(lbl_delta_title), goats_screen_mode::delta() ? lap_title_ink : time_title,
+              LV_PART_MAIN | LV_STATE_DEFAULT);
+          lv_obj_set_style_text_color(id(lbl_primary_title), goats_screen_mode::delta() ? time_text : white,
               LV_PART_MAIN | LV_STATE_DEFAULT);
           lv_obj_set_style_text_color(id(lbl_current_lap), white,
               LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -5525,9 +5571,9 @@ interval:
                 speed_text = black;
                 speed_title = black;
               } else if (delta_v < 0.0f) {
-                speed_bg = red;        // peggiore
-                speed_text = white;
-                speed_title = white;
+                speed_bg = green;
+                speed_text = black;
+                speed_title = black;
               }
             }
           }
