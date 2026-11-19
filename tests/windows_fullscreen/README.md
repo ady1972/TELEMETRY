@@ -26,3 +26,11 @@ impostare `GOATS_LEAFLET_DIR` alla cartella contenente `leaflet.js` e `leaflet.c
 
 Le prove automatiche non sostituiscono il collaudo su Windows con archivi e
 hardware reali.
+
+## Velocità estese — V5.4.15.10
+
+Con `GOATS_WINDOWS_VERSION=5.4.15.10` la suite verifica anche eredità della
+velocità 5x nel fullscreen, avvio a 10x, ciclo completo del tasto S e cambio
+velocità durante Play. Un orologio controllato in Chromium verifica i rapporti
+0,5/1/2/5/10x e il cambio da 1x a 10x senza salto del tempo accumulato.
+I test sono otto; quello dei nuovi controlli è saltato nelle versioni precedenti.

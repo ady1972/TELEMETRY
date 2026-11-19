@@ -49,6 +49,11 @@ Each complete application version lives in its own directory:
   confirmed the selector updates correctly and requested the same data in the log.
   Receiver backend and persistence are identical to V5.4.15.8.
 
+- Windows V5.4.15.10: `windows/v5.4.15.10-burst4/`, adds 2x, 5x and 10x
+  replay options in Analisi and fullscreen. The S shortcut cycles all five speeds.
+  Replay timing/interpolation, receiver configuration, storage and protocols
+  remain unchanged; default playback remains 1x.
+
 The platform-level READMEs list available versions. Keep each source package
 complete when adding a new version; do not infer complete older releases from
 the historical standalone scripts bundled in the Windows package.

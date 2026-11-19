@@ -65,7 +65,9 @@ class NativeControlsTests(unittest.TestCase):
         self.host._last_map_html = render_map_html()
         self.host._analysis_brake_table_mode = 'both'
         self.host.replay_speed_combo = manager.QComboBox()
-        self.host.replay_speed_combo.addItem('1x', 1.)
+        for label,rate in getattr(manager,'REPLAY_SPEEDS',(('1x',1.),)):
+            self.host.replay_speed_combo.addItem(label,rate)
+        self.host.replay_speed_combo.setCurrentIndex(self.host.replay_speed_combo.findData(1.))
         self.addCleanup(self.host.close)
 
     def open_dialog(self, inspect):
@@ -116,6 +118,30 @@ class NativeControlsTests(unittest.TestCase):
             dialog.close()
             return 0
         self.open_dialog(reopen)
+
+    @unittest.skipUnless(hasattr(manager,'REPLAY_SPEEDS'),'Extended replay speeds require V5.4.15.10')
+    def test_fullscreen_inherits_fast_speed_and_shortcut_cycles_all_rates(self):
+        self.host.replay_speed_combo.setCurrentIndex(self.host.replay_speed_combo.findData(5.))
+        def inspect(dialog):
+            speed=dialog.findChild(manager.QComboBox,'fullscreenReplaySpeed')
+            self.assertEqual([speed.itemData(i) for i in range(speed.count())],[.5,1.,2.,5.,10.])
+            self.assertEqual(speed.currentData(),5.)
+            view=next(child for child in dialog.findChildren(manager.QWidget) if hasattr(child,'scripts'))
+            shortcut=dialog._goats_shortcuts[3]
+            shortcut.activated.emit()
+            self.assertEqual(speed.currentData(),10.)
+            self.assertIn('goatsReplaySetRate(10.000)',view.scripts[-1])
+            play=next(button for button in dialog.findChildren(manager.QPushButton) if button.text()=='▶ PLAY')
+            play.setChecked(True)
+            self.assertIn('goatsReplayStart(10.000)',view.scripts[-1])
+            for rate in (.5,1.,2.,5.,10.,.5):
+                shortcut.activated.emit()
+                self.assertEqual(speed.currentData(),rate)
+                self.assertTrue(play.isChecked())
+                self.assertIn(f'goatsReplaySetRate({rate:.3f})',view.scripts[-1])
+            dialog.close()
+            return 0
+        self.open_dialog(inspect)
 
     def test_initial_mode_follows_analysis_selection(self):
         for mode, expected in (('brake', (True, False)), ('speed', (False, True))):
@@ -214,6 +240,32 @@ class RenderedMapTests(unittest.TestCase):
         self.page.evaluate('window.goatsReplayReset();')
         self.assertEqual(self.page.evaluate('replayElapsed'), 0)
         self.assertEqual(self.errors, [])
+
+    def test_fast_replay_rates_scale_elapsed_time_and_switch_without_a_jump(self):
+        result=self.page.evaluate("""() => {
+          const previous=Object.getOwnPropertyDescriptor(performance,'now');
+          let now=10000;
+          Object.defineProperty(performance,'now',{configurable:true,value:()=>now});
+          try {
+            const elapsed=[];
+            for(const rate of [.5,1,2,5,10]){
+              window.goatsReplayReset();window.goatsReplayStart(rate);
+              now+=200;window.goatsReplayPause();elapsed.push(replayElapsed);
+            }
+            window.goatsReplayReset();window.goatsReplayStart(1);
+            now+=100;window.goatsReplaySetRate(10);
+            const before=replayElapsed;
+            now+=50;window.goatsReplayPause();
+            return {elapsed,before,after:replayElapsed};
+          } finally {
+            window.goatsReplayPause();
+            if(previous)Object.defineProperty(performance,'now',previous);
+            else delete performance.now;
+          }
+        }""")
+        self.assertEqual(result['elapsed'],[100,200,400,1000,2000])
+        self.assertEqual((result['before'],result['after']),(100,600))
+        self.assertEqual(self.errors,[])
 
     def test_embedded_map_has_no_description_and_no_fullscreen_panels(self):
         self.assertEqual(self.page.locator('#legend').count(), 0)
