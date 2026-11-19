@@ -13,6 +13,8 @@ gnss=importlib.util.module_from_spec(spec);spec.loader.exec_module(gnss)
 class Receiver:
     def __init__(self,nak=False,mismatch=False):
         self.buffer=bytearray();self.values={};self.sent=[];self.nak=nak;self.mismatch=mismatch
+        if hasattr(gnss,'_nav_sat_divisor'):
+            self.values.update({gnss.CFG_RATE_MEAS:40,gnss.CFG_RATE_NAV:1})
     def __enter__(self):return self
     def __exit__(self,*args):pass
     def reset_input_buffer(self):self.buffer.clear()
@@ -67,15 +69,18 @@ class GnssTests(unittest.TestCase):
         receiver=Receiver()
         with patch.object(gnss.serial,'Serial',return_value=receiver):
             result=gnss.apply_navigation_profile('COM1',230400,('GPS','SBAS'),'UBX+NMEA',persistent=False)
-        self.assertEqual(result,receiver.values)
-        self.assertEqual([frame[2:4] for frame in receiver.sent],[b'\x06\x8a',b'\x06\x8b'])
-        self.assertEqual(receiver.sent[0][6:10],bytes((0,1,0,0)))
+        self.assertEqual(result,{key:receiver.values[key] for key in result})
+        expected=[b'\x06\x8a',b'\x06\x8b']
+        if hasattr(gnss,'_nav_sat_divisor'):expected.insert(0,b'\x06\x8b')
+        self.assertEqual([frame[2:4] for frame in receiver.sent],expected)
+        written=next(frame for frame in receiver.sent if frame[3]==0x8a)
+        self.assertEqual(written[6:10],bytes((0,1,0,0)))
 
     def test_explicit_persistence_writes_all_layers(self):
         receiver=Receiver()
         with patch.object(gnss.serial,'Serial',return_value=receiver):
             gnss.apply_navigation_profile('COM1',230400,('GPS',),'NMEA',persistent=True)
-        self.assertEqual(receiver.sent[0][7],7)
+        self.assertEqual(next(f for f in receiver.sent if f[3]==0x8a)[7],7)
 
     def test_nak_and_mismatched_readback_are_not_reported_as_applied(self):
         for receiver in (Receiver(nak=True),Receiver(mismatch=True)):

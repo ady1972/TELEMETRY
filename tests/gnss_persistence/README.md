@@ -20,3 +20,12 @@ aggiuntive, salvataggio del baud attuale ed errori senza messaggi di successo.
 I 48 test precedenti restano eseguiti sulle versioni correnti dove pertinenti:
 `GOATS_WINDOWS_VERSION=5.4.15.8`, `GOATS_MOBILE_VERSION=0.2.3`. Totale 68.
 Il modello non sostituisce il collaudo del ricevitore reale dopo spegnimento.
+
+## NAV-SAT/NAV-DOP — V5.4.15.11
+
+`GOATS_WINDOWS_VERSION=5.4.15.11 python tests/gnss_persistence/test_satellite_messages.py`
+aggiunge 9 test: profili UBX/misti, NMEA-only, persistenza e cambio frequenza,
+NAV frazionario/lento, SAT disabilitato, frequenza letta non valida e lettura
+nel log senza scritture. PVT/DOP restano a ogni soluzione e il profilo non
+modifica MEAS, NAV o baud. Con i test replay aggiunti in V5.4.15.10 il totale
+complessivo è ora 79. Il ricevitore è simulato; nessun firmware viene eseguito.

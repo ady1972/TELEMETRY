@@ -72,8 +72,8 @@ class StorageTests(unittest.TestCase):
     def test_profile_defaults_to_all_storage_layers_and_survives_loss_of_backup(self):
         d=Device()
         with self.use(d):expected=gnss.apply_navigation_profile('COM1',230400,('GPS','Galileo'),'UBX+NMEA')
-        self.assertEqual(d.sent[0][7],7)
-        self.assertEqual([f[7] for f in d.sent if f[3]==0x8b],[0,2,1])
+        self.assertEqual(next(f for f in d.sent if f[3]==0x8a)[7],7)
+        self.assertEqual([f[7] for f in d.sent if f[3]==0x8b][-3:],[0,2,1])
         d.reboot()
         for key,value in expected.items():self.assertEqual(d.ram[key],value)
         self.assertEqual(d.bbr,{})

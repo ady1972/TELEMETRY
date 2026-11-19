@@ -31,6 +31,9 @@ class PersistenceUiTests(unittest.TestCase):
     def read(self,period=40,nav=1):
         state=dict(constellations=['GPS','Galileo'],protocol='UBX+NMEA',uart1_baudrate=230400,
                    **gnss._rate_info({gnss.CFG_RATE_MEAS:period,gnss.CFG_RATE_NAV:nav}))
+        if hasattr(gnss,'_nav_sat_info'):
+            state.update(gnss._nav_sat_info({gnss.CFG_RATE_MEAS:period,gnss.CFG_RATE_NAV:nav,gnss.CFG_UART1OUTPROT_UBX:1,
+                                           gnss.UBX_UART1['NAV-SAT']:gnss._nav_sat_divisor({gnss.CFG_RATE_MEAS:period,gnss.CFG_RATE_NAV:nav})}))
         with patch.object(gnss,'read_navigation_profile',return_value=state),patch.object(gnss,'set_navigation_rate') as write:
             self.button('gnssReadConfiguration').click();write.assert_not_called()
         self.warning.assert_not_called()
@@ -74,7 +77,7 @@ class PersistenceUiTests(unittest.TestCase):
              patch.object(manager.QMessageBox,'question',return_value=manager.QMessageBox.Yes):
             button.click()
         self.warning.assert_not_called()
-        self.assertEqual(d.sent[0][7],7)
+        self.assertEqual(next(f for f in d.sent if f[3]==0x8a)[7],7)
         self.assertTrue(d.flash)
         self.assertIn('Profilo salvato e verificato',self.page.findChild(manager.QTextEdit).toPlainText())
 
