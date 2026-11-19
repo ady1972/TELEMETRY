@@ -1,5 +1,5 @@
 # GOATS Telemetry — Android / Windows handoff
-Updated: 2026-11-18
+Updated: 2026-11-19
 
 ## Import verification snapshot — 2026-11-15
 
@@ -36,6 +36,13 @@ Each complete application version lives in its own directory:
   deletion with receipts preventing offline copies from resurrecting files.
   These session deletions were explicitly requested by the user; track deletions
   remain local. External sources/microSD and older release folders are retained.
+
+- Windows V5.4.15.8: `windows/v5.4.15.8-burst4/`, automatic RAM/BBR/flash
+  persistence with separate storage readback, plus measurement/navigation rate
+  readback. On 19 Nov the user confirmed receiver parameter application works
+  but reported reversion after reboot and explicitly requested automatic flash
+  saving and frequency readback. New persistence still needs a physical power
+  cycle test; UART1 only, no firmware changes. Mobile V0.2.3 remains compatible.
 
 The platform-level READMEs list available versions. Keep each source package
 complete when adding a new version; do not infer complete older releases from

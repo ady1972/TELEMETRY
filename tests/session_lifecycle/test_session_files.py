@@ -1,3 +1,4 @@
+import os
 import json
 import importlib.util
 from pathlib import Path
@@ -7,7 +8,8 @@ import unittest
 from unittest.mock import patch
 
 ROOT=Path(__file__).resolve().parents[2]
-APP=ROOT/'windows/v5.4.15.7-burst4'
+VERSION=os.environ.get('GOATS_WINDOWS_VERSION','5.4.15.7')
+APP=ROOT/('windows/v'+VERSION+'-burst4')
 sys.path.insert(0,str(APP))
 from goats_store import SessionStore
 from goats_formats import parse_any
