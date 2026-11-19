@@ -4,7 +4,7 @@ Nuovo progetto autonomo ESP32-S3/ESPHome, creato da zero esclusivamente in quest
 cartella. Il display previsto e' **non touch**. RLCD TEST26 e' il riferimento
 funzionale e grafico, non una libreria inclusa dallo scaffold.
 
-**Versione 0.1.0: struttura iniziale, non firmware completo di cronometraggio.**
+**Versione 0.1.0: acquisizione e schermata GPS, non firmware completo di cronometraggio.**
 Non vengono ancora prodotti tempi giro, settori, delta, sessioni o file CSV.
 Non sono stati copiati i firmware RLCD o Guition, ne' modificati file esterni.
 
@@ -17,6 +17,8 @@ Non sono stati copiati i firmware RLCD o Guition, ne' modificati file esterni.
   timestamp iTOW, istante ESP e conteggio dei duplicati consecutivi.
 - Poll UART con budget limitato; nessuna scrittura UART o operazione SD nel parser.
 - Contratti iniziali per timing e geometria UI, separati dal codice di acquisizione.
+- Schermata GPS 800x480 con stato fix, satelliti, velocita', coordinate e diagnostica.
+- Retroilluminazione al 50% all'avvio, tramite PWM su GPIO2.
 - Variante opzionale per la sola test card del display RGB 800x480.
 - Nessun Wi-Fi, OTA, touchscreen, GT911, bus I2C o protocollo Manager attivo.
 
@@ -40,13 +42,27 @@ GOATS_5_TRANSFLETTIVO_V010/
 
 Copiare nel workspace ESPHome Builder i due YAML e l'intera cartella
 `GOATS_5_TRANSFLETTIVO_V010`, mantenendoli affiancati. Aprire
-`goats_5_transflettivo.yaml` per il progetto base. Tutti i componenti e gli
+`goats_5_transflettivo.yaml` per la schermata GPS. Tutti i componenti e gli
 include puntano alla cartella dedicata; non serve una cartella `components`
 comune agli altri dispositivi. È possibile anche usare direttamente questa
 cartella del repository come workspace.
 
 Per la sola test card del pannello aprire invece
 `goats_5_transflettivo_display_test.yaml`. Il test non contiene un'interfaccia Racing.
+Anche questa variante usa la retroilluminazione al 50%.
+
+## Schermata dati GPS
+
+Il firmware principale inizializza il pannello con gli stessi pin e timing della
+test card che ha mostrato RGB. La schermata si aggiorna ogni 250 ms e distingue
+attesa dei messaggi, ricezione senza fix, fix valido e dati non aggiornati da almeno
+3 secondi. Velocita' e coordinate compaiono solo con un fix valido e recente;
+senza dati recenti i valori sono sostituiti da trattini. I satelliti restano visibili
+anche durante la ricerca del fix, se i messaggi continuano ad arrivare.
+
+Il fondo mostra numero di messaggi NAV-PVT, duplicati ed errori checksum, utili per
+verificare la ricezione. Non viene inviata alcuna configurazione al ricevitore.
+La luminosita' iniziale e' 50%, con PWM a 1 kHz e correzione gamma 1.0.
 
 ```powershell
 Set-Location 'C:\percorso\TELEMETRY\firmware\5 pollici transflettivo'

@@ -1,0 +1,79 @@
+# Schermata diagnostica: legge solo i campioni gia' acquisiti da goats_core.
+packages:
+  panel: !include display_800x480.yaml
+
+font:
+  - file: {type: gfonts, family: Roboto Condensed, weight: 700}
+    id: gps_label
+    size: 18
+  - file: {type: gfonts, family: Roboto Condensed, weight: 700}
+    id: gps_value
+    size: 28
+  - file: {type: gfonts, family: Roboto Condensed, weight: 700}
+    id: gps_large
+    size: 64
+
+display:
+  - id: !extend transflective_panel
+    show_test_card: false
+    update_interval: 250ms
+    lambda: |-
+      const Color paper(255, 255, 255);
+      const Color ink(0, 0, 0);
+      const Color muted(80, 80, 80);
+      const Color rule(180, 180, 180);
+      const auto &app = *id(goats_application);
+      const auto &sample = app.latest_sample();
+      const bool received = app.has_sample();
+      const uint32_t age = millis() - sample.received_ms;
+      const bool fresh = received && age < 3000U;
+      const bool usable = fresh && sample.valid_fix;
+      const char *status = !received ? "IN ATTESA DATI GPS" :
+          !fresh ? "DATI GPS NON AGGIORNATI" :
+          !sample.valid_fix ? "GPS RICEVUTO - IN ATTESA FIX" : "FIX GPS VALIDO";
+      const Color status_ink = usable ? Color(0, 110, 55) :
+          fresh ? Color(150, 90, 0) : Color(170, 0, 0);
+
+      it.fill(paper);
+      it.filled_rectangle(0, 0, 800, 58, ink);
+      it.print(24, 11, id(gps_value), paper, "GOATS - DATI GPS");
+      it.printf(776, 18, id(gps_label), paper, TextAlign::TOP_RIGHT, "V%s", "${firmware_version}");
+      it.print(24, 74, id(gps_value), status_ink, status);
+      if (received) {
+        it.printf(24, 113, id(gps_label), muted, "Ultimo dato: %lu ms fa", static_cast<unsigned long>(age));
+        it.printf(776, 113, id(gps_label), muted, TextAlign::TOP_RIGHT, "Tipo fix ricevuto: %u", sample.fix_type);
+      } else {
+        it.print(24, 113, id(gps_label), muted, "In attesa di messaggi UBX NAV-PVT dal ricevitore");
+      }
+
+      it.rectangle(24, 153, 356, 140, rule);
+      it.rectangle(420, 153, 356, 140, rule);
+      it.print(40, 164, id(gps_label), muted, "VELOCITA'");
+      it.print(436, 164, id(gps_label), muted, "SATELLITI");
+      if (usable)
+        it.printf(40, 192, id(gps_large), ink, "%.1f", sample.speed_kmh);
+      else
+        it.print(40, 192, id(gps_large), ink, "--.-");
+      it.print(360, 244, id(gps_label), muted, TextAlign::TOP_RIGHT, "km/h");
+      if (fresh)
+        it.printf(436, 192, id(gps_large), ink, "%u", sample.satellites);
+      else
+        it.print(436, 192, id(gps_large), ink, "--");
+
+      it.print(24, 309, id(gps_label), muted, "LATITUDINE");
+      it.print(420, 309, id(gps_label), muted, "LONGITUDINE");
+      if (usable) {
+        it.printf(24, 337, id(gps_value), ink, "%.7f", sample.latitude);
+        it.printf(420, 337, id(gps_value), ink, "%.7f", sample.longitude);
+      } else {
+        it.print(24, 337, id(gps_value), ink, "--");
+        it.print(420, 337, id(gps_value), ink, "--");
+      }
+
+      it.line(24, 390, 776, 390, rule);
+      const auto &diag = app.diagnostics();
+      it.printf(24, 405, id(gps_label), muted, "PVT: %lu   Duplicati: %lu   Errori checksum: %lu",
+          static_cast<unsigned long>(diag.pvt_frames()),
+          static_cast<unsigned long>(diag.duplicates()),
+          static_cast<unsigned long>(diag.checksum_errors()));
+      it.print(24, 441, id(gps_label), muted, "RX GPIO17 | UBX NAV-PVT | 230400 baud | Retroilluminazione 50%");

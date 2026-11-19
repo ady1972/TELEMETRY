@@ -8,7 +8,7 @@ La scelta dell'utente e' NON TOUCH: nessun GT911 o I2C viene inizializzato.
 |---|---|
 | GNSS RX | 17 (libero nella spec WB-B) |
 | GNSS TX ESP32 | Assente |
-| Backlight enable | 2, spento nel firmware base |
+| Backlight enable | 2, PWM a 1 kHz, 50% all'avvio |
 | LCD R0..R4 (RGB565) | 45, 48, 47, 21, 14 |
 | LCD G0..G5 | 5, 6, 7, 15, 16, 4 |
 | LCD B0..B4 | 8, 3, 46, 9, 1 |
@@ -30,9 +30,11 @@ interpretazione della tabella p.10 del pannello: 32.4 MHz, totale 1000x540,
 degli impulsi HS/VS (160-24 e 23-2). Verificare questa lettura al banco o con
 il produttore prima di considerare definitivo il profilo.
 
-Il firmware base non attiva il display e mantiene la retroilluminazione spenta;
-la variante display_test la accende. Nessuna interfaccia touch viene configurata
-nemmeno nella variante display. Pinout e polarita' non sono stati provati su hardware.
+Il firmware principale attiva la schermata dati GPS; la variante display_test
+mostra la test card RGB. Entrambi usano lo stesso profilo del pannello e la
+retroilluminazione al 50% (LEDC, gamma 1.0). Nessuna interfaccia touch viene
+configurata. L'utente ha osservato la scritta RGB con la precedente variante di
+test; la nuova schermata GPS e la regolazione PWM richiedono collaudo sul dispositivo.
 
 ## GPS
 
