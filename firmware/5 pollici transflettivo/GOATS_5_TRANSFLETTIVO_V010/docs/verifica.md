@@ -74,3 +74,23 @@ ESP-IDF 5.5.5. I risultati storici Windows sopra restano riferiti al 12/11.
 
 La ricezione GPS resta passiva su GPIO17, 230400 baud; il firmware non configura
 il ricevitore. La nuova schermata non implementa cronometraggio o sessioni.
+
+## Diagnostica GPS con logica RLCD — 19/11/2026
+
+La successiva estensione del parser aggiunge NAV-SAT e NAV-DOP. La regola RLCD
+conta come visti solo i satelliti con C/N0 >0; i satelliti usati restano quelli
+di NAV-PVT. Criterio di fix, epoche iTOW, duplicati e percorso dei campioni PVT
+non cambiano. Buffer UBX limitato a 1200 byte come RLCD; nessuna allocazione
+dinamica nel parser o trasmissione al ricevitore.
+
+- Test C++ estesi: conteggi per costellazione, messaggi SAT oltre 92 byte,
+  distinzione visti/usati, zero reale, checksum errato, payload troncato,
+  versione SAT non supportata, HDOP, frame sovradimensionati e ripresa PVT.
+- Frequenza misurata: 25 Hz su traffico sintetico, ritorno a zero dopo silenzio,
+  rollover millis. Test eseguiti con AddressSanitizer e UndefinedBehaviorSanitizer: PASS.
+- Callback grafico: distinzione dato assente/zero, scadenza SAT/DOP a 5 s,
+  PVT a 3 s e stati fix: PASS host.
+- Configurazione UART, pin e timing del pannello, versione 0.1.0 e PWM 50%: invariati.
+- Compilazione completa ESPHome del firmware GPS: PASS.
+- Compilazione della variante test card: PASS.
+- Ricezione NAV-SAT/DOP, conteggi reali e fix sul dispositivo: da collaudare.

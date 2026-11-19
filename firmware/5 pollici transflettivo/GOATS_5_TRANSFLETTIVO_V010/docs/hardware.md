@@ -44,6 +44,9 @@ Il TX deve essere compatibile con i livelli di ingresso ESP32-S3.
 
 Come RLCD: ricezione passiva, UBX NAV-PVT, 230400 baud, 25 Hz gia' impostati
 esternamente. Il progetto non invia comandi di inizializzazione o cambio frequenza.
+La diagnostica legge anche NAV-SAT (visti con C/N0 >0 e costellazioni) e NAV-DOP
+(HDOP): questi messaggi devono essere gia' abilitati sul ricevitore. In loro
+assenza la schermata indica `--`. Non viene aggiunto un collegamento TX ESP32.
 
 ## USB
 

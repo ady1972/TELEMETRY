@@ -15,6 +15,8 @@ Non sono stati copiati i firmware RLCD o Guition, ne' modificati file esterni.
 - Componente C++ locale `goats_core`, scritto da zero.
 - Acquisizione passiva UBX NAV-PVT: checksum, posizione, velocita', fix, satelliti,
   timestamp iTOW, istante ESP e conteggio dei duplicati consecutivi.
+- Diagnostica RLCD: NAV-SAT per satelliti visti e costellazioni, NAV-DOP per HDOP,
+  frequenza NAV-PVT misurata su finestre di 2 secondi.
 - Poll UART con budget limitato; nessuna scrittura UART o operazione SD nel parser.
 - Contratti iniziali per timing e geometria UI, separati dal codice di acquisizione.
 - Schermata GPS 800x480 con stato fix, satelliti, velocita', coordinate e diagnostica.
@@ -60,8 +62,17 @@ attesa dei messaggi, ricezione senza fix, fix valido e dati non aggiornati da al
 senza dati recenti i valori sono sostituiti da trattini. I satelliti restano visibili
 anche durante la ricerca del fix, se i messaggi continuano ad arrivare.
 
+Il riquadro **SATELLITI VISTI / USATI** distingue i satelliti con C/N0 maggiore di
+zero nei messaggi NAV-SAT (stessa regola RLCD) dal numero usato nella soluzione,
+riportato da NAV-PVT. Il fondo mostra anche GPS, Galileo, BeiDou, GLONASS e SBAS.
+Gli altri sistemi contribuiscono al totale dei visti senza un contatore dedicato.
+La ricezione NAV-SAT puo' quindi mostrare satelliti visti anche senza fix.
+Senza NAV-SAT, oppure dopo 5 secondi senza nuovi dati, il campo visti mostra `--`,
+non uno zero inventato. Anche HDOP da NAV-DOP scade dopo 5 secondi.
+
 Il fondo mostra numero di messaggi NAV-PVT, duplicati ed errori checksum, utili per
-verificare la ricezione. Non viene inviata alcuna configurazione al ricevitore.
+verificare la ricezione. In alto compaiono HDOP e frequenza PVT effettiva, misurata
+ogni 2 secondi come nella diagnostica RLCD. Non viene inviata alcuna configurazione al ricevitore.
 La luminosita' iniziale e' 50%, con PWM a 1 kHz e correzione gamma 1.0.
 
 ```powershell
@@ -93,6 +104,10 @@ del modulo e livello del suo TX sono due verifiche distinte.
 Come nel riferimento RLCD, il ricevitore deve essere **gia' configurato** per
 UBX NAV-PVT a **25 Hz, 230400 baud, 8N1**. Il firmware non imposta la frequenza,
 non modifica costellazioni e non trasmette configurazioni al GNSS.
+Per visualizzare i visti deve trasmettere anche **UBX NAV-SAT** (tipicamente 1 Hz);
+per HDOP deve trasmettere **UBX NAV-DOP**. Il solo NAV-PVT non contiene il numero
+dei satelliti visti. Il criterio di fix resta quello RLCD: tipo >=3, gnssFixOK,
+almeno 4 satelliti usati e coordinate nei limiti geografici.
 
 ## Riferimento RLCD e sviluppo successivo
 

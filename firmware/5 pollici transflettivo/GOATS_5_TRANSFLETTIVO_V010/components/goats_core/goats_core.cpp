@@ -5,6 +5,7 @@
 namespace esphome::goats_core {
 static const char *const TAG = "goats_core";
 void GoatsCore::loop() {
+  parser_.update_rate(millis());
   uint8_t byte;
   unsigned budget = 4096;  // RLCD reference: bound work per UART poll.
   while (budget-- && this->available()) {

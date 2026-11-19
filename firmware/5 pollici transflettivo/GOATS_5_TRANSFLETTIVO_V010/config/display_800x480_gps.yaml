@@ -24,9 +24,15 @@ display:
       const Color rule(180, 180, 180);
       const auto &app = *id(goats_application);
       const auto &sample = app.latest_sample();
+      const auto &diag = app.diagnostics();
+      const auto &sat = diag.satellites();
+      const auto &dop = diag.dop();
+      const uint32_t now = millis();
       const bool received = app.has_sample();
-      const uint32_t age = millis() - sample.received_ms;
+      const uint32_t age = now - sample.received_ms;
       const bool fresh = received && age < 3000U;
+      const bool fresh_sat = diag.sat_frames() > 0 && now - sat.received_ms < 5000U;
+      const bool fresh_dop = diag.dop_frames() > 0 && now - dop.received_ms < 5000U && dop.hdop >= 0;
       const bool usable = fresh && sample.valid_fix;
       const char *status = !received ? "IN ATTESA DATI GPS" :
           !fresh ? "DATI GPS NON AGGIORNATI" :
@@ -41,39 +47,54 @@ display:
       it.print(24, 74, id(gps_value), status_ink, status);
       if (received) {
         it.printf(24, 113, id(gps_label), muted, "Ultimo dato: %lu ms fa", static_cast<unsigned long>(age));
-        it.printf(776, 113, id(gps_label), muted, TextAlign::TOP_RIGHT, "Tipo fix ricevuto: %u", sample.fix_type);
       } else {
         it.print(24, 113, id(gps_label), muted, "In attesa di messaggi UBX NAV-PVT dal ricevitore");
+      }
+      if (received) {
+        char hdop_text[16];
+        if (fresh_dop) snprintf(hdop_text, sizeof(hdop_text), "%.2f", dop.hdop);
+        else snprintf(hdop_text, sizeof(hdop_text), "--");
+        it.printf(776, 113, id(gps_label), muted, TextAlign::TOP_RIGHT,
+            "Fix: %u | PVT: %.1f Hz | HDOP: %s", sample.fix_type, diag.pvt_hz(), hdop_text);
       }
 
       it.rectangle(24, 153, 356, 140, rule);
       it.rectangle(420, 153, 356, 140, rule);
       it.print(40, 164, id(gps_label), muted, "VELOCITA'");
-      it.print(436, 164, id(gps_label), muted, "SATELLITI");
+      it.print(436, 164, id(gps_label), muted, "SATELLITI VISTI / USATI");
       if (usable)
         it.printf(40, 192, id(gps_large), ink, "%.1f", sample.speed_kmh);
       else
         it.print(40, 192, id(gps_large), ink, "--.-");
       it.print(360, 244, id(gps_label), muted, TextAlign::TOP_RIGHT, "km/h");
-      if (fresh)
-        it.printf(436, 192, id(gps_large), ink, "%u", sample.satellites);
+      if (fresh_sat)
+        it.printf(436, 192, id(gps_large), ink, "%u", sat.seen);
       else
         it.print(436, 192, id(gps_large), ink, "--");
+      it.print(560, 192, id(gps_large), muted, "/");
+      if (fresh)
+        it.printf(620, 192, id(gps_large), ink, "%u", sample.satellites);
+      else
+        it.print(620, 192, id(gps_large), ink, "--");
 
-      it.print(24, 309, id(gps_label), muted, "LATITUDINE");
-      it.print(420, 309, id(gps_label), muted, "LONGITUDINE");
+      it.print(24, 300, id(gps_label), muted, "LATITUDINE");
+      it.print(420, 300, id(gps_label), muted, "LONGITUDINE");
       if (usable) {
-        it.printf(24, 337, id(gps_value), ink, "%.7f", sample.latitude);
-        it.printf(420, 337, id(gps_value), ink, "%.7f", sample.longitude);
+        it.printf(24, 326, id(gps_value), ink, "%.7f", sample.latitude);
+        it.printf(420, 326, id(gps_value), ink, "%.7f", sample.longitude);
       } else {
-        it.print(24, 337, id(gps_value), ink, "--");
-        it.print(420, 337, id(gps_value), ink, "--");
+        it.print(24, 326, id(gps_value), ink, "--");
+        it.print(420, 326, id(gps_value), ink, "--");
       }
 
-      it.line(24, 390, 776, 390, rule);
-      const auto &diag = app.diagnostics();
-      it.printf(24, 405, id(gps_label), muted, "PVT: %lu   Duplicati: %lu   Errori checksum: %lu",
+      it.line(24, 374, 776, 374, rule);
+      if (fresh_sat)
+        it.printf(24, 386, id(gps_label), muted, "Visti: GPS %u   GAL %u   BDS %u   GLO %u   SBAS %u",
+            sat.gps, sat.galileo, sat.beidou, sat.glonass, sat.sbas);
+      else
+        it.print(24, 386, id(gps_label), muted, "NAV-SAT non disponibile: satelliti visti --");
+      it.printf(24, 418, id(gps_label), muted, "PVT: %lu   Duplicati: %lu   Errori checksum: %lu",
           static_cast<unsigned long>(diag.pvt_frames()),
           static_cast<unsigned long>(diag.duplicates()),
           static_cast<unsigned long>(diag.checksum_errors()));
-      it.print(24, 441, id(gps_label), muted, "RX GPIO17 | UBX NAV-PVT | 230400 baud | Retroilluminazione 50%");
+      it.print(24, 449, id(gps_label), muted, "RX GPIO17 | UBX passivo RLCD | 230400 baud | Retroilluminazione 50%");
