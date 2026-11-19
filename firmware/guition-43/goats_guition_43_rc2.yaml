@@ -1007,6 +1007,13 @@ font:
     id: roboto_condensed_bold_74
     size: 74
     bpp: 4
+  - file:
+      type: gfonts
+      family: Roboto Condensed
+      weight: 700
+    id: roboto_condensed_bold_48
+    size: 48
+    bpp: 4
 
 # ============================================================
 # INTERFACCIA LVGL - DASHBOARD V5.6 RUOTATA 180 GRADI
@@ -3895,38 +3902,38 @@ lvgl:
                       text_font: roboto_14
                       text_color: 0xFFFFFF
 
-      # Popup breve quando viene stabilito un nuovo Best Lap.
+      # Avviso NEW BEST LAP a schermo intero; lampeggia solo il testo.
       - obj:
           id: new_best_popup
-          x: 75
-          y: 72
-          width: 330
-          height: 128
+          x: 0
+          y: 0
+          width: 480
+          height: 272
           hidden: true
           bg_color: 0x00C853
           bg_opa: COVER
-          border_color: 0x52E3AC
-          border_width: 2
-          radius: 14
-          pad_all: 10
+          border_width: 0
+          radius: 0
+          pad_all: 0
           scrollbar_mode: "OFF"
           widgets:
             - label:
+                id: lbl_new_best_title
                 x: 0
-                y: 12
-                width: 310
+                y: 40
+                width: 480
                 text: "NEW BEST LAP"
                 text_align: CENTER
-                text_font: roboto_24
+                text_font: roboto_condensed_bold_48
                 text_color: 0x000000
             - label:
                 id: lbl_new_best_time
                 x: 0
-                y: 55
-                width: 310
+                y: 127
+                width: 480
                 text: "--:--.---"
                 text_align: CENTER
-                text_font: roboto_36
+                text_font: roboto_condensed_bold_74
                 text_color: 0x000000
 
       # Popup mostrato quando AUTO rileva un nuovo circuito.
@@ -5042,6 +5049,7 @@ interval:
                           millis() +
                           static_cast<uint32_t>(
                               id(best_lap_popup_duration_sec)) * 1000UL;
+                      lv_obj_move_foreground(id(new_best_popup));
                   - lvgl.widget.show: new_best_popup
       - if:
           condition:
@@ -5055,6 +5063,15 @@ interval:
             - lambda: |-
                 id(best_popup_active) = false;
                 id(best_popup_hide_at_ms) = 0;
+      - lambda: |-
+          if (id(best_popup_active)) {
+            const uint32_t started_at = id(best_popup_hide_at_ms) -
+                static_cast<uint32_t>(id(best_lap_popup_duration_sec)) * 1000UL;
+            const bool text_visible = ((millis() - started_at) / 500UL) % 2UL == 0;
+            const lv_opa_t ink_opa = text_visible ? LV_OPA_COVER : LV_OPA_TRANSP;
+            lv_obj_set_style_text_opa(id(lbl_new_best_title), ink_opa, LV_PART_MAIN | LV_STATE_DEFAULT);
+            lv_obj_set_style_text_opa(id(lbl_new_best_time), ink_opa, LV_PART_MAIN | LV_STATE_DEFAULT);
+          }
 
   # V8.4.1 - Gestione schermata post-giro.
   # Le pagine ESPHome vengono cambiate tramite l'azione lvgl.page.show.
