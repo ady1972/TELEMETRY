@@ -54,6 +54,15 @@ Each complete application version lives in its own directory:
   Replay timing/interpolation, receiver configuration, storage and protocols
   remain unchanged; default playback remains 1x.
 
+- Windows V5.4.15.11: `windows/v5.4.15.11-burst4/`, enables NAV-SAT near 1 Hz
+  and NAV-DOP each navigation epoch alongside NAV-PVT in UBX profiles. The user
+  agreed after discussion of satellite data and current telemetry compatibility.
+  SAT divider is derived from receiver MEAS/NAV and adjusted on rate changes.
+  Firmware inspection correction: current Guition RC2 is passive too; its header
+  setup helper contains 25/25/1 Hz but is NOT called at boot. Both Guition RC2 and
+  RLCD TEST26/RC2 decode SAT/DOP and depend on receiver configuration. No firmware
+  modifications; actual message output still needs receiver testing.
+
 The platform-level READMEs list available versions. Keep each source package
 complete when adding a new version; do not infer complete older releases from
 the historical standalone scripts bundled in the Windows package.
