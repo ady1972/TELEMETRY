@@ -534,13 +534,16 @@ display:
         }
       }
 
-      // Best Lap alert: priority over ordinary post-lap view; no GPS changes.
+      // Best Lap a schermo intero: lampeggia solo il testo, come sul Guition.
       if(goats_ui::best_active(now) && goats_menu::screen()==0){
-        it.filled_rectangle(20,82,360,149,B);
-        it.rectangle(20,82,360,149,W);
-        it.print(200,98,id(f28),W,TextAlign::TOP_CENTER,"NEW BEST LAP");
-        const std::string record=fmt_ms(goats_ui::best_time_ms());
-        it.print(200,169,choose_font(record.c_str(),340,67),W,TextAlign::CENTER,record.c_str());
+        it.fill(B);
+        const uint32_t started_at=goats_ui::best_until()-goats_ui::best_duration_ms();
+        const bool text_visible=(((now-started_at)/500U)&1U)==0;
+        if(text_visible){
+          it.print(200,78,choose_font("NEW BEST LAP",376,68),W,TextAlign::CENTER,"NEW BEST LAP");
+          const std::string record=fmt_ms(goats_ui::best_time_ms());
+          it.print(200,182,choose_font(record.c_str(),376,112),W,TextAlign::CENTER,record.c_str());
+        }
       }
 
 
