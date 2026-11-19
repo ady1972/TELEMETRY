@@ -1,0 +1,24 @@
+GOATS RT Manager V5.4.10.4
+Build: TABLE BEST + FILTRO GIRO 2
+
+Logica corretta del filtro:
+- per ogni sessione il GIRO 2 è il riferimento;
+- soglia = 80% del tempo del Giro 2;
+- tutti i giri con tempo INFERIORE a tale soglia vengono ignorati;
+- in altre parole vengono eliminati i giri oltre il 20% più corti del Giro 2;
+- i giri ignorati non compaiono in tabella, mappa o grafico;
+- non possono diventare Best Lap;
+- restano comunque memorizzati nel database originale.
+
+Esempio:
+Giro 2 = 52.386 s
+80% = 41.909 s
+22.234 s < 41.909 s -> giro ignorato.
+
+Se il Giro 2 non è disponibile, il Manager non applica il filtro.
+
+Restano invariati:
+- centratura colonne;
+- evidenziazione permanente Best Lap;
+- pista singola + settori;
+- launcher/venv fix.

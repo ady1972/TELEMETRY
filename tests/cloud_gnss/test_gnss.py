@@ -29,11 +29,12 @@ class Receiver:
                     key,value=struct.unpack_from('<IB',payload,off);self.values[key]=value
             self.buffer+=b'$GNRMC,synthetic\r\n'+gnss.packet(5,0 if self.nak else 1,b'\x06\x8a')
         elif data[2:4]==b'\x06\x8b':
-            reply=bytes((1,0,0,0))
+            reply=bytes((1,payload[1],0,0))
             for off in range(4,len(payload),4):
                 key=struct.unpack_from('<I',payload,off)[0];value=self.values[key]
                 if self.mismatch and key==gnss.CFG_UART1OUTPROT_NMEA:value=1-value
-                reply+=struct.pack('<IB',key,value)
+                size={1:1,2:1,3:2,4:4,5:8}[(key>>28)&7]
+                reply+=struct.pack('<I',key)+value.to_bytes(size,'little')
             self.buffer+=gnss.packet(6,0x8b,reply)
         return len(data)
 
@@ -65,12 +66,12 @@ class GnssTests(unittest.TestCase):
     def test_ack_and_readback_are_required_for_success(self):
         receiver=Receiver()
         with patch.object(gnss.serial,'Serial',return_value=receiver):
-            result=gnss.apply_navigation_profile('COM1',230400,('GPS','SBAS'),'UBX+NMEA')
+            result=gnss.apply_navigation_profile('COM1',230400,('GPS','SBAS'),'UBX+NMEA',persistent=False)
         self.assertEqual(result,receiver.values)
         self.assertEqual([frame[2:4] for frame in receiver.sent],[b'\x06\x8a',b'\x06\x8b'])
         self.assertEqual(receiver.sent[0][6:10],bytes((0,1,0,0)))
 
-    def test_persistence_is_explicit(self):
+    def test_explicit_persistence_writes_all_layers(self):
         receiver=Receiver()
         with patch.object(gnss.serial,'Serial',return_value=receiver):
             gnss.apply_navigation_profile('COM1',230400,('GPS',),'NMEA',persistent=True)
@@ -87,6 +88,8 @@ class GnssTests(unittest.TestCase):
 
     def test_read_configuration(self):
         receiver=Receiver();receiver.values=gnss.navigation_profile(('GPS','Galileo'),'UBX')
+        if hasattr(gnss,'CFG_RATE_NAV'):
+            receiver.values.update({gnss.CFG_RATE_MEAS:40,gnss.CFG_RATE_NAV:1,gnss.CFG_UART1_BAUDRATE:230400})
         with patch.object(gnss.serial,'Serial',return_value=receiver):state=gnss.read_navigation_profile('COM1',230400)
         self.assertEqual(state['protocol'],'UBX');self.assertEqual(state['constellations'],['GPS','Galileo'])
 
