@@ -1,0 +1,36 @@
+esphome:
+  name: goats-s3-zero-power-01
+  friendly_name: GOATS S3-Zero TEST ALIMENTAZIONE 01
+  comment: "Issue 33 - solo display ST7306 e contatore; MG902 solo carico elettrico"
+
+esp32:
+  board: esp32-s3-devkitc-1
+  variant: ESP32S3
+  flash_size: 4MB
+  framework:
+    type: esp-idf
+
+# USB nativa della Zero: nessuna UART, nessuna attesa di un terminale.
+logger:
+  level: INFO
+  baud_rate: 0
+  hardware_uart: USB_SERIAL_JTAG
+
+spi:
+  clk_pin: GPIO12
+  mosi_pin: GPIO11
+
+external_components:
+  - source:
+      type: local
+      path: GOATS_S3_ZERO_TEST_ALIMENTAZIONE_01/components
+    components: [goats_power_test]
+
+goats_power_test:
+  id: power_test
+  cs_pin: GPIO10
+  dc_pin: GPIO9
+  reset_pin: GPIO8
+  data_rate: 4MHz
+  spi_mode: MODE0
+  update_interval: 1s
