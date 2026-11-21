@@ -52,3 +52,45 @@ sorgenti, documentazione e test sono in `GOATS_5_TRANSFLETTIVO_V010`.
 La variante display include lo YAML base affiancato. Conservare i due YAML
 insieme alla cartella dedicata. La struttura delle verifiche storiche sopra
 rimane riferita alla versione 0.1.0; i percorsi dei comandi sono aggiornati.
+
+## Schermata GPS e retroilluminazione — 19/11/2026
+
+Versione firmware invariata: 0.1.0. Ambiente Linux, ESPHome 2026.7.3,
+ESP-IDF 5.5.5. I risultati storici Windows sopra restano riferiti al 12/11.
+
+| Controllo | Esito |
+|---|---|
+| Config firmware GPS e variante test card | PASS |
+| Config risolta: un solo display, test card senza renderer GPS | PASS |
+| PWM GPIO2, gamma 1.0, luminosita' iniziale 50% in entrambe le varianti | PASS software |
+| Pin/timing RGB e sorgenti GNSS confrontati con la base | Invariati |
+| check_contracts.py | PASS |
+| Test C++ parser NAV-PVT con G++ e warning come errori | PASS |
+| Callback effettivo della schermata: attesa, senza fix, fix valido, scadenza a 3 s, ripresa e rollover millis | PASS host |
+| Ingombro dei testi con il font previsto | PASS |
+| Compilazione/link ESP32, firmware GPS | PASS |
+| Compilazione/link ESP32, variante test card | PASS |
+| Schermata e luminosita' sul dispositivo | Da collaudare |
+
+La ricezione GPS resta passiva su GPIO17, 230400 baud; il firmware non configura
+il ricevitore. La nuova schermata non implementa cronometraggio o sessioni.
+
+## Diagnostica GPS con logica RLCD — 19/11/2026
+
+La successiva estensione del parser aggiunge NAV-SAT e NAV-DOP. La regola RLCD
+conta come visti solo i satelliti con C/N0 >0; i satelliti usati restano quelli
+di NAV-PVT. Criterio di fix, epoche iTOW, duplicati e percorso dei campioni PVT
+non cambiano. Buffer UBX limitato a 1200 byte come RLCD; nessuna allocazione
+dinamica nel parser o trasmissione al ricevitore.
+
+- Test C++ estesi: conteggi per costellazione, messaggi SAT oltre 92 byte,
+  distinzione visti/usati, zero reale, checksum errato, payload troncato,
+  versione SAT non supportata, HDOP, frame sovradimensionati e ripresa PVT.
+- Frequenza misurata: 25 Hz su traffico sintetico, ritorno a zero dopo silenzio,
+  rollover millis. Test eseguiti con AddressSanitizer e UndefinedBehaviorSanitizer: PASS.
+- Callback grafico: distinzione dato assente/zero, scadenza SAT/DOP a 5 s,
+  PVT a 3 s e stati fix: PASS host.
+- Configurazione UART, pin e timing del pannello, versione 0.1.0 e PWM 50%: invariati.
+- Compilazione completa ESPHome del firmware GPS: PASS.
+- Compilazione della variante test card: PASS.
+- Ricezione NAV-SAT/DOP, conteggi reali e fix sul dispositivo: da collaudare.

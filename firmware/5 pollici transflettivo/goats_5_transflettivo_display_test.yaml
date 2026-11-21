@@ -6,7 +6,3 @@ packages:
 
 esphome:
   name: ${device_name}-display
-  on_boot:
-    priority: -100
-    then:
-      - light.turn_on: display_backlight

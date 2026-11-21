@@ -16,13 +16,16 @@ logger:
   baud_rate: 0
 
 output:
-  - platform: gpio
+  - platform: ledc
     id: backlight_enable
     pin: GPIO2
+    frequency: 1000Hz
 
 light:
-  - platform: binary
+  - platform: monochromatic
     id: display_backlight
     name: Retroilluminazione
     output: backlight_enable
     restore_mode: ALWAYS_OFF
+    gamma_correct: 1.0
+    default_transition_length: 0s

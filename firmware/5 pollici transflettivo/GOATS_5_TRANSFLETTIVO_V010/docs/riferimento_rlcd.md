@@ -7,7 +7,7 @@ Questi file rimangono intatti e non sono importati nel nuovo progetto.
 
 | Ambito | Riferimento RLCD | Stato iniziale nel nuovo progetto |
 |---|---|---|
-| GNSS passivo | m9n_passive.h, goats_test_b.h | Nuovo parser NAV-PVT, RX17, nessun TX |
+| GNSS passivo | m9n_passive.h, goats_test_b.h | Parser NAV-PVT/SAT/DOP, RX17, nessun TX; visti con C/N0 >0, usati da PVT, HDOP da DOP |
 | Continuita' campioni | on_pvt, iTOW, duplicati | iTOW e istante ESP distinti, duplicati conteggiati |
 | Racing | lambda display nel YAML RLCD | Contratto geometrico; renderer da sviluppare |
 | Traguardo e riarmo | goats_laptimer.h::update | Da sviluppare e confrontare con tracce di riferimento |
