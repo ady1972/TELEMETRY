@@ -16,6 +16,20 @@ su richiesta dell'utente: GNSS passivo e logiche/menu della RLCD TEST26,
 con driver ST7306 tricolore, quattro pulsanti e microSD SDMMC.
 La V0.40.5 originale qui descritta rimane invariata.
 
+## Test alimentazione ESP32-S3-Zero — issue #33
+
+Variante da banco **4 MB**, con solo display ST7306, contatore dei secondi e
+causa del reset. MG902 collegato esclusivamente come carico VCC/GND, senza UART.
+Usare [lo YAML dedicato](goats_s3_zero_test_alimentazione_01.yaml) affiancato alla
+cartella [GOATS_S3_ZERO_TEST_ALIMENTAZIONE_01](GOATS_S3_ZERO_TEST_ALIMENTAZIONE_01/README.md).
+La guida contiene la prova A/B e le istruzioni per il primo flash USB.
+
+PDF dei collegamenti:
+[test alimentazione](GOATS_S3_ZERO_TEST_ALIMENTAZIONE_01/documentazione/COLLEGAMENTI_TEST_ALIMENTAZIONE_01.pdf)
+e [RLCD completo TEST26](GOATS_S3_ZERO_TEST_ALIMENTAZIONE_01/documentazione/COLLEGAMENTI_RLCD_42_COLOR_TEST26.pdf).
+Il progetto completo resta configurato per **16 MB** e non è un porting per la Zero.
+Nessuna modifica ai firmware da pista; prova elettrica da eseguire al banco.
+
 ## Apertura del progetto
 
 Aprire la sottocartella della versione e usare `v0405_boot_fast_font_test.yaml`,
