@@ -4,6 +4,22 @@ Variante da banco per [issue #33](https://github.com/ady1972/TELEMETRY/issues/33
 derivata dal branch `codex/rlcd-42-tricolore-v0405`.
 Non è un firmware di cronometraggio. Le versioni da pista restano intatte.
 
+## Download del firmware di test
+
+Pacchetti verificati, compilati dai sorgenti del commit
+`c8970220edc8533e05d48155c5515e8e9f35b16b`:
+
+- [ZIP sorgenti pronto per ESPHome](download/GOATS_S3_ZERO_TEST_ALIMENTAZIONE_01_SORGENTI.zip)
+- [ZIP primo flash USB, con binario factory e istruzioni](download/GOATS_S3_ZERO_TEST_ALIMENTAZIONE_01_PRIMO_FLASH_USB.zip)
+- [Solo binario factory](download/GOATS_S3_ZERO_TEST_ALIMENTAZIONE_01.factory.bin),
+  da scrivere a **offset 0x0** su ESP32-S3-Zero **4 MB**.
+- [Codici SHA-256 dei file](download/SHA256SUMS_TEST_ALIMENTAZIONE_01.txt)
+
+Nella pagina GitHub del file usare **Download raw file** per scaricare il binario
+o lo ZIP. I due PDF sono disponibili anche nella cartella `download/`.
+La cartella dei download non è una dipendenza del firmware: i pacchetti sorgenti
+non la includono. Nessun nuovo collaudo hardware è implicato dalla pubblicazione.
+
 ## Scheda e firmware
 
 - ESP32-S3-Zero, **flash 4 MB**, senza PSRAM richiesta o abilitata.
