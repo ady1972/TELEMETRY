@@ -20,3 +20,7 @@ I pacchetti per il Manager e per il download manuale sono nel [branch di distrib
 - Suite software RC2 superata per cronometraggio, tracciamento e salvataggio.
 - Sette test USB superati con trasporto simulato. Prova Qt della pagina riuscita per rilevamento, download e abilitazione dei pulsanti.
 - Da verificare su hardware: aggiornamento RC2 → RC3 su entrambi i modelli, riavvio e versione, aggiornamento ripetuto, recupero dopo interruzione, impostazioni e microSD, testi più lunghi e schermate di gara, GNSS 25 Hz, tempi e settori.
+
+## Guition — Ripartenza sullo stesso circuito dopo «Salva»
+
+Il firmware pubblicato nascondeva automaticamente il riepilogo dopo 10 secondi lasciando la sessione nello stato di fine registrazione. In questo stato la pipeline scarta le nuove epoche GPS. La correzione nella PR fa passare il timeout e il pulsante «Chiudi» dallo stesso riarmo. L'effetto è stato riprodotto con il callback precedente e verificato con due salvataggi consecutivi sullo stesso circuito usando la pipeline e il cronometro reali, con microSD e NVS simulati.

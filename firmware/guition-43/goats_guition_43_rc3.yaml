@@ -146,6 +146,14 @@ logger:
 # ============================================================
 
 script:
+  - id: dismiss_session_summary
+    then:
+      - lambda: |-
+          id(session_summary_visible) = false;
+          id(session_summary_hide_at_ms) = 0;
+          goats_sessions_rearm_after_finish();
+      - lvgl.widget.hide: session_summary_panel
+
   # Presentation only: fit the actual time string inside the DELTA-mode side panel.
   - id: fit_delta_lap_time
     then:
@@ -3893,12 +3901,7 @@ lvgl:
                 scrollbar_mode: "OFF"
                 on_click:
                   then:
-                    - lvgl.widget.hide: session_summary_panel
-                    - lambda: |-
-                        id(session_summary_visible) = false;
-                        id(session_summary_hide_at_ms) = 0;
-                        goats_laptimer_reset();
-                        goats_sessions_reset_runtime();
+                    - script.execute: dismiss_session_summary
                 widgets:
                   - label:
                       align: CENTER
@@ -4889,10 +4892,7 @@ interval:
                      static_cast<int32_t>(
                          millis() - id(session_summary_hide_at_ms)) >= 0;
           then:
-            - lambda: |-
-                id(session_summary_visible) = false;
-                id(session_summary_hide_at_ms) = 0;
-            - lvgl.widget.hide: session_summary_panel
+            - script.execute: dismiss_session_summary
 
   # V7.1 - Timer CHECK BENZINA.
   # Il conteggio parte sul fronte di inizio della sessione.
