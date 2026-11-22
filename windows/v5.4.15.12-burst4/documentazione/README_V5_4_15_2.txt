@@ -1,0 +1,1 @@
+V5.4.15.2: pagina Importa Sessioni scorrevole; pannello USB seriale con altezza minima e tabella dedicata; spaziatura controlli aumentata. Nessuna modifica al protocollo GNSS/GSD. Test hardware non eseguito.

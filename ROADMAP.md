@@ -92,31 +92,10 @@ evidenziato. Rimossi i settori dalla vista Guition, mantenendone i dati.
 Persistenza della massima RLCD compatibile con i record precedenti.
 Dettagli: [RIEPILOGO_SESSIONI_RC2](docs/RIEPILOGO_SESSIONI_RC2.md).
 
-## RC3 — Wi-Fi e sessioni sull’app mobile, prossimo sviluppo
+## RC3 — Firmware USB e caratteri in grassetto
 
-Richiesta dell’utente del 18/11/2026 per **RLCD e Guition**: aggiornamenti
-firmware via Wi-Fi e trasferimento delle sessioni all’app Android.
-Il client Wi-Fi dell’app esiste; nei firmware RC2 mancano i servizi necessari.
-Piano operativo e compatibilità: [RC3_WIFI_MOBILE](docs/RC3_WIFI_MOBILE.md).
-
-Proposta: rete locale creata dal laptimer, attivata solo dal menu a sessione
-terminata; radio spenta in Racing e all’avvio. Base comune → sessioni nell’app
-→ aggiornamento firmware → collaudo combinato, con cartelle RC3 separate.
-Questa voce definisce la nuova priorità RC3; non dichiara implementate le
-funzioni e non modifica il firmware RC2. Il riavvio da USB MSC e la valutazione
-action cam riportati sotto restano attività separate.
-
-## RC3 — Bluetooth BLE e AssistNow automatico (decisione 22/11/2026)
-
-Integrare nella stessa RC3 prevista per Wi-Fi/sessioni/OTA il collegamento BLE fra GOATS RT Manager Android e firmware **RLCD 4.2 e Guition 4.3**. Il collegamento Bluetooth nell'app e nei firmware è ancora da implementare; questa voce è **pianificata, non completata**. Riferimento operativo: [issue #36](https://github.com/ady1972/TELEMETRY/issues/36).
-
-- **Avvio:** Bluetooth LE acceso automaticamente all'accensione del laptimer; Wi-Fi spento di default.
-- **Timeout:** Bluetooth spento dopo **5 minuti (300 secondi) di inattività**. Non interrompere trasferimenti in corso; distinguere connessione attiva da reale trasferimento e gestire connessioni inattive.
-- **Menu:** Impostazioni → Connettività, con attivazione/disattivazione manuale separata di **Bluetooth** e **Wi-Fi**, anche dopo il timeout.
-- **Sicurezza gara, priorità assoluta:** **all'avvio di qualsiasi sessione**, libera o su circuito, **spegnere sia Bluetooth sia Wi-Fi se attivi**, indipendentemente da timer, connessione o trasferimento. Interrompere/annullare in sicurezza l'eventuale trasferimento prima di proseguire con la sessione; nessuna radio deve rimanere attiva durante registrazione. Verificare comportamento e latenza della transizione in test hardware.
-- **AssistNow:** Android scarica/riutilizza assistenza GNSS compatibile e la invia automaticamente via BLE/ESP32/UART al M9N quando non si registra. Verificare requisiti Thingstream, token e compatibilità per ricevitore; non assumere account universale. Conservare i profili diagnostici MG902/AK967.
-- **Coesistenza:** ESP32-S3 con BLE e Wi-Fi condividono radio; evitare trasferimenti contemporanei. Non modificare parametri GNSS, motore tempi, salvataggio sessioni o baseline RC2.
-- **Collaudo:** BLE visibile al boot; spegnimento dopo 300 s inattivi; menu riattiva le radio; inizio sessione con una o entrambe attive le spegne immediatamente; nessuna perdita dati o sessioni, test con trasferimento in corso, Wi-Fi/OTA e Bluetooth connesso.
+Aggiornamento di Guition 4.3 e RLCD 4.2 monocromatico dal GOATS RT Manager Windows via USB.
+Pacchetti, procedura e verifiche nel [rapporto RC3](docs/RC3_USB.md).
 
 ## Fasi successive al collaudo RC2
 
