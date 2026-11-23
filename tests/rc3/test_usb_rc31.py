@@ -7,10 +7,13 @@ from pathlib import Path
 import sys
 from tempfile import TemporaryDirectory
 import unittest
-from unittest.mock import patch
+from unittest.mock import Mock, patch
+
+import esptool
+from esptool import cmds
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / "windows/v5.4.15.13-burst4"))
+sys.path.insert(0, str(ROOT / "windows/v5.4.15.14-burst4"))
 import goats_firmware_usb as usb
 
 
@@ -39,6 +42,66 @@ class FirmwareVersionTests(unittest.TestCase):
             "size": len(image),
             "sha256": sha256(image).hexdigest(),
         }).encode()
+
+    def connect_simulated_guition(self):
+        self.assertEqual(esptool.__version__, "4.14.0")
+        table = b"Guition partition table"
+        header = self.images["RC3.1"][:112]
+        project, capacity, _ = usb.MODELS[self.model]
+        self.enterContext(patch.dict(usb.MODELS, {
+            self.model: (project, capacity, sha256(table).hexdigest()),
+        }))
+        loader = Mock(CHIP_NAME="ESP32-S3", IS_STUB=True, secure_download_mode=False)
+        loader.read_flash.side_effect = [table, header, b"\xff" * usb.OTA_DATA_LENGTH]
+        loader.run_stub.side_effect = AssertionError("An active stub must not be uploaded again")
+        loader.read_mac.side_effect = lambda kind: (0, 1, 2, 3, 4, 5) if kind == "BASE_MAC" else None
+        loader.get_chip_description.return_value = "ESP32-S3"
+        loader.get_chip_features.return_value = ["Wi-Fi", "BLE"]
+        loader.get_crystal_freq.return_value = 40
+        loader.get_usb_mode.return_value = "USB-Serial/JTAG"
+        loader.flash_id.return_value = 0x1640EF
+        loader.read_spiflash_sfdp.return_value = 0xEF
+        rom = Mock(CHIP_NAME="ESP32-S3", secure_download_mode=False)
+        rom.get_security_info.return_value = {"parsed_flags": {"SECURE_DOWNLOAD_ENABLE": False}}
+        rom.run_stub.return_value = loader
+        rom.__enter__ = Mock(return_value=rom)
+        rom.__exit__ = Mock(return_value=False)
+        rom_type = Mock(USES_MAGIC_VALUE=False, IMAGE_CHIP_ID=9, return_value=rom)
+        transport = Mock(serial_port="COM9", sync_stub_detected=False)
+        transport.get_chip_id.return_value = 9
+        self.enterContext(patch.object(cmds, "ESPLoader", return_value=transport))
+        self.enterContext(patch.object(cmds, "ROM_LIST", [rom_type]))
+        return transport, rom, loader
+
+    def test_detect_uses_real_esptool_api_and_returns_to_bootloader(self):
+        transport, rom, loader = self.connect_simulated_guition()
+        self.assertEqual(usb.detect_model("COM9"), self.model)
+        transport.connect.assert_called_once_with("no_reset", 7, detecting=True)
+        rom.run_stub.assert_called_once_with()
+        loader.soft_reset.assert_called_once_with(stay_in_bootloader=True)
+        rom.__exit__.assert_called_once()
+
+    def test_update_uses_real_esptool_parser_with_existing_stub(self):
+        transport, rom, loader = self.connect_simulated_guition()
+        image = self.images["RC3.1"]
+        manifest = self.directory / "fixture.json"
+        manifest.write_bytes(self.make_manifest("RC3.1", image))
+        manifest.with_suffix(".bin").write_bytes(image)
+
+        def record_write(esp, args):
+            self.assertIs(esp, loader)
+            self.assertTrue(args.compress)
+            ((offset, stream),) = args.addr_filename
+            self.assertEqual(offset, usb.APP_OFFSET)
+            self.assertEqual(stream.read(), image)
+
+        with patch.object(esptool, "write_flash", record_write):
+            usb.update_firmware(self.model, manifest, "COM9")
+        transport.connect.assert_called_once_with("no_reset", 7, detecting=True)
+        rom.run_stub.assert_called_once_with()
+        loader.run_stub.assert_not_called()
+        loader.hard_reset.assert_called_once_with()
+        rom.__exit__.assert_called_once()
 
     def test_accepts_both_official_versions_offline(self):
         for version, image in self.images.items():

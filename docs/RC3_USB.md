@@ -1,6 +1,6 @@
 # RC3 — Aggiornamento USB e caratteri in grassetto
 
-RC3.1 si installa via USB su Guition 4.3 e RLCD 4.2 monocromatico con il GOATS RT Manager Windows V5.4.15.13. Il Manager precedente V5.4.15.12 distribuisce ancora RC3. Guition usa font Roboto e Roboto Condensed grassetto anche nei widget LVGL che ereditano il font predefinito. RLCD mantiene Roboto Condensed 700, già configurato per tutti i testi visualizzati dal firmware. Le due configurazioni ESPHome RC3 spostano il riferimento alla propria cartella mantenendo le basi RC2.
+RC3.1 si installa via USB su Guition 4.3 e RLCD 4.2 monocromatico con il GOATS RT Manager Windows V5.4.15.14. Il Manager precedente V5.4.15.12 distribuisce ancora RC3. Guition usa font Roboto e Roboto Condensed grassetto anche nei widget LVGL che ereditano il font predefinito. RLCD mantiene Roboto Condensed 700, già configurato per tutti i testi visualizzati dal firmware. Le due configurazioni ESPHome RC3 spostano il riferimento alla propria cartella mantenendo le basi RC2.
 
 ## Aggiornare dal Manager
 
@@ -25,7 +25,7 @@ I pacchetti per il Manager e per il download manuale sono nel [branch di distrib
 
 - **Guition.** RC3 nascondeva automaticamente il riepilogo dopo 10 secondi lasciando il cronometro in stato di fine registrazione. In questo stato la pipeline scartava le nuove epoche per il cronometraggio. RC3.1 usa lo stesso riarmo alla scadenza e al tocco di «Chiudi». Il test con pipeline e motore reali riproduce il blocco di RC3 e verifica avvio, giro e salvataggio di due sessioni consecutive sullo stesso circuito con RC3.1.
 - **RLCD.** La chiusura manuale e quella per inattività usano già lo stesso finalizzatore con riarmo. RC3.1 azzera anche le statistiche velocità di giro in quella transizione. Il test verifica due salvataggi e uno scarto, ciascuno seguito da un nuovo passaggio e un giro cronometrato, oltre al caso di scarto rifiutato.
-- **Manager Windows V5.4.15.13.** Scarica RC3.1 per il modello rilevato e verifica versione, SHA-256 e compatibilità prima della scrittura. Da disco accetta anche il pacchetto ufficiale RC3, con versione visibile prima della conferma.
+- **Manager Windows V5.4.15.14.** Scarica RC3.1 per il modello rilevato e verifica versione, SHA-256 e compatibilità prima della scrittura. Da disco accetta anche il pacchetto ufficiale RC3, con versione visibile prima della conferma.
 
 Il test software usa dati sintetici e storage simulato. Il collaudo fisico richiede due uscite consecutive sullo stesso circuito, lasciando sparire il riepilogo Guition senza toccarlo e passando il traguardo a velocità di gara. Controllare che il primo passaggio avvii la seconda sessione e che il giro successivo venga cronometrato.
 
@@ -34,3 +34,10 @@ applicative misurano 1.089.760 byte per Guition e 645.712 byte per RLCD.
 Le tabelle partizioni coincidono con quelle della pubblicazione RC3. I test
 della suite RC2, il test di ripartenza su entrambi i modelli, i test Manager
 RC3/RC3.1 e la prova Qt con USB simulato sono passati.
+
+## Rilevamento USB nel Manager V5.4.15.14
+
+Il Manager usa il parametro `connect_mode` di esptool 4.14.0. Dopo la
+lettura del modello, esptool torna al bootloader per consentire la scrittura
+sulla stessa porta. I test attraversano l'API e il parser reali di esptool
+con il trasporto simulato. Il collegamento a un dispositivo fisico resta da collaudare.
