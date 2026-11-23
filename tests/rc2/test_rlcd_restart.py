@@ -1,10 +1,12 @@
 """Exercise the real menu finalizer, racing bridge and lap engine across sessions."""
 from pathlib import Path
 import subprocess
+import sys
 import tempfile
 
 root = Path(__file__).resolve().parents[2]
-firmware = root / 'firmware/rlcd-42/GOATS_RLCD_RC2'
+variant = sys.argv[1] if len(sys.argv) > 1 else 'GOATS_RLCD_RC2'
+firmware = root / 'firmware/rlcd-42' / variant
 source = (firmware / 'goats_legacy_menu_ui.h').read_text()
 start = source.index('inline void finish(bool save){')
 end = source.index('inline void boot_release()', start)
@@ -65,6 +67,9 @@ int main(){
   assert(!goats_session_ctl::has_started());
   assert(!goats_laptimer_running());
   assert(goats_menu::screen()==0);
+#ifdef EXPECT_LAP_SPEED_RESET
+  assert(goats_lap_speed::current()==0 && std::isnan(goats_lap_speed::last()));
+#endif
   point(44.9995,false);
   assert(!goats_session_ctl::has_started());
   start_session(); // Same track, no reboot or catalogue change.
@@ -83,7 +88,8 @@ with tempfile.TemporaryDirectory() as tmp:
     cpp=Path(tmp)/'restart.cpp'
     cpp.write_text(harness)
     exe=Path(tmp)/'restart'
+    flags = ['-DEXPECT_LAP_SPEED_RESET'] if variant == 'GOATS_RLCD_RC3_1' else []
     subprocess.run(['g++','-std=c++17','-Wall','-Wextra','-Werror','-Wno-unused-variable',
-                    '-I',str(firmware),str(cpp),'-o',str(exe)],check=True)
+                    *flags,'-I',str(firmware),str(cpp),'-o',str(exe)],check=True)
     subprocess.run([str(exe)],check=True)
 print('PASS: RLCD save/save/discard -> next finish crossing and timed lap without reboot; failed discard preserves session')
