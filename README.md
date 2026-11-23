@@ -1,4 +1,19 @@
-# GOATS Telemetry RC3 — Pacchetti USB
+# GOATS Telemetry — Pacchetti USB
+
+## RC3.1 — Ripartenza dopo il salvataggio
+Build da [e9d5c97](https://github.com/ady1972/TELEMETRY/commit/e9d5c97) con ESPHome 2026.7.3.
+
+- [GOATS RT Manager Windows V5.4.15.13](GOATS-RT-Manager-Windows-V5.4.15.13.zip)
+- [Guition 4.3 RC3.1](GOATS-GUITION_43-RC3.1.zip)
+- [RLCD 4.2 monocromatico RC3.1](GOATS-RLCD_MONO_42-RC3.1.zip)
+
+In **Firmware USB**, rilevare il laptimer in modalità BOOT e scegliere
+**Scarica RC3.1 da GitHub**. Per l'installazione offline usare lo ZIP
+del modello e tenere insieme il firmware BIN e il manifesto JSON.
+Le prove di compilazione e di ripartenza sono registrate nella
+[PR RC3.1](https://github.com/ady1972/TELEMETRY/pull/37).
+
+## Prima pubblicazione RC3
 
 Build da [6ba487f](https://github.com/ady1972/TELEMETRY/commit/6ba487f) con ESPHome 2026.7.3.
 
