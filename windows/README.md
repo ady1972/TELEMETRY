@@ -4,6 +4,7 @@ Ogni versione è conservata in una cartella con il progetto completo.
 
 | Versione | Progetto |
 |---|---|
+| V5.4.15.18 BURST4 — avvisi firmware e riavvio dalla modalità BOOT | [v5.4.15.18-burst4](v5.4.15.18-burst4/README.md) |
 | V5.4.15.17 BURST4 — changelog e confronto del firmware prima della scrittura USB | [v5.4.15.17-burst4](v5.4.15.17-burst4/README.md) |
 | V5.4.15.16 BURST4 — riconoscimento dello slot di avvio USB | [v5.4.15.16-burst4](v5.4.15.16-burst4/README.md) |
 | V5.4.15.15 BURST4 — accesso al bootloader dalla porta USB nativa | [v5.4.15.15-burst4](v5.4.15.15-burst4/README.md) |
@@ -19,7 +20,7 @@ Ogni versione è conservata in una cartella con il progetto completo.
 | V5.4.15.5 BURST4 — scelta analisi fullscreen, mappa senza descrizione | [v5.4.15.5-burst4](v5.4.15.5-burst4/README.md) |
 | V5.4.15.4 BURST4 | [v5.4.15.4-burst4](v5.4.15.4-burst4/README.md) |
 
-Per avviare la nuova versione del Manager, aprire `windows/v5.4.15.17-burst4/` ed eseguire
+Per avviare la nuova versione del Manager, aprire `windows/v5.4.15.18-burst4/` ed eseguire
 `AVVIA_GOATS_RT_MANAGER_V5.bat`. Launcher, moduli, dipendenze, risorse e
 manuali rimangono insieme al progetto a cui appartengono.
 

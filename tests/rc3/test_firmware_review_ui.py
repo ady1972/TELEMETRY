@@ -14,7 +14,7 @@ from PySide6.QtWidgets import QApplication, QComboBox, QLabel, QMessageBox, QPus
 from serial.tools.list_ports_common import ListPortInfo
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / "windows/v5.4.15.17-burst4"))
+sys.path.insert(0, str(ROOT / "windows/v5.4.15.18-burst4"))
 import goats_firmware_usb as usb
 import goats_firmware_usb_ui as ui
 
@@ -40,6 +40,10 @@ class FirmwareReviewTests(unittest.TestCase):
             manifest.write_text(json.dumps({
                 "model": self.model, "version": version, "size": len(image), "sha256": digest,
             }))
+        for suffix in (".bin", ".json"):
+            (self.directory / f"current{suffix}").write_bytes(
+                (self.directory / f"RC3.1{suffix}").read_bytes()
+            )
         self.enterContext(patch.dict(usb.APPROVED_IMAGES, {self.model: approved}))
         self.script = self.directory / "goats_firmware_usb.py"
         self.script.write_text(f'''
@@ -57,7 +61,11 @@ elif action == "download":
     print("GOATS_PACKAGE=" + str(Path(__file__).with_name("RC3.1.json")))
 elif action == "compare":
     assert args[0] == "{self.model}"
-    print("GOATS_MATCH=" + str(int(Path(args[1]).stem == "RC3.1")))
+    result = {{"RC3": "older", "RC3.1": "newer", "current": "same"}}[Path(args[1]).stem]
+    print("GOATS_COMPARISON=" + result)
+elif action == "restart":
+    assert args == ["{self.model}", "COM10"]
+    print("Riavvio richiesto")
 else:
     raise AssertionError(action)
 ''')
@@ -101,21 +109,39 @@ else:
             boot.click()
             self.wait_for(lambda: "Guition 4.3" in self.labels())
 
-    def test_local_and_online_packages_show_notes_and_skip_matching_firmware(self):
+    def test_local_and_online_packages_show_status_colors_and_allow_reboot(self):
+        reboot = self.buttons["Riavvia laptimer"]
+        self.assertFalse(reboot.isEnabled())
         self.port.setCurrentIndex(self.port.findData("COM10"))
         self.buttons["Entra in BOOT e rileva"].click()
-        self.wait_for(lambda: self.buttons["Apri file firmware locale"].isEnabled())
+        self.wait_for(reboot.isEnabled)
         with patch.object(ui.QFileDialog, "getOpenFileName", return_value=(str(self.directory / "RC3.bin"), "")):
             self.buttons["Apri file firmware locale"].click()
-        self.wait_for(lambda: "Il firmware installato è diverso dal pacchetto selezionato." in self.labels())
+        self.wait_for(lambda: "Il pacchetto selezionato è di una versione precedente." in self.labels())
         self.assertTrue(any(label.startswith("Changelog RC3 · Guition 4.3") for label in self.labels()))
         self.assertTrue(self.buttons["Aggiorna firmware via USB"].isEnabled())
+
+        green = "NUOVA VERSIONE FIRMWARE DISPONIBILE"
         self.buttons["Scarica RC3.1 da GitHub"].click()
-        self.wait_for(lambda: any("RC3.1 già installato" in label for label in self.labels()))
+        self.wait_for(lambda: green in self.labels())
         self.assertTrue(any(label.startswith("Changelog RC3.1 · Guition 4.3") for label in self.labels()))
+        green_label = next(label for label in self.window.findChildren(QLabel) if label.text() == green)
+        self.assertIn("color: #59de8b", green_label.styleSheet())
+
+        red = "AGGIORNAMENTO NON NECESSARIO"
+        with patch.object(ui.QFileDialog, "getOpenFileName", return_value=(str(self.directory / "current.bin"), "")):
+            self.buttons["Apri file firmware locale"].click()
+        self.wait_for(lambda: any(label.startswith(red) for label in self.labels()))
+        red_label = next(label for label in self.window.findChildren(QLabel) if label.text().startswith(red))
+        self.assertIn("color: #ff7474", red_label.styleSheet())
+        self.assertIn("font-size: 18pt", red_label.styleSheet())
         self.assertFalse(self.buttons["Aggiorna firmware via USB"].isEnabled())
-        self.buttons["Aggiorna elenco porte"].click()
+
+        reboot.click()
+        self.wait_for(lambda: "Modello da rilevare" in self.labels())
+        self.assertFalse(reboot.isEnabled())
         self.assertFalse(any(label.startswith("Changelog") for label in self.labels()))
+
 
 
 if __name__ == "__main__":
