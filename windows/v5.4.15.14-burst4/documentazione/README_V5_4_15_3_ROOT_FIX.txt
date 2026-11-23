@@ -1,0 +1,1 @@
+V5.4.15.4: fix download file ROOT: dalla microSD. Il prefisso ROOT: viene rimosso soltanto dal percorso di destinazione locale; i comandi GSD_GET e GSD_DELETE conservano il nome remoto restituito da GSD_LIST. Nessuna modifica al protocollo o al firmware. Velocita trasferimento invariata. Test hardware da eseguire.

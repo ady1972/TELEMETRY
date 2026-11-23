@@ -1,0 +1,11 @@
+GOATS RT Manager V5.4.10.4 - TABLE BEST
+
+Modifiche Analisi sessione:
+- intestazioni colonne centrate;
+- checkbox e tutti i valori della tabella centrati;
+- Best Lap evidenziato permanentemente con sfondo verde e testo bianco/grassetto;
+- nella colonna Giro il giro migliore mostra la dicitura BEST;
+- l'evidenziazione non dipende dalla selezione/deselezione per mappa e grafico.
+
+Base invariata:
+GOATS_RT_Manager_V5.4.10.4_PISTA_SINGOLA_SETTORI

@@ -4,6 +4,7 @@ Ogni versione è conservata in una cartella con il progetto completo.
 
 | Versione | Progetto |
 |---|---|
+| V5.4.15.14 BURST4 — correzione rilevamento USB Guition e RLCD | [v5.4.15.14-burst4](v5.4.15.14-burst4/README.md) |
 | V5.4.15.13 BURST4 — aggiornamento USB RC3.1 per Guition e RLCD | [v5.4.15.13-burst4](v5.4.15.13-burst4/README.md) |
 | V5.4.15.12 BURST4 — aggiornamento firmware RC3 via USB | [v5.4.15.12-burst4](v5.4.15.12-burst4/README.md) |
 | V5.4.15.11 BURST4 — NAV-SAT circa 1 Hz e NAV-DOP per HDOP | [v5.4.15.11-burst4](v5.4.15.11-burst4/README.md) |
@@ -15,7 +16,7 @@ Ogni versione è conservata in una cartella con il progetto completo.
 | V5.4.15.5 BURST4 — scelta analisi fullscreen, mappa senza descrizione | [v5.4.15.5-burst4](v5.4.15.5-burst4/README.md) |
 | V5.4.15.4 BURST4 | [v5.4.15.4-burst4](v5.4.15.4-burst4/README.md) |
 
-Per avviare la nuova versione del Manager, aprire `windows/v5.4.15.13-burst4/` ed eseguire
+Per avviare la nuova versione del Manager, aprire `windows/v5.4.15.14-burst4/` ed eseguire
 `AVVIA_GOATS_RT_MANAGER_V5.bat`. Launcher, moduli, dipendenze, risorse e
 manuali rimangono insieme al progetto a cui appartengono.
 
