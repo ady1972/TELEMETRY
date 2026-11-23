@@ -1,6 +1,6 @@
 # RC3 — Aggiornamento USB e caratteri in grassetto
 
-RC3.1 si installa via USB su Guition 4.3 e RLCD 4.2 monocromatico con il GOATS RT Manager Windows V5.4.15.17. Il Manager precedente V5.4.15.12 distribuisce ancora RC3. Guition usa font Roboto e Roboto Condensed grassetto anche nei widget LVGL che ereditano il font predefinito. RLCD mantiene Roboto Condensed 700, già configurato per tutti i testi visualizzati dal firmware. Le due configurazioni ESPHome RC3 spostano il riferimento alla propria cartella mantenendo le basi RC2.
+RC3.1 si installa via USB su Guition 4.3 e RLCD 4.2 monocromatico con il GOATS RT Manager Windows V5.4.15.18. Il Manager precedente V5.4.15.12 distribuisce ancora RC3. Guition usa font Roboto e Roboto Condensed grassetto anche nei widget LVGL che ereditano il font predefinito. RLCD mantiene Roboto Condensed 700, già configurato per tutti i testi visualizzati dal firmware. Le due configurazioni ESPHome RC3 spostano il riferimento alla propria cartella mantenendo le basi RC2.
 
 ## Aggiornare dal Manager
 
@@ -70,3 +70,16 @@ slot attivo e viene ripetuto prima della scrittura. Le immagini ufficiali
 RC3 e RC3.1 restano convalidate separatamente con SHA-256. I test verificano
 entrambi i percorsi di caricamento, il rilevamento dopo BOOT manuale e la mancata scrittura
 quando l'immagine coincide, con trasporto simulato.
+
+## Avvisi e riavvio nel Manager V5.4.15.18
+
+La pagina Firmware USB mostra **AGGIORNAMENTO NON NECESSARIO** in rosso grande
+quando il firmware coincide. Mostra **NUOVA VERSIONE FIRMWARE DISPONIBILE** in
+verde quando il pacchetto selezionato è più recente della release ufficiale
+riconosciuta nello slot di avvio. Se la release installata è sconosciuta, il
+confronto riporta che le immagini differiscono.
+
+Dopo aver rilevato il dispositivo, **Riavvia laptimer** esce dalla modalità
+BOOT senza scrivere il firmware. La pagina torna in attesa di un nuovo
+rilevamento dopo il comando. Colori, confronto e riavvio sono verificati con
+USB simulato.

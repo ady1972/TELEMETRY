@@ -15,7 +15,7 @@ import esptool
 from esptool import cmds
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / "windows/v5.4.15.17-burst4"))
+sys.path.insert(0, str(ROOT / "windows/v5.4.15.18-burst4"))
 import goats_firmware_usb as usb
 
 
@@ -186,11 +186,40 @@ class FirmwareVersionTests(unittest.TestCase):
         manifest.with_suffix(".bin").write_bytes(image)
         loader.flash_md5sum.return_value = md5(image, usedforsecurity=False).hexdigest()
         with patch.object(usb, "esptool_main") as write:
-            self.assertTrue(usb.check_installed_firmware(self.model, manifest, "COM9"))
+            self.assertEqual(usb.check_installed_firmware(self.model, manifest, "COM9"), "same")
         loader.flash_md5sum.assert_called_once_with(0x10000, len(image))
         loader.soft_reset.assert_called_once_with(stay_in_bootloader=True)
         write.assert_not_called()
 
+
+    def test_comparison_distinguishes_upgrade_downgrade_and_unknown(self):
+        catalog = {
+            version: (len(image), md5(image, usedforsecurity=False).hexdigest())
+            for version, image in self.images.items()
+        }
+        self.enterContext(patch.dict(usb.INSTALLED_FINGERPRINTS, {self.model: catalog}))
+        for current, selected, expected in (
+            ("RC3", "RC3.1", "newer"), ("RC3.1", "RC3", "older"), (None, "RC3.1", "different"),
+        ):
+            with self.subTest(current=current, selected=selected):
+                _, _, loader = self.connect_simulated_guition()
+                loader.flash_md5sum.side_effect = lambda offset, size: (
+                    catalog[current][1] if current and size == catalog[current][0] else "0" * 32
+                )
+                manifest = self.directory / "firmware.json"
+                image = self.images[selected]
+                manifest.write_bytes(self.make_manifest(selected, image))
+                manifest.with_suffix(".bin").write_bytes(image)
+                self.assertEqual(usb.check_installed_firmware(self.model, manifest, "COM9"), expected)
+
+    def test_restart_revalidates_model_and_resets_without_writing(self):
+        transport, _, loader = self.connect_simulated_guition()
+        with patch.object(usb, "esptool_main") as write:
+            usb.restart_laptimer(self.model, "COM9")
+        transport.connect.assert_called_once_with("no_reset", 2, detecting=True)
+        loader.hard_reset.assert_called_once_with()
+        loader.flash_md5sum.assert_not_called()
+        write.assert_not_called()
 
     def test_rejects_corrupt_or_pending_selector_before_writing(self):
         for selector in ((1, 2, 0), (1, 1, 0x4743989A)):
