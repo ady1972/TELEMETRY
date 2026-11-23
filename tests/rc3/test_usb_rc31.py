@@ -6,14 +6,15 @@ import json
 from pathlib import Path
 import sys
 from tempfile import TemporaryDirectory
+from types import SimpleNamespace
 import unittest
-from unittest.mock import Mock, patch
+from unittest.mock import Mock, call, patch
 
 import esptool
 from esptool import cmds
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / "windows/v5.4.15.14-burst4"))
+sys.path.insert(0, str(ROOT / "windows/v5.4.15.15-burst4"))
 import goats_firmware_usb as usb
 
 
@@ -76,10 +77,47 @@ class FirmwareVersionTests(unittest.TestCase):
     def test_detect_uses_real_esptool_api_and_returns_to_bootloader(self):
         transport, rom, loader = self.connect_simulated_guition()
         self.assertEqual(usb.detect_model("COM9"), self.model)
-        transport.connect.assert_called_once_with("no_reset", 7, detecting=True)
+        transport.connect.assert_called_once_with("no_reset", 2, detecting=True)
         rom.run_stub.assert_called_once_with()
         loader.soft_reset.assert_called_once_with(stay_in_bootloader=True)
         rom.__exit__.assert_called_once()
+
+    def test_native_usb_reset_follows_a_failed_passive_probe(self):
+        transport, _, loader = self.connect_simulated_guition()
+        transport.connect.side_effect = [
+            esptool.FatalError("Failed to connect to Espressif device: No serial data received."),
+            None,
+        ]
+        native = SimpleNamespace(device="COM9", vid=0x303A, pid=0x1001)
+        with patch.object(usb, "comports", return_value=[native]):
+            self.assertEqual(usb.detect_model("COM9", allow_usb_reset=True), self.model)
+        self.assertEqual(transport.connect.call_args_list, [
+            call("no_reset", 2, detecting=True), call("usb_reset", 2, detecting=True),
+        ])
+        loader.soft_reset.assert_called_once_with(stay_in_bootloader=True)
+
+    def test_failed_probe_on_other_usb_port_is_not_reset(self):
+        transport, _, _ = self.connect_simulated_guition()
+        transport.connect.side_effect = esptool.FatalError(
+            "Failed to connect to Espressif device: No serial data received."
+        )
+        other = SimpleNamespace(device="COM9", vid=0x10C4, pid=0xEA60)
+        native = SimpleNamespace(device="COM10", vid=0x303A, pid=0x1001)
+        with patch.object(usb, "comports", return_value=[other, native]):
+            with self.assertRaisesRegex(ValueError, "bootloader non risponde su COM9"):
+                usb.detect_model("COM9", allow_usb_reset=True)
+        transport.connect.assert_called_once_with("no_reset", 2, detecting=True)
+
+    def test_passive_probe_requires_consent_before_any_usb_reset(self):
+        transport, _, _ = self.connect_simulated_guition()
+        transport.connect.side_effect = esptool.FatalError(
+            "Failed to connect to Espressif device: No serial data received."
+        )
+        with patch.object(usb, "comports") as ports:
+            with self.assertRaisesRegex(ValueError, "modalità BOOT"):
+                usb.detect_model("COM9")
+        transport.connect.assert_called_once_with("no_reset", 2, detecting=True)
+        ports.assert_not_called()
 
     def test_update_uses_real_esptool_parser_with_existing_stub(self):
         transport, rom, loader = self.connect_simulated_guition()
@@ -97,7 +135,7 @@ class FirmwareVersionTests(unittest.TestCase):
 
         with patch.object(esptool, "write_flash", record_write):
             usb.update_firmware(self.model, manifest, "COM9")
-        transport.connect.assert_called_once_with("no_reset", 7, detecting=True)
+        transport.connect.assert_called_once_with("no_reset", 2, detecting=True)
         rom.run_stub.assert_called_once_with()
         loader.run_stub.assert_not_called()
         loader.hard_reset.assert_called_once_with()

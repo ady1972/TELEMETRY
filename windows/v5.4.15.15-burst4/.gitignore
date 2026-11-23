@@ -1,0 +1,48 @@
+# Runtime, dependencies and generated diagnostics
+__pycache__/
+*.py[cod]
+.goats_venv/
+.venv/
+venv/
+/data/
+/assistnow_cache/
+/assistnow_diagnostic.txt
+*.log
+*.tmp
+*.part
+*.sqlite*
+*.db
+/build/
+/dist/
+*.spec
+
+# Credentials and machine-specific settings
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+*.pfx
+*.jks
+*.keystore
+
+# User archives; retain only the reviewed bundled synthetic examples
+/tracks/*
+!/tracks/esempio.json
+/Sessioni/
+/sessions/
+/exports/
+*.csv
+*.gpx
+*.grt
+!sample_test.grt
+*.gsa
+*.gsa3
+*.ubx
+
+# Editors and OS
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
