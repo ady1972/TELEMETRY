@@ -1,6 +1,6 @@
 # RC3 — Aggiornamento USB e caratteri in grassetto
 
-RC3.1 si installa via USB su Guition 4.3 e RLCD 4.2 monocromatico con il GOATS RT Manager Windows V5.4.15.15. Il Manager precedente V5.4.15.12 distribuisce ancora RC3. Guition usa font Roboto e Roboto Condensed grassetto anche nei widget LVGL che ereditano il font predefinito. RLCD mantiene Roboto Condensed 700, già configurato per tutti i testi visualizzati dal firmware. Le due configurazioni ESPHome RC3 spostano il riferimento alla propria cartella mantenendo le basi RC2.
+RC3.1 si installa via USB su Guition 4.3 e RLCD 4.2 monocromatico con il GOATS RT Manager Windows V5.4.15.16. Il Manager precedente V5.4.15.12 distribuisce ancora RC3. Guition usa font Roboto e Roboto Condensed grassetto anche nei widget LVGL che ereditano il font predefinito. RLCD mantiene Roboto Condensed 700, già configurato per tutti i testi visualizzati dal firmware. Le due configurazioni ESPHome RC3 spostano il riferimento alla propria cartella mantenendo le basi RC2.
 
 ## Aggiornare dal Manager
 
@@ -10,7 +10,7 @@ RC3.1 si installa via USB su Guition 4.3 e RLCD 4.2 monocromatico con il GOATS R
 4. Premere **Aggiorna firmware via USB** e confermare. Il Manager ricontrolla SHA-256 rispetto al manifesto e alla propria copia dell'hash ufficiale della versione, quindi verifica destinazione dell'immagine, modello e selezione dello slot prima della scrittura.
 5. Attendere la verifica della scrittura e il riavvio. Controllare la versione selezionata nella schermata Info del dispositivo. Se resta in modalità BOOT, rilasciare BOOT e riavviare.
 
-Il Manager scrive solo l'applicazione a `0x10000`. La tabella delle partizioni, il bootloader e NVS restano fuori dall'intervallo scritto. L'importazione USB e la microSD seguono la procedura già in uso. L'aggiornamento richiede il layout RC2 verificato e un dispositivo che avvia dallo slot iniziale. In caso di interruzione, rientrare in modalità BOOT e ripetere con lo stesso pacchetto. Un dispositivo senza bootloader o con layout diverso richiede una installazione completa tramite USB prima di usare questo flusso.
+Il Manager scrive l'applicazione nello slot selezionato dal bootloader. La tabella delle partizioni, il bootloader, la selezione dello slot e NVS restano fuori dall'intervallo scritto. L'importazione USB e la microSD seguono la procedura già in uso. L'aggiornamento richiede un layout GOATS riconosciuto e una selezione dello slot verificabile. In caso di interruzione, rientrare in modalità BOOT e ripetere con lo stesso pacchetto. Un dispositivo senza bootloader o con layout diverso richiede una installazione completa tramite USB prima di usare questo flusso.
 
 I pacchetti per il Manager e per il download manuale sono nel [branch di distribuzione RC3](https://github.com/ady1972/TELEMETRY/tree/rc3-usb-packages).
 
@@ -50,3 +50,13 @@ Espressif (`303A:1001`). Se la COM cambia dopo il reset, aggiornare l'elenco del
 porte nel Manager. Quando il comando è disabilitato, usare la procedura BOOT
 manuale. I test con trasporto simulato verificano il passaggio a `usb_reset`
 e il rispetto della porta selezionata. Il reset sul dispositivo fisico resta da provare.
+
+## Selezione dello slot nel Manager V5.4.15.16
+
+Al primo avvio ESP-IDF può inizializzare il record di selezione dello slot.
+Il Manager verifica il CRC del record valido più recente, controlla il modello
+sullo slot così selezionato e usa il suo indirizzo per la scrittura. Su un
+layout GOATS appena inizializzato, con dati di avvio vuoti, la destinazione
+è lo slot iniziale. Una selezione illeggibile o ancora in attesa di convalida
+ferma la procedura prima della scrittura. I test con esptool e trasporto
+simulato verificano entrambe le destinazioni e il blocco sui record non validi.
