@@ -1,26 +1,36 @@
 # RC3 — Aggiornamento USB e caratteri in grassetto
 
-RC3 usa il GOATS RT Manager Windows V5.4.15.12 per aggiornare via USB Guition 4.3 e RLCD 4.2 monocromatico. Guition usa font Roboto e Roboto Condensed grassetto anche nei widget LVGL che ereditano il font predefinito. RLCD mantiene Roboto Condensed 700, già configurato per tutti i testi visualizzati dal firmware. Le due configurazioni ESPHome RC3 spostano il riferimento alla propria cartella mantenendo le basi RC2.
+RC3.1 si installa via USB su Guition 4.3 e RLCD 4.2 monocromatico con il GOATS RT Manager Windows V5.4.15.13. Il Manager precedente V5.4.15.12 distribuisce ancora RC3. Guition usa font Roboto e Roboto Condensed grassetto anche nei widget LVGL che ereditano il font predefinito. RLCD mantiene Roboto Condensed 700, già configurato per tutti i testi visualizzati dal firmware. Le due configurazioni ESPHome RC3 spostano il riferimento alla propria cartella mantenendo le basi RC2.
 
 ## Aggiornare dal Manager
 
 1. Terminare la sessione, espellere eventuali volumi USB Mass Storage e collegare il laptimer a una porta dati USB. Entrare in modalità download tenendo premuto BOOT durante il reset o l'accensione, secondo i pulsanti presenti sulla scheda.
 2. Aprire **Firmware USB** nel Manager, selezionare la porta e premere **Rileva laptimer**. Il Manager identifica il modello dalla tabella partizioni e controlla l'identità dell'applicazione quando l'intestazione è leggibile.
-3. Selezionare **Scarica firmware da GitHub** per ottenere il pacchetto RC3 del modello rilevato. Per l'installazione offline, scaricare o copiare il pacchetto in anticipo e scegliere **Apri file firmware locale**. Il file `.bin` e il suo `.json` devono avere lo stesso nome base e stare nella stessa cartella.
-4. Premere **Aggiorna firmware via USB** e confermare. Il Manager ricontrolla SHA-256 rispetto al manifesto e alla propria copia dell'hash ufficiale RC3, quindi verifica destinazione dell'immagine, modello e selezione dello slot prima della scrittura.
-5. Attendere la verifica della scrittura e il riavvio. Controllare **RC3** nella schermata Info del dispositivo. Se resta in modalità BOOT, rilasciare BOOT e riavviare.
+3. Selezionare **Scarica RC3.1 da GitHub** per ottenere il pacchetto del modello rilevato. Per l'installazione offline, scaricare o copiare il pacchetto in anticipo e scegliere **Apri file firmware locale**. Il file `.bin` e il suo `.json` devono avere lo stesso nome base e stare nella stessa cartella.
+4. Premere **Aggiorna firmware via USB** e confermare. Il Manager ricontrolla SHA-256 rispetto al manifesto e alla propria copia dell'hash ufficiale della versione, quindi verifica destinazione dell'immagine, modello e selezione dello slot prima della scrittura.
+5. Attendere la verifica della scrittura e il riavvio. Controllare la versione selezionata nella schermata Info del dispositivo. Se resta in modalità BOOT, rilasciare BOOT e riavviare.
 
 Il Manager scrive solo l'applicazione a `0x10000`. La tabella delle partizioni, il bootloader e NVS restano fuori dall'intervallo scritto. L'importazione USB e la microSD seguono la procedura già in uso. L'aggiornamento richiede il layout RC2 verificato e un dispositivo che avvia dallo slot iniziale. In caso di interruzione, rientrare in modalità BOOT e ripetere con lo stesso pacchetto. Un dispositivo senza bootloader o con layout diverso richiede una installazione completa tramite USB prima di usare questo flusso.
 
 I pacchetti per il Manager e per il download manuale sono nel [branch di distribuzione RC3](https://github.com/ady1972/TELEMETRY/tree/rc3-usb-packages).
 
-## Collaudo
+## Collaudo della pubblicazione RC3 iniziale
 
 - Build ESPHome 2026.7.3 riuscita su entrambi i modelli. Guition 1.089.728 byte, RLCD 645.680 byte. Gli hash delle tabelle coincidono con quelli delle configurazioni RC2 di riferimento.
 - Suite software RC2 superata per cronometraggio, tracciamento e salvataggio.
 - Sette test USB superati con trasporto simulato. Prova Qt della pagina riuscita per rilevamento, download e abilitazione dei pulsanti.
 - Da verificare su hardware: aggiornamento RC2 → RC3 su entrambi i modelli, riavvio e versione, aggiornamento ripetuto, recupero dopo interruzione, impostazioni e microSD, testi più lunghi e schermate di gara, GNSS 25 Hz, tempi e settori.
 
-## Guition — Ripartenza sullo stesso circuito dopo «Salva»
+## RC3.1 — Ripartenza sullo stesso circuito dopo «Salva»
 
-Il firmware pubblicato nascondeva automaticamente il riepilogo dopo 10 secondi lasciando la sessione nello stato di fine registrazione. In questo stato la pipeline scarta le nuove epoche GPS. La correzione nella PR fa passare il timeout e il pulsante «Chiudi» dallo stesso riarmo. L'effetto è stato riprodotto con il callback precedente e verificato con due salvataggi consecutivi sullo stesso circuito usando la pipeline e il cronometro reali, con microSD e NVS simulati.
+- **Guition.** RC3 nascondeva automaticamente il riepilogo dopo 10 secondi lasciando il cronometro in stato di fine registrazione. In questo stato la pipeline scartava le nuove epoche per il cronometraggio. RC3.1 usa lo stesso riarmo alla scadenza e al tocco di «Chiudi». Il test con pipeline e motore reali riproduce il blocco di RC3 e verifica avvio, giro e salvataggio di due sessioni consecutive sullo stesso circuito con RC3.1.
+- **RLCD.** La chiusura manuale e quella per inattività usano già lo stesso finalizzatore con riarmo. RC3.1 azzera anche le statistiche velocità di giro in quella transizione. Il test verifica due salvataggi e uno scarto, ciascuno seguito da un nuovo passaggio e un giro cronometrato, oltre al caso di scarto rifiutato.
+- **Manager Windows V5.4.15.13.** Scarica RC3.1 per il modello rilevato e verifica versione, SHA-256 e compatibilità prima della scrittura. Da disco accetta anche il pacchetto ufficiale RC3, con versione visibile prima della conferma.
+
+Il test software usa dati sintetici e storage simulato. Il collaudo fisico richiede due uscite consecutive sullo stesso circuito, lasciando sparire il riepilogo Guition senza toccarlo e passando il traguardo a velocità di gara. Controllare che il primo passaggio avvii la seconda sessione e che il giro successivo venga cronometrato.
+
+Build ESPHome 2026.7.3 riuscite per entrambi i firmware RC3.1. Le immagini
+applicative misurano 1.089.760 byte per Guition e 645.712 byte per RLCD.
+Le tabelle partizioni coincidono con quelle della pubblicazione RC3. I test
+della suite RC2, il test di ripartenza su entrambi i modelli, i test Manager
+RC3/RC3.1 e la prova Qt con USB simulato sono passati.

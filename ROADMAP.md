@@ -92,9 +92,10 @@ evidenziato. Rimossi i settori dalla vista Guition, mantenendone i dati.
 Persistenza della massima RLCD compatibile con i record precedenti.
 Dettagli: [RIEPILOGO_SESSIONI_RC2](docs/RIEPILOGO_SESSIONI_RC2.md).
 
-## RC3 — Firmware USB e caratteri in grassetto
+## RC3 e RC3.1 — Firmware USB e caratteri in grassetto
 
 Aggiornamento di Guition 4.3 e RLCD 4.2 monocromatico dal GOATS RT Manager Windows via USB.
+RC3.1 corregge il riarmo dopo il riepilogo Guition e pulisce le statistiche tra sessioni su RLCD.
 Pacchetti, procedura e verifiche nel [rapporto RC3](docs/RC3_USB.md).
 
 ## Fasi successive al collaudo RC2
