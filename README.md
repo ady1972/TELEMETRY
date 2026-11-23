@@ -8,7 +8,7 @@ Sistema di telemetria e cronometraggio GPS per kart.
 | --- | --- | --- |
 | Guition 4.3 RC3.1 | [Configurazione ESPHome](firmware/guition-43/goats_guition_43_rc3_1.yaml) · [File del firmware](firmware/guition-43/goats_guition_43_rc3_1/) | [Scarica](https://raw.githubusercontent.com/ady1972/TELEMETRY/rc3-usb-packages/GOATS-GUITION_43-RC3.1.zip) |
 | RLCD 4.2 monocromatico RC3.1 | [Configurazione ESPHome](firmware/rlcd-42/goats_rlcd_rc3_1.yaml) · [File del firmware](firmware/rlcd-42/GOATS_RLCD_RC3_1/) | [Scarica](https://raw.githubusercontent.com/ady1972/TELEMETRY/rc3-usb-packages/GOATS-RLCD_MONO_42-RC3.1.zip) |
-| Manager Windows V5.4.15.14 | [Progetto Windows](windows/v5.4.15.14-burst4/) | [Scarica](https://raw.githubusercontent.com/ady1972/TELEMETRY/rc3-usb-packages/GOATS-RT-Manager-Windows-V5.4.15.14.zip) |
+| Manager Windows V5.4.15.15 | [Progetto Windows](windows/v5.4.15.15-burst4/) | [Scarica](https://raw.githubusercontent.com/ady1972/TELEMETRY/rc3-usb-packages/GOATS-RT-Manager-Windows-V5.4.15.15.zip) |
 
 RC3.1 ripristina il riconoscimento del traguardo sul Guition quando il riepilogo
 dopo il salvataggio si chiude da solo. Entrambi i firmware si aggiornano via USB
@@ -23,7 +23,7 @@ I progetti completi sono organizzati per piattaforma e versione:
   nella stessa cartella cloud del PC.
 - GOATS Windows include aggiornamento firmware USB, sincronizzazione delle
   sessioni, configurazione GNSS e replay fino a 10x.
-  [Manager V5.4.15.14](windows/v5.4.15.14-burst4/README.md).
+  [Manager V5.4.15.15](windows/v5.4.15.15-burst4/README.md).
 
 [Guida alla cartella cloud comune](docs/CLOUD_SYNC_MOBILE_WINDOWS.md).
 
