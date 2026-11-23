@@ -5,7 +5,7 @@ import subprocess
 import tempfile
 
 ROOT = Path(__file__).resolve().parents[2]
-G = ROOT / "firmware/guition-43/goats_guition_43_rc3"
+G = ROOT / "firmware/guition-43/goats_guition_43_rc3_1"
 YAML = G.with_suffix(".yaml").read_text()
 DISMISS = "- script.execute: dismiss_session_summary"
 assert DISMISS in YAML.split("id: session_summary_panel", 1)[1].split("# Avviso NEW BEST", 1)[0]
@@ -97,4 +97,4 @@ int main() {
     ], check=True)
     subprocess.run([executable], check=True)
 
-print("PASS Guition RC3: save, automatic summary dismissal, same-track finish, second timed lap and save")
+print("PASS Guition RC3.1: save, automatic summary dismissal, same-track finish, second timed lap and save")

@@ -219,9 +219,6 @@ class GoatsSessionManager {
   }
   uint64_t trace_dropped()const{return trace_dropped_;}
   bool accepts_samples()const{return !finished_ && !close_requested_;}
-  void rearm_after_finish() {
-    if (finished_) reset_runtime();
-  }
   void request_finish(uint32_t now_ms) {
     if(!active() || free_mode_ || close_requested_)return;
     close_at_=now_ms;close_requested_=true;goats_laptimer_reset();
@@ -1117,7 +1114,6 @@ static GoatsSessionManager GOATS_SESSIONS;
 inline void goats_sessions_setup(){GOATS_SESSIONS.setup();}
 inline void goats_sessions_reload_persistent(){GOATS_SESSIONS.reload_persistent();}
 inline void goats_sessions_reset_runtime(){GOATS_SESSIONS.reset_runtime();}
-inline void goats_sessions_rearm_after_finish(){GOATS_SESSIONS.rearm_after_finish();}
 inline void goats_sessions_update(bool r,uint32_t n,uint32_t last,uint32_t best,
  uint32_t finish,float speed,float hdop,int sats,uint32_t now,
  const char *track,const char *date,const char *time,double lat,double lon){
