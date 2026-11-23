@@ -1,6 +1,6 @@
 """Verify USB package compatibility across the two published firmware revisions."""
 
-from hashlib import sha256
+from hashlib import md5, sha256
 from io import BytesIO
 import json
 from pathlib import Path
@@ -15,7 +15,7 @@ import esptool
 from esptool import cmds
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / "windows/v5.4.15.16-burst4"))
+sys.path.insert(0, str(ROOT / "windows/v5.4.15.17-burst4"))
 import goats_firmware_usb as usb
 
 
@@ -64,6 +64,7 @@ class FirmwareVersionTests(unittest.TestCase):
         }))
         loader = Mock(CHIP_NAME="ESP32-S3", IS_STUB=True, secure_download_mode=False)
         loader.read_flash.side_effect = [table, ota_data if ota_data is not None else self.boot_data(), header]
+        loader.flash_md5sum.return_value = "0" * 32
         loader.run_stub.side_effect = AssertionError("An active stub must not be uploaded again")
         loader.read_mac.side_effect = lambda kind: (0, 1, 2, 3, 4, 5) if kind == "BASE_MAC" else None
         loader.get_chip_description.return_value = "ESP32-S3"
@@ -162,6 +163,34 @@ class FirmwareVersionTests(unittest.TestCase):
         self.assertEqual(loader.read_flash.call_args_list, [
             call(0x8000, 0xC00), call(0x9000, 0x2000), call(app_address, 112),
         ])
+        loader.flash_md5sum.assert_called_once_with(app_address, len(image))
+
+    def test_matching_firmware_is_detected_before_any_write(self):
+        _, _, loader = self.connect_simulated_guition(self.boot_data((2, 2, 0x55F63774)))
+        manifest = self.directory / "firmware.json"
+        image = self.images["RC3.1"]
+        manifest.write_bytes(self.make_manifest("RC3.1", image))
+        manifest.with_suffix(".bin").write_bytes(image)
+        loader.flash_md5sum.return_value = md5(image, usedforsecurity=False).hexdigest()
+        with patch.object(usb, "esptool_main") as write:
+            self.assertFalse(usb.update_firmware(self.model, manifest, "COM9"))
+        loader.flash_md5sum.assert_called_once_with(0x1D0000, len(image))
+        loader.soft_reset.assert_called_once_with(stay_in_bootloader=True)
+        write.assert_not_called()
+
+    def test_compare_command_reads_the_active_firmware_without_writing(self):
+        _, _, loader = self.connect_simulated_guition(self.boot_data((1, 2, 0x4743989A)))
+        manifest = self.directory / "firmware.json"
+        image = self.images["RC3.1"]
+        manifest.write_bytes(self.make_manifest("RC3.1", image))
+        manifest.with_suffix(".bin").write_bytes(image)
+        loader.flash_md5sum.return_value = md5(image, usedforsecurity=False).hexdigest()
+        with patch.object(usb, "esptool_main") as write:
+            self.assertTrue(usb.check_installed_firmware(self.model, manifest, "COM9"))
+        loader.flash_md5sum.assert_called_once_with(0x10000, len(image))
+        loader.soft_reset.assert_called_once_with(stay_in_bootloader=True)
+        write.assert_not_called()
+
 
     def test_rejects_corrupt_or_pending_selector_before_writing(self):
         for selector in ((1, 2, 0), (1, 1, 0x4743989A)):

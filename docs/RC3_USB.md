@@ -1,13 +1,13 @@
 # RC3 — Aggiornamento USB e caratteri in grassetto
 
-RC3.1 si installa via USB su Guition 4.3 e RLCD 4.2 monocromatico con il GOATS RT Manager Windows V5.4.15.16. Il Manager precedente V5.4.15.12 distribuisce ancora RC3. Guition usa font Roboto e Roboto Condensed grassetto anche nei widget LVGL che ereditano il font predefinito. RLCD mantiene Roboto Condensed 700, già configurato per tutti i testi visualizzati dal firmware. Le due configurazioni ESPHome RC3 spostano il riferimento alla propria cartella mantenendo le basi RC2.
+RC3.1 si installa via USB su Guition 4.3 e RLCD 4.2 monocromatico con il GOATS RT Manager Windows V5.4.15.17. Il Manager precedente V5.4.15.12 distribuisce ancora RC3. Guition usa font Roboto e Roboto Condensed grassetto anche nei widget LVGL che ereditano il font predefinito. RLCD mantiene Roboto Condensed 700, già configurato per tutti i testi visualizzati dal firmware. Le due configurazioni ESPHome RC3 spostano il riferimento alla propria cartella mantenendo le basi RC2.
 
 ## Aggiornare dal Manager
 
 1. Terminare la sessione, espellere eventuali volumi USB Mass Storage e collegare il laptimer con un cavo dati USB.
-2. Aprire **Firmware USB** e scegliere la porta COM del laptimer. Per la porta USB nativa Espressif, premere **Entra in BOOT e rileva** e confermare. Per l'ingresso manuale, tenere premuto il BOOT della scheda durante il reset o l'accensione, rilasciarlo, aggiornare l'elenco delle porte e premere **Rileva laptimer** sulla COM risultante. Il Manager confronta la tabella partizioni e l'identità dell'applicazione.
+2. Aprire **Firmware USB** e scegliere la porta COM del laptimer. Per la porta USB nativa Espressif, premere **Entra in BOOT e rileva** e confermare. Per l'ingresso manuale, tenere premuto il BOOT della scheda durante il reset o l'accensione, rilasciarlo, aggiornare l'elenco delle porte e premere **Entra in BOOT e rileva** sulla COM risultante. Il Manager confronta la tabella partizioni e l'identità dell'applicazione.
 3. Selezionare **Scarica RC3.1 da GitHub** per ottenere il pacchetto del modello rilevato. Per l'installazione offline, scaricare o copiare il pacchetto in anticipo e scegliere **Apri file firmware locale**. Il file `.bin` e il suo `.json` devono avere lo stesso nome base e stare nella stessa cartella.
-4. Premere **Aggiorna firmware via USB** e confermare. Il Manager ricontrolla SHA-256 rispetto al manifesto e alla propria copia dell'hash ufficiale della versione, quindi verifica destinazione dell'immagine, modello e selezione dello slot prima della scrittura.
+4. Leggere il changelog del modello e della versione selezionata. Attendere il confronto con il firmware installato. Se coincide, il Manager disabilita l'aggiornamento. Altrimenti premere **Aggiorna firmware via USB** e confermare. Il Manager ricontrolla SHA-256 rispetto al manifesto e alla propria copia dell'hash ufficiale della versione, quindi verifica destinazione dell'immagine, modello e selezione dello slot prima della scrittura.
 5. Attendere la verifica della scrittura e il riavvio. Controllare la versione selezionata nella schermata Info del dispositivo. Se resta in modalità BOOT, rilasciare BOOT e riavviare.
 
 Il Manager scrive l'applicazione nello slot selezionato dal bootloader. La tabella delle partizioni, il bootloader, la selezione dello slot e NVS restano fuori dall'intervallo scritto. L'importazione USB e la microSD seguono la procedura già in uso. L'aggiornamento richiede un layout GOATS riconosciuto e una selezione dello slot verificabile. In caso di interruzione, rientrare in modalità BOOT e ripetere con lo stesso pacchetto. Un dispositivo senza bootloader o con layout diverso richiede una installazione completa tramite USB prima di usare questo flusso.
@@ -60,3 +60,13 @@ layout GOATS appena inizializzato, con dati di avvio vuoti, la destinazione
 è lo slot iniziale. Una selezione illeggibile o ancora in attesa di convalida
 ferma la procedura prima della scrittura. I test con esptool e trasporto
 simulato verificano entrambe le destinazioni e il blocco sui record non validi.
+
+## Changelog e confronto firmware nel Manager V5.4.15.17
+
+Il comando **Entra in BOOT e rileva** gestisce anche il rilevamento dopo BOOT
+manuale. Il changelog compare dopo la validazione di un pacchetto scaricato o
+aperto da disco. Il confronto usa il checksum dell'immagine presente nello
+slot attivo e viene ripetuto prima della scrittura. Le immagini ufficiali
+RC3 e RC3.1 restano convalidate separatamente con SHA-256. I test verificano
+entrambi i percorsi di caricamento, il rilevamento dopo BOOT manuale e la mancata scrittura
+quando l'immagine coincide, con trasporto simulato.
