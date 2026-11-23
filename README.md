@@ -3,7 +3,7 @@
 ## RC3.1 — Ripartenza dopo il salvataggio
 Build da [e9d5c97](https://github.com/ady1972/TELEMETRY/commit/e9d5c97) con ESPHome 2026.7.3.
 
-- [GOATS RT Manager Windows V5.4.15.16 — riconoscimento dello slot di avvio USB](GOATS-RT-Manager-Windows-V5.4.15.16.zip)
+- [GOATS RT Manager Windows V5.4.15.17 — changelog e verifica del firmware installato](GOATS-RT-Manager-Windows-V5.4.15.17.zip)
 - [Guition 4.3 RC3.1](GOATS-GUITION_43-RC3.1.zip)
 - [RLCD 4.2 monocromatico RC3.1](GOATS-RLCD_MONO_42-RC3.1.zip)
 
