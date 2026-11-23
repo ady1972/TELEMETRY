@@ -4,6 +4,7 @@ from hashlib import sha256
 from io import BytesIO
 import json
 from pathlib import Path
+from struct import pack
 import sys
 from tempfile import TemporaryDirectory
 from types import SimpleNamespace
@@ -14,7 +15,7 @@ import esptool
 from esptool import cmds
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / "windows/v5.4.15.15-burst4"))
+sys.path.insert(0, str(ROOT / "windows/v5.4.15.16-burst4"))
 import goats_firmware_usb as usb
 
 
@@ -44,7 +45,16 @@ class FirmwareVersionTests(unittest.TestCase):
             "sha256": sha256(image).hexdigest(),
         }).encode()
 
-    def connect_simulated_guition(self):
+    @staticmethod
+    def boot_data(first=None, second=None):
+        data = bytearray(b"\xff" * 0x2000)
+        for offset, record in ((0, first), (0x1000, second)):
+            if record is not None:
+                sequence, state, checksum = record
+                data[offset:offset + 32] = pack("<I", sequence) + b"\xff" * 20 + pack("<II", state, checksum)
+        return bytes(data)
+
+    def connect_simulated_guition(self, ota_data=None):
         self.assertEqual(esptool.__version__, "4.14.0")
         table = b"Guition partition table"
         header = self.images["RC3.1"][:112]
@@ -53,7 +63,7 @@ class FirmwareVersionTests(unittest.TestCase):
             self.model: (project, capacity, sha256(table).hexdigest()),
         }))
         loader = Mock(CHIP_NAME="ESP32-S3", IS_STUB=True, secure_download_mode=False)
-        loader.read_flash.side_effect = [table, header, b"\xff" * usb.OTA_DATA_LENGTH]
+        loader.read_flash.side_effect = [table, ota_data if ota_data is not None else self.boot_data(), header]
         loader.run_stub.side_effect = AssertionError("An active stub must not be uploaded again")
         loader.read_mac.side_effect = lambda kind: (0, 1, 2, 3, 4, 5) if kind == "BASE_MAC" else None
         loader.get_chip_description.return_value = "ESP32-S3"
@@ -120,7 +130,16 @@ class FirmwareVersionTests(unittest.TestCase):
         ports.assert_not_called()
 
     def test_update_uses_real_esptool_parser_with_existing_stub(self):
-        transport, rom, loader = self.connect_simulated_guition()
+        self.verify_write(self.boot_data(), 0x10000)
+
+    def test_updates_slot_zero_when_bootloader_initialized_its_selector(self):
+        self.verify_write(self.boot_data((1, 2, 0x4743989A)), 0x10000)
+
+    def test_updates_slot_one_when_its_selector_is_newer(self):
+        self.verify_write(self.boot_data((1, 2, 0x4743989A), (2, 0xFFFFFFFF, 0x55F63774)), 0x1D0000)
+
+    def verify_write(self, ota_data, app_address):
+        transport, rom, loader = self.connect_simulated_guition(ota_data)
         image = self.images["RC3.1"]
         manifest = self.directory / "fixture.json"
         manifest.write_bytes(self.make_manifest("RC3.1", image))
@@ -130,7 +149,7 @@ class FirmwareVersionTests(unittest.TestCase):
             self.assertIs(esp, loader)
             self.assertTrue(args.compress)
             ((offset, stream),) = args.addr_filename
-            self.assertEqual(offset, usb.APP_OFFSET)
+            self.assertEqual(offset, app_address)
             self.assertEqual(stream.read(), image)
 
         with patch.object(esptool, "write_flash", record_write):
@@ -140,6 +159,34 @@ class FirmwareVersionTests(unittest.TestCase):
         loader.run_stub.assert_not_called()
         loader.hard_reset.assert_called_once_with()
         rom.__exit__.assert_called_once()
+        self.assertEqual(loader.read_flash.call_args_list, [
+            call(0x8000, 0xC00), call(0x9000, 0x2000), call(app_address, 112),
+        ])
+
+    def test_rejects_corrupt_or_pending_selector_before_writing(self):
+        for selector in ((1, 2, 0), (1, 1, 0x4743989A)):
+            with self.subTest(selector=selector):
+                with patch.object(usb, "connect_bootloader") as connect, patch.object(usb, "esptool_main") as write:
+                    rom = connect.return_value.__enter__.return_value
+                    rom.CHIP_NAME = "ESP32-S3"
+                    rom.secure_download_mode = False
+                    loader = rom.run_stub.return_value
+                    table = b"Guition partition table"
+                    loader.read_flash.side_effect = [table, self.boot_data(selector)]
+                    manifest = self.directory / "fixture.json"
+                    image = self.images["RC3.1"]
+                    manifest.write_bytes(self.make_manifest("RC3.1", image))
+                    manifest.with_suffix(".bin").write_bytes(image)
+                    project, capacity, _ = usb.MODELS[self.model]
+                    with patch.dict(usb.MODELS, {self.model: (project, capacity, sha256(table).hexdigest())}):
+                        with self.assertRaisesRegex(ValueError, "slot di avvio"):
+                            usb.update_firmware(self.model, manifest, "COM9")
+                    write.assert_not_called()
+
+    def test_ignores_rejected_or_bad_crc_copy_when_other_copy_is_valid(self):
+        for ignored in ((2, 4, 0x55F63774), (2, 2, 0)):
+            with self.subTest(selector=ignored):
+                self.assertEqual(usb.selected_boot_slot(self.boot_data((1, 2, 0x4743989A), ignored)), 0)
 
     def test_accepts_both_official_versions_offline(self):
         for version, image in self.images.items():
