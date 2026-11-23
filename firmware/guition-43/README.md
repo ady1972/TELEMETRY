@@ -1,6 +1,14 @@
 # GOATS Guition 4.3"
 
-## RC2 per il prossimo collaudo
+## RC3.1 — Candidato da collaudare
+
+Per ESPHome, tenere lo YAML accanto alla cartella con i componenti e le risorse.
+[Configurazione ESPHome](goats_guition_43_rc3_1.yaml) · [File del firmware](goats_guition_43_rc3_1/).
+
+Per aggiornare via USB dal Manager Windows, usare il pacchetto del proprio modello.
+[Scarica il pacchetto ZIP](https://raw.githubusercontent.com/ady1972/TELEMETRY/rc3-usb-packages/GOATS-GUITION_43-RC3.1.zip) · [Guida e verifiche](../../docs/RC3_USB.md).
+
+## RC2 — Versione precedente
 
 Ingresso ESPHome: `goats_guition_43_rc2.yaml`, affiancato alla cartella `goats_guition_43_rc2`.
 [Correzioni, formato TA06NO01.CSV e piano di prova](goats_guition_43_rc2/RC2.md).
@@ -11,7 +19,7 @@ Le note RC1 sotto descrivono la precedente base, conservata invariata.
 
 Firmware ESP32-S3 per display Guition 480x272.
 
-Versione corrente: **V1.0.22 RC1 RLCD26 USB**, base V1.0.22.
+Versione precedente: **V1.0.22 RC1 RLCD26 USB**, base V1.0.22.
 Ingresso ESPHome: `goats_guition_43_rc1.yaml`, affiancato alla cartella
 `goats_guition_43_rc1`. [Note RC1](goats_guition_43_rc1/RC1.md).
 
