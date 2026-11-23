@@ -32,6 +32,7 @@ class FirmwareVersionTests(unittest.TestCase):
         self.images = {
             "RC3": bytes(header) + b"legacy",
             "RC3.1": bytes(header) + b"new",
+            "RC3.2": bytes(header) + b"battery",
         }
         self.enterContext(patch.dict(usb.APPROVED_IMAGES, {
             self.model: {version: sha256(image).hexdigest() for version, image in self.images.items()},
@@ -263,13 +264,13 @@ class FirmwareVersionTests(unittest.TestCase):
             usb.load_firmware(self.model, manifest)
 
     def test_download_uses_the_release_for_the_detected_model(self):
-        version = usb.DOWNLOAD_VERSION
+        version = usb.DOWNLOAD_VERSIONS[self.model]
         image = self.images[version]
         with patch.object(usb, "urlopen", side_effect=[
             BytesIO(self.make_manifest(version, image)), BytesIO(image),
         ]) as fetch:
             package = usb.download_package(self.model, self.directory)
-        suffix = f"/GOATS-{self.model}-RC3.1"
+        suffix = f"/main/firmware/guition-43/usb/GOATS-{self.model}-RC3.2"
         self.assertTrue(fetch.call_args_list[0].args[0].endswith(f"{suffix}.json"))
         self.assertTrue(fetch.call_args_list[1].args[0].endswith(f"{suffix}.bin"))
         self.assertEqual(usb.load_firmware(self.model, package), (version, image))

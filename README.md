@@ -2,11 +2,16 @@
 
 Sistema di telemetria e cronometraggio GPS per kart.
 
+## RC3.2 GUITION — Collaudo USB
+
+Il Manager nei [sorgenti di `main`](windows/v5.4.15.18-burst4/) scarica RC3.2
+per il GUITION 4.3. [Dettagli e firmware](firmware/guition-43/README.md).
+
 ## RC3.1 — Sorgenti e download
 
 | Componente | Sorgenti | Pacchetto ZIP |
 | --- | --- | --- |
-| Guition 4.3 RC3.1 | [Configurazione ESPHome](firmware/guition-43/goats_guition_43_rc3_1.yaml) · [File del firmware](firmware/guition-43/goats_guition_43_rc3_1/) | [Scarica](https://raw.githubusercontent.com/ady1972/TELEMETRY/rc3-usb-packages/GOATS-GUITION_43-RC3.1.zip) |
+| Guition 4.3 RC3.1 | [Configurazione ESPHome](https://github.com/ady1972/TELEMETRY/blob/4c249067e2f524bc63283dae62bd6abdda6cabd0/firmware/guition-43/goats_guition_43_rc3_1.yaml) · [File del firmware](https://github.com/ady1972/TELEMETRY/tree/4c249067e2f524bc63283dae62bd6abdda6cabd0/firmware/guition-43/goats_guition_43_rc3_1) | [Scarica](https://raw.githubusercontent.com/ady1972/TELEMETRY/rc3-usb-packages/GOATS-GUITION_43-RC3.1.zip) |
 | RLCD 4.2 monocromatico RC3.1 | [Configurazione ESPHome](firmware/rlcd-42/goats_rlcd_rc3_1.yaml) · [File del firmware](firmware/rlcd-42/GOATS_RLCD_RC3_1/) | [Scarica](https://raw.githubusercontent.com/ady1972/TELEMETRY/rc3-usb-packages/GOATS-RLCD_MONO_42-RC3.1.zip) |
 | Manager Windows V5.4.15.18 | [Progetto Windows](windows/v5.4.15.18-burst4/) | [Scarica](https://raw.githubusercontent.com/ady1972/TELEMETRY/rc3-usb-packages/GOATS-RT-Manager-Windows-V5.4.15.18.zip) |
 

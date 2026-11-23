@@ -18,14 +18,14 @@
 
 substitutions:
   device_name: goats-rt-laptimer-v2
-  friendly_name: "GOATS GUITION 4.3 V1.0.22 RC3.1 USB"
+  friendly_name: "GOATS GUITION 4.3 V1.0.22 RC3.2 USB"
 
 esphome:
   name: ${device_name}
   friendly_name: ${friendly_name}
   project:
     name: goats_rt.guition43
-    version: "1.0.22-rc3.1"
+    version: "1.0.22-rc3.2"
   includes:
     - goats_guition_43_rc3_1/goats_screen_mode.h
     - goats_guition_43_rc3_1/goats_recording_clock.h
@@ -1103,7 +1103,7 @@ lvgl:
                   x: 0
                   y: 195
                   width: 480
-                  text: "GOATS GUITION 4.3 V1.0.22 RC3.1 USB"
+                  text: "GOATS GUITION 4.3 V1.0.22 RC3.2 USB"
                   text_align: CENTER
                   text_font: roboto_14
                   text_color: 0xFFFFFF
@@ -3531,7 +3531,7 @@ lvgl:
                       x: 18
                       y: 55
                       width: 320
-                      text: "Firmware V1.0.22 RC3.1 USB"
+                      text: "Firmware V1.0.22 RC3.2 USB"
                       text_align: CENTER
                       text_font: roboto_18
                       text_color: 0x00D084
@@ -3539,7 +3539,7 @@ lvgl:
                       x: 18
                       y: 82
                       width: 320
-                      text: "Build RC3.1 USB"
+                      text: "Build RC3.2 USB"
                       text_align: CENTER
                       text_font: roboto_14
                       text_color: 0xAAB2BD
@@ -5594,9 +5594,13 @@ interval:
               LV_PART_MAIN | LV_STATE_DEFAULT);
 
       - lambda: |-
-          // V9.0 - Icona batteria reale.
+          static int displayed_width = 0;
+          static int pending_width = 0;
+          static uint32_t pending_since_ms = 0;
           if (!id(battery_percent).has_state() ||
-              isnan(id(battery_percent).state)) {
+              !std::isfinite(id(battery_percent).state)) {
+            displayed_width = 0;
+            pending_width = 0;
             lv_obj_set_width(id(battery_icon_fill), 2);
             lv_obj_set_style_bg_color(
                 id(battery_icon_fill), lv_color_hex(0x8F969F),
@@ -5615,11 +5619,27 @@ interval:
             if (percent < 0.0f) percent = 0.0f;
             if (percent > 100.0f) percent = 100.0f;
 
-            int fill_width =
-                2 + static_cast<int>((percent / 100.0f) * 22.0f);
-            if (fill_width < 2) fill_width = 2;
-            if (fill_width > 24) fill_width = 24;
-            lv_obj_set_width(id(battery_icon_fill), fill_width);
+            // Arrotonda al pixel più vicino e conferma i cali per 3 secondi.
+            const int measured_width =
+                2 + static_cast<int>((percent / 100.0f) * 22.0f + 0.5f);
+            const uint32_t now = millis();
+            if (measured_width >= displayed_width) {
+              displayed_width = measured_width;
+              pending_width = 0;
+            } else if (pending_width == 0) {
+              pending_width = measured_width;
+              pending_since_ms = now;
+            } else {
+              // Durante la conferma usa il valore più alto osservato.
+              // Un calo progressivo non riavvia il timer a ogni pixel.
+              if (measured_width > pending_width)
+                pending_width = measured_width;
+              if (now - pending_since_ms >= 3000UL) {
+                displayed_width = pending_width;
+                pending_width = 0;
+              }
+            }
+            lv_obj_set_width(id(battery_icon_fill), displayed_width);
 
             // TEST12: conferma del livello critico per 5 secondi e isteresi.
             // Evita che un singolo valore ADC anomalo faccia cambiare colore.

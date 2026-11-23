@@ -9,7 +9,7 @@ from PySide6.QtWidgets import (
 )
 from serial.tools.list_ports import comports
 
-from goats_firmware_usb import DOWNLOAD_VERSION, load_firmware, supports_usb_reset
+from goats_firmware_usb import DOWNLOAD_VERSIONS, load_firmware, supports_usb_reset
 
 
 MODEL_NAMES = {"GUITION_43": "Guition 4.3", "RLCD_MONO_42": "RLCD 4.2 monocromatico"}
@@ -20,6 +20,9 @@ FIRMWARE_CHANGELOGS = {
     ),
     ("GUITION_43", "RC3.1"): (
         "Il cronometro si riarma anche quando il riepilogo di fine sessione si chiude da solo.",
+    ),
+    ("GUITION_43", "RC3.2"): (
+        "Indicatore batteria stabile durante i cali brevi e riempimento arrotondato.",
     ),
     ("RLCD_MONO_42", "RC3"): (
         "Aggiornamento firmware via USB dal Manager Windows.",
@@ -48,7 +51,7 @@ def populate_update_page(window, layout):
     comparison = QLabel()
     comparison.setWordWrap(True)
     comparison.setTextFormat(Qt.PlainText)
-    download = QPushButton(f"Scarica {DOWNLOAD_VERSION} da GitHub")
+    download = QPushButton("Scarica firmware da GitHub")
     browse = QPushButton("Apri file firmware locale")
     start = QPushButton("Aggiorna firmware via USB")
     log = QTextEdit()
@@ -70,6 +73,8 @@ def populate_update_page(window, layout):
         refresh.setEnabled(idle)
         boot_detect.setEnabled(idle and bool(port.currentData()))
         restart.setEnabled(idle and detected_model is not None)
+        version = DOWNLOAD_VERSIONS.get(detected_model, "firmware")
+        download.setText(f"Scarica {version} da GitHub")
         download.setEnabled(idle and detected_model is not None)
         browse.setEnabled(idle and detected_model is not None)
         start.setEnabled(idle and detected_model is not None and bool(package.text()) and not installed_matches)

@@ -133,11 +133,13 @@ Le note aggiunte nel database non vengono sincronizzate. I file sessione origina
 conservano tutti i campi già presenti all’origine, incluse eventuali note in un
 JSON esportato e poi importato come file.
 
-## V5.4.15.18 — Firmware USB RC3.1
+## V5.4.15.18 — Firmware USB
 
 La pagina **Firmware USB** rileva Guition 4.3 e RLCD 4.2 monocromatico in modalità BOOT
-e scarica RC3.1 per il modello rilevato. Si può anche selezionare il pacchetto
-ufficiale RC3 o RC3.1 da disco. Il numero di versione compare prima della conferma.
+e scarica RC3.2 per GUITION o RC3.1 per RLCD. Si può anche selezionare da disco
+un pacchetto ufficiale del modello rilevato. Il numero di versione compare prima
+della conferma. Se si usa lo ZIP V5.4.15.18 già distribuito, aggiornare insieme
+`goats_firmware_usb.py` e `goats_firmware_usb_ui.py` con le copie di questa cartella.
 Consultare la [procedura RC3](../../docs/RC3_USB.md).
 
 **Entra in BOOT e rileva** può riavviare il laptimer in modalità BOOT sulla

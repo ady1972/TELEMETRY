@@ -23,11 +23,12 @@ MODELS = {
         "1a0727f7935aff03694457fb7f5c76e289a7b0f71017b8c649e4ae9e4034028f",
     ),
 }
-DOWNLOAD_VERSION = "RC3.1"
+DOWNLOAD_VERSIONS = {"GUITION_43": "RC3.2", "RLCD_MONO_42": "RC3.1"}
 APPROVED_IMAGES = {
     "GUITION_43": {
         "RC3": "ef1da62b21a7b68d95caa2395d099e3b75539eb0297ae82f459aba74857e66b5",
         "RC3.1": "bac17785f949e09a59aa6809f513eda4cef15c0952432c53d8aa0270719ea707",
+        "RC3.2": "4e560f2278d68dab84e4ae66298f12d33ff47e546f127ddbb18c19af5982dd80",
     },
     "RLCD_MONO_42": {
         "RC3": "851bdc7f6af2be034501816497970acbe9b261c2d5b9a2416e7718ef63957cf3",
@@ -39,6 +40,7 @@ INSTALLED_FINGERPRINTS = {
     "GUITION_43": {
         "RC3": (1089728, "0a7faa0a30a48a4a7de3b72c3d77c5d8"),
         "RC3.1": (1089760, "e3c0eb6e8f3db5469f3099e1ba01e85f"),
+        "RC3.2": (1089840, "774a5981269ff7439398c7d15b04c3bc"),
     },
     "RLCD_MONO_42": {
         "RC3": (645680, "ed4f688c1e53f16912503199de5f5d50"),
@@ -46,6 +48,7 @@ INSTALLED_FINGERPRINTS = {
     },
 }
 PACKAGE_ROOT = "https://raw.githubusercontent.com/ady1972/TELEMETRY/rc3-usb-packages"
+GUITION_PACKAGE_ROOT = "https://raw.githubusercontent.com/ady1972/TELEMETRY/main/firmware/guition-43/usb"
 APP_OFFSET = 0x10000
 TABLE_OFFSET = 0x8000
 TABLE_LENGTH = 0xC00
@@ -177,21 +180,23 @@ def detect_model(port, *, allow_usb_reset=False):
 
 def download_package(model, cache):
     _, slot_limit, _ = MODELS[model]
-    name = f"GOATS-{model}-{DOWNLOAD_VERSION}"
+    download_version = DOWNLOAD_VERSIONS[model]
+    package_root = GUITION_PACKAGE_ROOT if model == "GUITION_43" else PACKAGE_ROOT
+    name = f"GOATS-{model}-{download_version}"
     cache.mkdir(parents=True, exist_ok=True)
     with TemporaryDirectory(prefix="goats-download-") as scratch:
         directory = Path(scratch)
         for extension, limit in (("json", 4096), ("bin", slot_limit)):
             filename = f"{name}.{extension}"
-            with urlopen(f"{PACKAGE_ROOT}/{filename}", timeout=30) as response:
+            with urlopen(f"{package_root}/{filename}", timeout=30) as response:
                 content = response.read(limit + 1)
             if not content or len(content) > limit:
                 raise ValueError("Dimensione del download fuori dai limiti.")
             (directory / filename).write_bytes(content)
         manifest = directory / f"{name}.json"
         version, image = load_firmware(model, manifest)
-        if version != DOWNLOAD_VERSION:
-            raise ValueError(f"Il pacchetto GitHub deve contenere il firmware {DOWNLOAD_VERSION}.")
+        if version != download_version:
+            raise ValueError(f"Il pacchetto GitHub deve contenere il firmware {download_version}.")
         destination = Path(mkdtemp(prefix=f"{model}-", dir=cache))
         target = destination / manifest.name
         target.with_suffix(".bin").write_bytes(image)

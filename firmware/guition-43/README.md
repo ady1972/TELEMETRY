@@ -1,9 +1,20 @@
 # GOATS Guition 4.3"
 
+## RC3.2 USB — Indicatore batteria
+
+Variante GUITION per il collaudo via USB dal [Manager presente su `main`](../../windows/v5.4.15.18-burst4/).
+[Configurazione ESPHome](goats_guition_43_rc3_1.yaml) · [Pacchetto applicativo](usb/).
+L’icona arrotonda il
+riempimento al pixel più vicino e mostra un calo solo dopo tre secondi sotto il
+livello visualizzato. Per il collaudo, verificare il riempimento a fine carica,
+poi osservare l’icona durante l’uso a batteria e dopo lo scollegamento USB.
+La schermata «BATTERIA CARICA» ha un rilevamento separato, basato sulla tensione
+misurata durante la ricarica USB.
+
 ## RC3.1 — Candidato da collaudare
 
 Per ESPHome, tenere lo YAML accanto alla cartella con i componenti e le risorse.
-[Configurazione ESPHome](goats_guition_43_rc3_1.yaml) · [File del firmware](goats_guition_43_rc3_1/).
+[Configurazione ESPHome RC3.1](https://github.com/ady1972/TELEMETRY/blob/4c249067e2f524bc63283dae62bd6abdda6cabd0/firmware/guition-43/goats_guition_43_rc3_1.yaml) · [File del firmware RC3.1](https://github.com/ady1972/TELEMETRY/tree/4c249067e2f524bc63283dae62bd6abdda6cabd0/firmware/guition-43/goats_guition_43_rc3_1).
 
 Per aggiornare via USB dal Manager Windows, usare il pacchetto del proprio modello.
 [Scarica il pacchetto ZIP](https://raw.githubusercontent.com/ady1972/TELEMETRY/rc3-usb-packages/GOATS-GUITION_43-RC3.1.zip) · [Guida e verifiche](../../docs/RC3_USB.md).

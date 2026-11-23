@@ -31,7 +31,7 @@ class FirmwareReviewTests(unittest.TestCase):
         header[32:36] = bytes.fromhex("3254cdab")
         header[80:80 + len(project)] = project
         approved = {}
-        for version in ("RC3", "RC3.1"):
+        for version in ("RC3", "RC3.1", "RC3.2"):
             image = bytes(header) + version.encode()
             digest = sha256(image).hexdigest()
             approved[version] = digest
@@ -58,10 +58,10 @@ elif action == "detect":
     print("GOATS_MODEL={self.model}")
 elif action == "download":
     assert args[0] == "{self.model}"
-    print("GOATS_PACKAGE=" + str(Path(__file__).with_name("RC3.1.json")))
+    print("GOATS_PACKAGE=" + str(Path(__file__).with_name("RC3.2.json")))
 elif action == "compare":
     assert args[0] == "{self.model}"
-    result = {{"RC3": "older", "RC3.1": "newer", "current": "same"}}[Path(args[1]).stem]
+    result = {{"RC3": "older", "RC3.2": "newer", "current": "same"}}[Path(args[1]).stem]
     print("GOATS_COMPARISON=" + result)
 elif action == "restart":
     assert args == ["{self.model}", "COM10"]
@@ -122,9 +122,11 @@ else:
         self.assertTrue(self.buttons["Aggiorna firmware via USB"].isEnabled())
 
         green = "NUOVA VERSIONE FIRMWARE DISPONIBILE"
-        self.buttons["Scarica RC3.1 da GitHub"].click()
+        download = self.buttons["Scarica firmware da GitHub"]
+        self.assertEqual(download.text(), "Scarica RC3.2 da GitHub")
+        download.click()
         self.wait_for(lambda: green in self.labels())
-        self.assertTrue(any(label.startswith("Changelog RC3.1 · Guition 4.3") for label in self.labels()))
+        self.assertTrue(any(label.startswith("Changelog RC3.2 · Guition 4.3") for label in self.labels()))
         green_label = next(label for label in self.window.findChildren(QLabel) if label.text() == green)
         self.assertIn("color: #59de8b", green_label.styleSheet())
 
