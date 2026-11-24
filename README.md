@@ -1,5 +1,13 @@
 # GOATS Telemetry — Pacchetti USB
 
+## Canale firmato RLCD — RC3.3
+
+- [Manager Windows V5.4.15.20](GOATS-RT-Manager-Windows-V5.4.15.20.zip)
+- [Pacchetto offline RLCD RC3.3](GOATS-RLCD_MONO_42-RC3.3.zip)
+
+In **Firmware USB**, rilevare il laptimer e scegliere **Scarica firmware di
+test da GitHub**. Il riavvio viene richiesto dopo la verifica della scrittura.
+
 ## RLCD 4.2 monocromatico RC3.2 — Collaudo USB
 
 - [GOATS RT Manager Windows V5.4.15.19](GOATS-RT-Manager-Windows-V5.4.15.19.zip)
