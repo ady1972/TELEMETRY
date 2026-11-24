@@ -11,6 +11,16 @@ source = (firmware / 'goats_legacy_menu_ui.h').read_text()
 start = source.index('inline void finish(bool save){')
 end = source.index('inline void boot_release()', start)
 finalizer = source[start:end]
+staged = variant == 'GOATS_RLCD_RC3_2'
+key_handlers = ''
+boot_handlers = ''
+if staged:
+    key_handlers = source[source.index('inline void key_press()'):source.index('inline void boot_press()')]
+    boot_handlers = source[source.index('inline void boot_release()'):
+                           source.index(' if(screen()==10){if(cursor()==0)')]
+    boot_handlers += '}'
+
+
 harness = r'''
 #include <cassert>
 #include <cstdint>
@@ -22,6 +32,9 @@ template<typename... Args> void host_log(Args...){}
 #define ESP_LOGI(...) host_log(__VA_ARGS__)
 #include "goats_laptimer.h"
 #include "goats_session_control.h"
+#ifdef EXPECT_STAGED_CLOSE
+#include "goats_screen_mode.h"
+#endif
 namespace goats_b {
 struct Sector {std::string name;double a,b,c,d;};
 struct Track {std::string name;double a,b,c,d;float radius;uint8_t direction;std::vector<Sector> sectors;};
@@ -41,12 +54,31 @@ bool next_session(){++session_id;return true;}
 }
 namespace goats_gps_trace {
 unsigned saves=0,discards=0;
+bool recording(){return false;}
 void finish(bool save){if(save)++saves;else ++discards;}
 }
+#ifdef EXPECT_STAGED_CLOSE
+namespace goats_sd_storage {bool live_open(){return false;}}
+namespace goats_usb_msc {bool request_reboot(){assert(false);return false;}}
+#endif
 namespace goats_menu {
 int &screen(){static int s=0;return s;}
 int &cursor(){static int s=0;return s;}
+#ifdef EXPECT_STAGED_CLOSE
+inline constexpr int CLOSING_SCREEN=16;
+bool &armed(){static bool value=true;return value;}
+bool &key_moved(){static bool value=false;return value;}
+uint32_t &key_down(){static uint32_t value=0;return value;}
+uint32_t &boot_down(){static uint32_t value=0;return value;}
+void move(int step){cursor()+=step;}
+int selected_lap(){return 0;}
+int selected_session(){return 0;}
+KEY_HANDLERS
+#endif
 FINALIZER
+#ifdef EXPECT_STAGED_CLOSE
+BOOT_HANDLERS
+#endif
 }
 void point(double lat,bool valid=true){
  now_ms+=20000;
@@ -58,9 +90,40 @@ void start_session(){
  assert(goats_session_ctl::has_started());
 }
 int main(){
+#ifdef EXPECT_STAGED_CLOSE
+ goats_menu::key_press();now_ms+=100;goats_menu::key_release();
+ assert(goats_screen_mode::delta() && goats_menu::screen()==0);
+ goats_menu::key_press();now_ms+=100;goats_menu::key_release();
+ assert(!goats_screen_mode::delta() && goats_menu::screen()==0);
+ goats_menu::key_press();now_ms+=700;goats_menu::key_release();
+ assert(!goats_screen_mode::delta() && goats_menu::screen()==0);
+ goats_menu::boot_down()=now_ms;now_ms+=100;goats_menu::boot_release();
+ assert(goats_menu::screen()==1);
+ goats_menu::key_press();now_ms+=100;goats_menu::key_release();
+ assert(!goats_screen_mode::delta() && goats_menu::cursor()==1);
+ goats_menu::screen()=0;
+#endif
  start_session();
  for(bool save:{true,true,false}){
   unsigned old_id=goats_archive::session_id;
+#ifdef EXPECT_STAGED_CLOSE
+  const unsigned saves=goats_gps_trace::saves;
+  const unsigned discards=goats_gps_trace::discards;
+  goats_menu::armed()=true;
+  goats_menu::boot_down()=now_ms;now_ms+=3000;goats_menu::boot_release();
+  assert(goats_menu::screen()==8);
+  if(!save){
+   goats_menu::key_press();now_ms+=100;goats_menu::key_release();
+   goats_menu::boot_down()=now_ms;now_ms+=100;goats_menu::boot_release();
+   assert(goats_menu::screen()==9);
+  }
+  goats_menu::boot_down()=now_ms;now_ms+=100;goats_menu::boot_release();
+  assert(goats_menu::save_requested()==save);
+  assert(goats_menu::screen()==goats_menu::CLOSING_SCREEN && !goats_menu::armed());
+  assert(goats_session_ctl::paused() && goats_session_ctl::has_started());
+  assert(goats_archive::session_id==old_id);
+  assert(goats_gps_trace::saves==saves && goats_gps_trace::discards==discards);
+#endif
   goats_menu::finish(save);
   assert(goats_archive::session_id==old_id+1);
   assert(!goats_session_ctl::paused());
@@ -80,15 +143,20 @@ int main(){
  assert(goats_gps_trace::saves==2 && goats_gps_trace::discards==1);
  // A rejected discard must leave the current session running.
  goats_archive::discard_ok=false;
+#ifdef EXPECT_STAGED_CLOSE
+ goats_menu::request_finish(false);
+#endif
  goats_menu::finish(false);
- assert(goats_menu::screen()==9 && goats_laptimer_running());
+ assert(goats_menu::screen()==9 && goats_laptimer_running() && !goats_session_ctl::paused());
 }
-'''.replace('FINALIZER', finalizer)
+'''.replace('FINALIZER', finalizer).replace('KEY_HANDLERS', key_handlers).replace('BOOT_HANDLERS', boot_handlers)
 with tempfile.TemporaryDirectory() as tmp:
     cpp=Path(tmp)/'restart.cpp'
     cpp.write_text(harness)
     exe=Path(tmp)/'restart'
-    flags = ['-DEXPECT_LAP_SPEED_RESET'] if variant == 'GOATS_RLCD_RC3_1' else []
+    flags = ['-DEXPECT_LAP_SPEED_RESET'] if variant in ('GOATS_RLCD_RC3_1', 'GOATS_RLCD_RC3_2') else []
+    if staged:
+        flags.extend(['-DEXPECT_STAGED_CLOSE', '-I', str(root/'tests/rc2/screen_mode_stubs')])
     subprocess.run(['g++','-std=c++17','-Wall','-Wextra','-Werror','-Wno-unused-variable',
                     *flags,'-I',str(firmware),str(cpp),'-o',str(exe)],check=True)
     subprocess.run([str(exe)],check=True)

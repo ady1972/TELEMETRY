@@ -69,7 +69,8 @@ int main(){
  assert(finish_live_session(0));assert(files["0:/GOATS/R000001.CSV"].content=="second recovery");
 }
 '''
-for folder in ['firmware/rlcd-42/GOATS_RLCD_RC2','firmware/guition-43/goats_guition_43_rc2']:
+for folder in ['firmware/rlcd-42/GOATS_RLCD_RC2','firmware/guition-43/goats_guition_43_rc2',
+               'firmware/rlcd-42/GOATS_RLCD_RC3_2']:
     source=(root/folder/'goats_sd_storage.h').read_text()
     text=preamble+'\n'.join(function(source,name) for name in ['progressive_trace_name_','stamp_trace_','trace_map_path_','save_trace_map_','finish_live_session'])+main
     with tempfile.TemporaryDirectory() as tmp:

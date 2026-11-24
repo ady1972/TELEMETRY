@@ -14,7 +14,7 @@ from PySide6.QtWidgets import QApplication, QComboBox, QLabel, QMessageBox, QPus
 from serial.tools.list_ports_common import ListPortInfo
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / "windows/v5.4.15.18-burst4"))
+sys.path.insert(0, str(ROOT / "windows/v5.4.15.19-burst4"))
 import goats_firmware_usb as usb
 import goats_firmware_usb_ui as ui
 
