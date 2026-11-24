@@ -1,5 +1,14 @@
 # GOATS RLCD 4.2"
 
+## RC3.3 — Schermata di avvio
+
+Lo splash copre la vecchia dicitura incorporata nel logo e mostra la stessa
+versione della schermata Info. [Configurazione ESPHome](goats_rlcd_rc3_3.yaml) ·
+[File del firmware](GOATS_RLCD_RC3_3/).
+
+Aggiornamento USB via [Manager V5.4.15.20](../../windows/v5.4.15.20-burst4/README.md).
+[Pacchetto RC3.3 per uso offline](https://raw.githubusercontent.com/ady1972/TELEMETRY/rc3-usb-packages/GOATS-RLCD_MONO_42-RC3.3.zip).
+
 ## RC3.2 — Candidato per il collaudo della chiusura sessione
 
 [Configurazione ESPHome](goats_rlcd_rc3_2.yaml) · [File del firmware](GOATS_RLCD_RC3_2/).

@@ -13,7 +13,7 @@ from unittest.mock import patch
 from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / "windows/v5.4.15.19-burst4"))
+sys.path.insert(0, str(ROOT / "windows/v5.4.15.20-burst4"))
 import goats_firmware_catalog as catalog
 import goats_firmware_usb as usb
 
@@ -31,7 +31,7 @@ class CatalogTests(unittest.TestCase):
         project = usb.MODELS[self.model][0]
         image[80:80 + len(project)] = project
         self.image = bytes(image)
-        self.manifest = dict(model=self.model, version="RC3.3", size=len(image), sha256=sha256(image).hexdigest())
+        self.manifest = dict(model=self.model, version="RC3.4", size=len(image), sha256=sha256(image).hexdigest())
 
     def signed(self, **changes):
         payload = json.dumps({"schema": 1, **self.manifest, **changes}).encode()
@@ -46,10 +46,10 @@ class CatalogTests(unittest.TestCase):
         ]) as fetch:
             result = usb.download_package(self.model, self.cache)
         suffixes = ["/GOATS-RLCD_MONO_42-catalog.json",
-                    "/GOATS-RLCD_MONO_42-RC3.3.json", "/GOATS-RLCD_MONO_42-RC3.3.bin"]
+                    "/GOATS-RLCD_MONO_42-RC3.4.json", "/GOATS-RLCD_MONO_42-RC3.4.bin"]
         for request, suffix in zip(fetch.call_args_list, suffixes, strict=True):
             self.assertTrue(request.args[0].endswith(suffix))
-        self.assertEqual(usb.load_firmware(self.model, result), ("RC3.3", self.image))
+        self.assertEqual(usb.load_firmware(self.model, result), ("RC3.4", self.image))
         result.with_suffix(".bin").write_bytes(self.image[:-1] + b"!")
         with self.assertRaisesRegex(ValueError, "SHA-256"):
             usb.load_firmware(self.model, result)

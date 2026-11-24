@@ -15,7 +15,7 @@ import esptool
 from esptool import cmds
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / "windows/v5.4.15.19-burst4"))
+sys.path.insert(0, str(ROOT / "windows/v5.4.15.20-burst4"))
 import goats_firmware_usb as usb
 
 
@@ -64,6 +64,7 @@ class FirmwareVersionTests(unittest.TestCase):
             self.model: (project, capacity, sha256(table).hexdigest()),
         }))
         loader = Mock(CHIP_NAME="ESP32-S3", IS_STUB=True, secure_download_mode=False)
+        loader.uses_usb_jtag_serial.return_value = False
         loader.read_flash.side_effect = [table, ota_data if ota_data is not None else self.boot_data(), header]
         loader.flash_md5sum.return_value = "0" * 32
         loader.run_stub.side_effect = AssertionError("An active stub must not be uploaded again")
@@ -165,6 +166,29 @@ class FirmwareVersionTests(unittest.TestCase):
             call(0x8000, 0xC00), call(0x9000, 0x2000), call(app_address, 112),
         ])
         loader.flash_md5sum.assert_called_once_with(app_address, len(image))
+
+    def test_native_usb_restarts_after_write_and_verification(self):
+        _, _, loader = self.connect_simulated_guition()
+        loader.uses_usb_jtag_serial.return_value = True
+        manifest = self.directory / "native.json"
+        image = self.images["RC3.1"]
+        manifest.write_bytes(self.make_manifest("RC3.1", image))
+        manifest.with_suffix(".bin").write_bytes(image)
+        with patch.object(esptool, "write_flash", side_effect=esptool.FatalError("verification")):
+            with self.assertRaises(esptool.FatalError):
+                usb.update_firmware(self.model, manifest, "COM9")
+        loader.watchdog_reset.assert_not_called()
+        loader.hard_reset.assert_not_called()
+
+        loader.read_flash.side_effect = [
+            b"Guition partition table", self.boot_data(), image[:112],
+        ]
+        with patch.object(esptool, "write_flash"):
+            self.assertTrue(usb.update_firmware(self.model, manifest, "COM9"))
+        loader.write_reg.assert_called_once_with(loader.RTC_CNTL_OPTION1_REG, 0,
+                                                  loader.RTC_CNTL_FORCE_DOWNLOAD_BOOT_MASK)
+        loader.watchdog_reset.assert_called_once_with()
+        loader.hard_reset.assert_not_called()
 
     def test_matching_firmware_is_detected_before_any_write(self):
         _, _, loader = self.connect_simulated_guition(self.boot_data((2, 2, 0x55F63774)))
