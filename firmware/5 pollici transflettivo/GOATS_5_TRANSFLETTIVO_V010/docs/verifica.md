@@ -118,3 +118,22 @@ Versione invariata 0.1.0; ESPHome 2026.7.3, ESP-IDF 5.5.5.
 Il picco della coda e' solo quello campionato ai confini dei poll, non un picco
 hardware continuo. Un ciclo al limite non dimostra un overflow. Non vengono
 aggiunti comandi GNSS, scritture SD o stampe nel percorso di ricezione.
+
+## Profili di confronto RGB ON/OFF — 24/11/2026
+
+Due profili diagnostici aggiuntivi condividono i log su UART0/USB CH340C a
+115200 baud. Il ricevitore conserva RX17/230400, buffer, parser e logica RLCD.
+Il firmware normale conserva logger seriale disabilitato e luce 50%.
+
+- Configurazioni risolte: ON conserva il driver RGB e boot luce 50%; OFF non
+  contiene display/font o azioni di accensione e conserva ALWAYS_OFF: PASS.
+- Stessi UART GNSS, componente, versione e callback log nelle due varianti
+  (salvo etichetta RGB_ON/RGB_OFF): PASS (`tests/check_rf_profiles.py`).
+- Callback effettivo dei log: attesa, C/N0 debole, fix ricevuto, zero reale,
+  dati scaduti, metriche UART e checksum separati: PASS host.
+- Compilazione completa RGB ON: PASS.
+- Compilazione completa RGB OFF: PASS.
+- Confronto su hardware e causa del mancato fix: da eseguire.
+
+Il test OFF lascia attiva la board. L'assenza del driver RGB e della luce
+esclude il gruppo display, non tutti i possibili disturbi della board.

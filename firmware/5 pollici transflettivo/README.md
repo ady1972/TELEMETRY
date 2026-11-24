@@ -111,6 +111,63 @@ python GOATS_5_TRANSFLETTIVO_V010/tests/run.py --sanitize
 python GOATS_5_TRANSFLETTIVO_V010/tests/check_contracts.py
 ```
 
+### Confronto con display attivo o escluso
+
+I due YAML di test condividono firmware GPS, pin RX17, baud 230400, buffer,
+criteri RLCD e log USB. Versione sempre 0.1.0; il firmware principale non cambia.
+
+| YAML | Comportamento |
+|---|---|
+| `goats_5_transflettivo_rf_rgb_on.yaml` | Display RGB e pagine GPS attivi, luce 50%; log USB |
+| `goats_5_transflettivo_rf_rgb_off.yaml` | Driver RGB e font assenti, luce mantenuta spenta; log USB |
+
+Nel test OFF la board resta alimentata: non equivale a spegnerla completamente.
+Vengono esclusi inizializzazione/aggiornamento RGB e retroilluminazione, non il
+resto dell'ESP32 e della PSRAM. Un miglioramento ripetibile indica il gruppo
+display/carico grafico come sospetto, senza distinguere ancora RGB, luce,
+carico software o disturbi elettrici. Il solo spegnimento della luce non avrebbe
+escluso il clock RGB, per questo il driver viene rimosso nel profilo OFF.
+
+Procedura:
+
+1. Mantenere lo stesso modulo GPS e la stessa antenna fermi, con identico
+   orientamento. Se alimentato esternamente, lasciarlo acceso durante i cambi
+   firmware e mantenere GND comune con la board. RX del GPS resta scollegato.
+2. Compilare/caricare il test OFF. Aprire i log della porta USB CH340C della
+   scheda in ESPHome Builder, **115200 baud**. Lo schermo non e' pilotato:
+   le misure si leggono soltanto nei log, cercando il tag `gnss_rf`.
+3. Registrare circa 5 minuti di righe **RGB_OFF**. Ripetere con il test ON
+   per una durata simile e infine di nuovo OFF, senza spostare l'antenna.
+   Non attribuire al display un miglioramento che dipenda solo dal tempo
+   trascorso durante l'avviamento del ricevitore.
+4. Confrontare `fix/ok/used`, `seen/listed`, `cno_mean/cno_max/over30`,
+   `gap_max_ms`, `rx_max` ed errori `CS_PVT/CS_SAT/CS_DOP` a tempi `up_s` simili.
+   Contatori e massimi dell'ESP32 ripartono a ogni caricamento/riavvio.
+5. Per tornare all'uso normale ricaricare `goats_5_transflettivo.yaml`.
+
+Entrambi i test scrivono gli stessi tre gruppi di log ogni secondo. `fresh_pvt=0`
+o `fresh_sat=0` segnalano valori non recenti; `cno=NA` distingue l'assenza dei
+dati dai C/N0 misurati. Non vengono registrate le coordinate e non vengono
+inviati comandi al ricevitore. I log aggiungono lo stesso carico a entrambi i
+test; il confronto e' tra questi due profili, non fra una foto vecchia e un log.
+
+Esempio da terminale Windows (sostituire **COM5** con la porta effettiva):
+
+```powershell
+python -m esphome logs goats_5_transflettivo_rf_rgb_off.yaml --device COM5
+```
+
+Per il test ON usare il relativo nome YAML nello stesso comando. Chiudere
+eventuali altri programmi che stanno usando la medesima porta COM.
+
+Controllo ripetibile dei profili, con Python che ha ESPHome installato:
+
+```text
+python GOATS_5_TRANSFLETTIVO_V010/tests/check_rf_profiles.py
+```
+
+## Compilazione del firmware principale
+
 ```powershell
 Set-Location 'C:\percorso\TELEMETRY\firmware\5 pollici transflettivo'
 python -m esphome config goats_5_transflettivo.yaml
