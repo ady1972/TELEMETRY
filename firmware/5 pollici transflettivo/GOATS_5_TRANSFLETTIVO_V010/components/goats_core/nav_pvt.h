@@ -9,12 +9,14 @@ struct NavSample {
   double latitude{0}, longitude{0};
   float speed_kmh{0};
   uint8_t satellites{0}, fix_type{0};
-  bool valid_fix{false};
+  bool valid_fix{false}, fix_ok{false};
 };
 
 struct SatelliteStatus {
   uint32_t received_ms{0};
   uint8_t seen{0}, gps{0}, galileo{0}, beidou{0}, glonass{0}, sbas{0};
+  uint8_t reported{0}, cno_min{0}, cno_max{0}, cno_at_least_30{0};
+  float cno_mean{0};
 };
 
 struct DopStatus {
@@ -31,6 +33,10 @@ class NavPvtParser {
   uint32_t pvt_frames() const { return pvt_frames_; }
   uint32_t duplicates() const { return duplicates_; }
   uint32_t checksum_errors() const { return checksum_errors_; }
+  uint32_t pvt_checksum_errors() const { return pvt_checksum_errors_; }
+  uint32_t sat_checksum_errors() const { return sat_checksum_errors_; }
+  uint32_t dop_checksum_errors() const { return dop_checksum_errors_; }
+  uint32_t other_checksum_errors() const { return other_checksum_errors_; }
   uint32_t oversized_frames() const { return oversized_frames_; }
   uint32_t sat_frames() const { return sat_frames_; }
   uint32_t dop_frames() const { return dop_frames_; }
@@ -53,6 +59,8 @@ class NavPvtParser {
   bool have_itow_{false};
   uint32_t last_itow_{0}, pvt_frames_{0}, duplicates_{0};
   uint32_t checksum_errors_{0}, oversized_frames_{0};
+  uint32_t pvt_checksum_errors_{0}, sat_checksum_errors_{0};
+  uint32_t dop_checksum_errors_{0}, other_checksum_errors_{0};
   SatelliteStatus satellites_;
   DopStatus dop_;
   uint32_t sat_frames_{0}, dop_frames_{0};

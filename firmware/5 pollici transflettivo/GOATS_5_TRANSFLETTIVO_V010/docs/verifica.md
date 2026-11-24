@@ -94,3 +94,27 @@ dinamica nel parser o trasmissione al ricevitore.
 - Compilazione completa ESPHome del firmware GPS: PASS.
 - Compilazione della variante test card: PASS.
 - Ricezione NAV-SAT/DOP, conteggi reali e fix sul dispositivo: da collaudare.
+
+## Diagnostica UART e C/N0 — 24/11/2026
+
+Versione invariata 0.1.0; ESPHome 2026.7.3, ESP-IDF 5.5.5.
+
+- Parser: checksum PVT/SAT/DOP/altri, totale coerente, C/N0 min/media/max,
+  numero >=30, numero elencato e assenza di segnali positivi: PASS.
+- Componente reale con UART simulata: coda iniziale 5000 byte, limite 4096,
+  residuo 904, svuotamento successivo, massimi delle pause, rollover e
+  consegna/deduplicazione PVT invariata: PASS.
+- Test host con AddressSanitizer/UndefinedBehaviorSanitizer e warning come errori: PASS.
+- Callback delle due pagine: alternanza a 10 s, metriche UART, checksum separati,
+  flag fix ricevuto, dati assenti/zero e scadenza C/N0: PASS.
+- Bounding box dei glifi generati: pagine senza tagli o sovrapposizioni sulla
+  stessa riga; contatori uint32 massimi entro i margini: PASS.
+- check_contracts.py: PASS. UART/GPIO17, 230400 baud, PWM 50%, timing RGB,
+  limite 4096 byte per poll, criterio 3D e timestamp PVT invariati.
+- Compilazione/link firmware GPS: PASS.
+- Compilazione/link variante test card: PASS.
+- Cause fisiche degli errori UART e del mancato fix: da verificare sul dispositivo.
+
+Il picco della coda e' solo quello campionato ai confini dei poll, non un picco
+hardware continuo. Un ciclo al limite non dimostra un overflow. Non vengono
+aggiunti comandi GNSS, scritture SD o stampe nel percorso di ricezione.

@@ -75,6 +75,42 @@ verificare la ricezione. In alto compaiono HDOP e frequenza PVT effettiva, misur
 ogni 2 secondi come nella diagnostica RLCD. Non viene inviata alcuna configurazione al ricevitore.
 La luminosita' iniziale e' 50%, con PWM a 1 kHz e correzione gamma 1.0.
 
+### Diagnostica ricezione — 24/11/2026
+
+Due pagine si alternano automaticamente ogni **10 secondi**, senza pulsanti o
+touch. La pagina **1/2** conserva i dati GPS; la **2/2** mostra:
+
+- Tipo di fix e flag **gnssFixOK** ricevuti, satelliti usati, eta' del PVT e Hz.
+  Il flag del ricevitore e il criterio 3D RLCD restano distinti: un 2D con flag
+  valido viene mostrato come tale, senza diventare un fix accettato dal criterio 3D RLCD.
+- Coda UART rimasta dopo l'ultimo poll, capacita' configurata e massimo osservato
+  all'inizio/fine dei poll, in byte e percentuale. Non e' una misura continua
+  del picco reale, ne' un contatore di overflow hardware o byte persi.
+- Ultimo e massimo intervallo fra gli inizi dei poll. Queste pause includono
+  l'esecuzione degli altri componenti, compreso il renderer. I cicli "al limite"
+  contano le letture che raggiungono 4096 byte e lasciano dati in coda; non sono
+  automaticamente perdite di dati.
+- Errori checksum separati **PVT / SAT / DOP / Altri**, e contatori dei messaggi
+  validi. La classificazione dipende dall'header ricevuto: un header corrotto
+  puo' cambiare la categoria. Il totale nella pagina 1/2 comprende tutti gli UBX.
+- C/N0 minimo, medio e massimo dei satelliti visti, in **dBHz**, quanti hanno
+  C/N0 >=30 e quanti sono complessivamente elencati in NAV-SAT. La media usa solo
+  valori C/N0 >0, come il conteggio RLCD; senza segnali positivi o dati recenti
+  i valori C/N0 mostrano `--`. Il valore 30 e' un riferimento diagnostico,
+  non una garanzia di fix.
+
+Contatori e massimi ripartono da zero a ogni avvio. Per confronti fare una foto
+della pagina 2/2 dopo una durata simile, mantenendo posizione e antenna costanti.
+Questa build misura il comportamento: non cambia pin, baud, criterio di fix,
+budget di ricezione o configurazione del ricevitore.
+
+Test host ripetibili (G++ disponibile):
+
+```text
+python GOATS_5_TRANSFLETTIVO_V010/tests/run.py --sanitize
+python GOATS_5_TRANSFLETTIVO_V010/tests/check_contracts.py
+```
+
 ```powershell
 Set-Location 'C:\percorso\TELEMETRY\firmware\5 pollici transflettivo'
 python -m esphome config goats_5_transflettivo.yaml
