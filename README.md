@@ -1,5 +1,15 @@
 # GOATS Telemetry — Pacchetti USB
 
+## RLCD 4.2 monocromatico RC3.2 — Collaudo USB
+
+- [GOATS RT Manager Windows V5.4.15.19](GOATS-RT-Manager-Windows-V5.4.15.19.zip)
+- [RLCD 4.2 monocromatico RC3.2](GOATS-RLCD_MONO_42-RC3.2.zip)
+
+Nel Manager, aprire **Firmware USB**, rilevare il laptimer e selezionare
+**Scarica RC3.2 da GitHub**. Per il percorso da disco, estrarre insieme
+il BIN e il manifesto JSON. Build ESPHome 2026.7.3 verificata, collaudo
+USB sul dispositivo da eseguire.
+
 ## RC3.1 — Ripartenza dopo il salvataggio
 Build da [e9d5c97](https://github.com/ady1972/TELEMETRY/commit/e9d5c97) con ESPHome 2026.7.3.
 
