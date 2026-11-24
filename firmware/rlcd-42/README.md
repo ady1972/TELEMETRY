@@ -1,5 +1,27 @@
 # GOATS RLCD 4.2"
 
+## RC3.2 — Candidato per il collaudo della chiusura sessione
+
+[Configurazione ESPHome](goats_rlcd_rc3_2.yaml) · [File del firmware](GOATS_RLCD_RC3_2/).
+Tenere lo YAML e la cartella affiancati in ESPHome.
+Build ESPHome 2026.7.3 e test software superati. Per aggiornare via USB
+usare il [Manager Windows V5.4.15.19](../../windows/v5.4.15.19-burst4/README.md).
+[Scarica il pacchetto USB RC3.2](https://raw.githubusercontent.com/ady1972/TELEMETRY/rc3-usb-packages/GOATS-RLCD_MONO_42-RC3.2.zip).
+
+- In Racing, premere brevemente **KEY** (tasto di navigazione) per alternare
+  **DELTA / LAP TIME**. Premere brevemente **BOOT** per aprire il menu.
+  In Racing, KEY lungo non esegue azioni.
+  La scorciatoia vale fino al riavvio. Per impostare la modalità di avvio,
+  usare **Opzioni gara → Modalità schermata**.
+- Salvataggio e scarto partono dal ciclo principale dopo la conferma.
+  Durante il salvataggio, la coda GPS residua viene scritta a gruppi di otto
+  punti prima di chiudere il CSV. Lo scarto riutilizza i buffer dell’archivio
+  invece di allocare circa 7 KB sullo stack. Il cronometro si riarma sullo stesso circuito.
+- Per il collaudo, salvare manualmente una sessione con microSD, controllare
+  il CSV e cronometrare un altro giro sullo stesso circuito. Ripetere per
+  lo scarto e il salvataggio automatico. Se il dispositivo si riavvia, acquisire
+  le ultime righe `SAVE_DIAG` e la prima riga `boot reset_reason` su UART0.
+
 ## RC3.1 — Candidato da collaudare
 
 Per ESPHome, tenere lo YAML accanto alla cartella con i componenti e le risorse.

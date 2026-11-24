@@ -1,0 +1,21 @@
+GOATS RT Manager V5.4.10.4
+Build: MAP OVERZOOM
+
+Migliorie Analisi / Mappa:
+- Satellite resta il layer predefinito;
+- limite nativo satellite impostato a zoom 19;
+- zoom utente consentito fino a 23 tramite overzoom Leaflet;
+- oltre il livello nativo non vengono richiesti tile inesistenti:
+  viene ingrandita l'ultima immagine disponibile;
+- aggiunto layer Stradale OpenStreetMap con la stessa logica di overzoom;
+- aggiunto layer Solo traccia come fallback senza cartografia;
+- controllo livelli in alto a destra permette di cambiare base;
+- zoom più progressivo (zoomSnap 0.25 / zoomDelta 0.5).
+
+Restano invariati:
+- filtro giri basato sul Giro 2;
+- Best Lap permanente;
+- colonne centrate;
+- settori S1/S2 sulla mappa;
+- analisi multigiro e cursore sincronizzato;
+- launcher/venv fix.

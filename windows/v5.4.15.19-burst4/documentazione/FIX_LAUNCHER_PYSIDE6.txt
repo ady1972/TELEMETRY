@@ -1,0 +1,12 @@
+GOATS RT Manager V5.4.10.4 - Launcher Fix
+
+Correzioni:
+- se .goats_venv esiste, AVVIA usa sempre il Python del venv;
+- al primo avvio il Python globale serve solo a creare/riparare il venv;
+- PySide6, pyserial e requests vengono verificati/installati dal bootstrap;
+- DIAGNOSTICA usa esclusivamente .goats_venv;
+- eliminato il falso messaggio "MODULI OK" dopo un errore PySide6;
+- INSTALLA_DIPENDENZE passa dallo stesso bootstrap, evitando installazioni
+  accidentali nel Python globale.
+
+Le modifiche TABLE_BEST restano invariate.

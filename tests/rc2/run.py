@@ -18,8 +18,9 @@ with tempfile.TemporaryDirectory() as tmp:
     for file,include in [('test_clock.cpp',rlcd),('test_dates.cpp',rlcd),('test_queue.cpp',guition)]:
         exe=Path(tmp)/file.removesuffix('.cpp')
         run(['g++','-std=c++17','-Wall','-Wextra','-Werror','-Wno-misleading-indentation','-I',root/'tests/rc2/stubs','-I',root/'tests/guition_port/stubs','-I',include,root/'tests/rc2'/file,'-o',exe]);run([exe])
-    exe=Path(tmp)/'test_rlcd_summary'
-    run(['g++','-std=c++17','-Wall','-Wextra','-Werror','-Wno-misleading-indentation','-I',root/'tests/guition_port/stubs','-I',rlcd,root/'tests/rc2/test_rlcd_summary.cpp','-o',exe]);run([exe])
+    for folder in (rlcd,rlcd.parent/'GOATS_RLCD_RC3_2'):
+        exe=Path(tmp)/'test_rlcd_summary'
+        run(['g++','-std=c++17','-Wall','-Wextra','-Werror','-Wno-misleading-indentation','-I',root/'tests/guition_port/stubs','-I',folder,root/'tests/rc2/test_rlcd_summary.cpp','-o',exe]);run([exe])
     for folder in (rlcd,guition):
         exe=Path(tmp)/'test_screen_mode'
         run(['g++','-std=c++17','-Wall','-Wextra','-Werror','-I',root/'tests/rc2/screen_mode_stubs','-I',folder,root/'tests/rc2/test_screen_mode.cpp','-o',exe]);run([exe])
@@ -28,6 +29,7 @@ with tempfile.TemporaryDirectory() as tmp:
     run([sys.executable,root/'tests/rc2/test_guition_summary_ui.py'])
     run([sys.executable,root/'tests/rc2/test_storage.py'])
     run([sys.executable,root/'tests/rc2/test_rlcd_restart.py'])
+    run([sys.executable,root/'tests/rc2/test_rlcd_restart.py','GOATS_RLCD_RC3_2'])
     run([sys.executable,root/'tests/guition_port/prepare_host.py',tmp,'goats_guition_43_rc2'])
     exe=Path(tmp)/'test_port'
     run(['g++','-std=c++17','-Wall','-Wextra','-Wno-misleading-indentation','-DGOATS_RC2_SUMMARY','-I',tmp,'-I',root/'tests/guition_port/stubs','-I',guition,root/'tests/guition_port/test_port.cpp','-o',exe]);run([exe])

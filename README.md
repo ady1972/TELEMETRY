@@ -2,9 +2,14 @@
 
 Sistema di telemetria e cronometraggio GPS per kart.
 
+## RC3.2 RLCD monocromatico — Collaudo USB
+
+- [Firmware RLCD RC3.2](firmware/rlcd-42/README.md)
+- [GOATS RT Manager Windows V5.4.15.19](https://raw.githubusercontent.com/ady1972/TELEMETRY/rc3-usb-packages/GOATS-RT-Manager-Windows-V5.4.15.19.zip)
+
 ## RC3.2 GUITION — Collaudo USB
 
-Il Manager nei [sorgenti di `main`](windows/v5.4.15.18-burst4/) scarica RC3.2
+Il [Manager Windows V5.4.15.19](windows/v5.4.15.19-burst4/) scarica RC3.2
 per il GUITION 4.3. [Dettagli e firmware](firmware/guition-43/README.md).
 
 ## RC3.1 — Sorgenti e download
