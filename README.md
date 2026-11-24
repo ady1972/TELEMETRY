@@ -2,6 +2,12 @@
 
 Sistema di telemetria e cronometraggio GPS per kart.
 
+## RLCD monocromatico — Canale di collaudo USB
+
+Il [Manager Windows V5.4.15.20](https://raw.githubusercontent.com/ady1972/TELEMETRY/rc3-usb-packages/GOATS-RT-Manager-Windows-V5.4.15.20.zip)
+scarica il firmware dal catalogo firmato RLCD, a partire da
+[RC3.3](firmware/rlcd-42/README.md), e avvia il riavvio dopo la verifica della scrittura.
+
 ## RC3.2 RLCD monocromatico — Collaudo USB
 
 - [Firmware RLCD RC3.2](firmware/rlcd-42/README.md)

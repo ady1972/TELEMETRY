@@ -4,6 +4,7 @@ Ogni versione è conservata in una cartella con il progetto completo.
 
 | Versione | Progetto |
 |---|---|
+| V5.4.15.20 BURST4 — catalogo RLCD firmato e riavvio dopo il flash | [v5.4.15.20-burst4](v5.4.15.20-burst4/README.md) |
 | V5.4.15.19 BURST4 — aggiornamento USB RLCD RC3.2 | [v5.4.15.19-burst4](v5.4.15.19-burst4/README.md) |
 | V5.4.15.18 BURST4 — avvisi firmware e riavvio dalla modalità BOOT | [v5.4.15.18-burst4](v5.4.15.18-burst4/README.md) |
 | V5.4.15.17 BURST4 — changelog e confronto del firmware prima della scrittura USB | [v5.4.15.17-burst4](v5.4.15.17-burst4/README.md) |

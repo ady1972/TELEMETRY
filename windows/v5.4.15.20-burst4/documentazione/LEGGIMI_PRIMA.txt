@@ -1,0 +1,9 @@
+GOATS RT MANAGER V5.4.14.1 CORRETTO
+
+1. Estrai tutto lo ZIP in una cartella nuova.
+2. Avvia AVVIA_GOATS_RT_MANAGER_V5.bat dalla cartella estratta (non dallo ZIP).
+3. Apri Importa Sessioni: il pannello MICROSD VIA USB SERIALE appare in alto.
+4. Seleziona COM e premi LEGGI MICROSD.
+5. Per eliminare dalla SD serve il firmware RLCD TEST24 con GSD_DELETE.
+
+Test hardware non eseguito. Configurazione GNSS non ancora implementata.
