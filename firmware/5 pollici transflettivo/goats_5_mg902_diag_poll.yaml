@@ -1,0 +1,11 @@
+# Variante opzionale: interrogazioni GNSS di sola lettura, TX10 -> RX GPS.
+# NON usare GPIO10 con una microSD inserita (e' il CS della SD).
+# Copiare anche goats_5_mg902_diag.yaml e GOATS_5_MG902_DIAG_V010.
+substitutions:
+  device_name: goats-5-mg902-diag-poll
+  gps_poll: "true"
+packages:
+  base: !include goats_5_mg902_diag.yaml
+uart:
+  - id: !extend gps_uart
+    tx_pin: GPIO10

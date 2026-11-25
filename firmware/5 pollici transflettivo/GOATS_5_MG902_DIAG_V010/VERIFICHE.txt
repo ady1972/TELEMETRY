@@ -1,0 +1,38 @@
+GOATS 5 MG902 DIAG-R1 / progetto 0.1.0
+Verifiche software: 25 novembre 2026
+
+ESPHome 2026.7.3, ESP-IDF 5.5.5, target ESP32-S3.
+
+1. Test host C++17 con -Wall -Wextra, AddressSanitizer e UndefinedBehaviorSanitizer:
+   74/74 verifiche superate; 40.000 iterazioni fuzz del parser.
+   Regressioni: iTOW congelato, DOP/STATUS scaduti, dispersione in movimento,
+   risposte VALGET parziali, tentativi limitati e satelliti visti scaduti.
+
+2. ESPHome config: entrambi gli YAML validi.
+   Asserzioni sulla configurazione risolta dei due profili superate:
+   - RX17, 230400 baud, buffer 8192, 25 Hz attesi;
+   - principale senza TX/poll; opzionale TX10/poll;
+   - nessun Wi-Fi, OTA, web server, captive portal;
+   - luminosita' iniziale 50%, PCLK 32,4 MHz e porch 24/136/40, 2/21/37;
+   - sei pagine LVGL, nessuna pausa, aggiornamenti parziali, progetto 0.1.0.
+   Controlli negativi: poll senza TX e UART a baud diverso da quello atteso
+   rifiutati dalla validazione del componente.
+
+3. Compilazioni completate:
+   - principale: config_hash=0x3a9f32a1
+     RAM statica 68179 byte, flash applicazione 623267 byte.
+   - profilo poll: config_hash=0xa967a126
+     RAM statica 68187 byte, flash applicazione 623311 byte.
+     Compilato tramite wrapper temporaneo che include il relativo YAML e
+     cambia soltanto build_path; nessuna modifica alle impostazioni funzionali.
+     Il wrapper non e' incluso nel pacchetto.
+
+4. Binari factory conservati separatamente dal pacchetto sorgenti:
+   principale SHA256
+   1a91c919816168bcc1c825826482efe86944371359872306dd0b96ee35ff9490
+   poll SHA256
+   86c4b9a802d82c3f788324375ebd386304fd4787973f202149164e02c50717e3
+
+Nessun collaudo hardware. L'assenza del nero dopo uso prolungato e il fix GNSS
+non possono essere confermati dalle verifiche software. Conservare i log USB
+(display_diag e ubx_diag) durante la prova sul dispositivo.
