@@ -15,23 +15,13 @@ con `fontTools.varLib.instancer.instantiateVariableFont` senza modificare
 i contorni dei glifi. SHA-256 del TTF locale:
 `288e36c14ddb22beb83317e7089b497586e1c190abdc7cb46b81f4c4cafc3a7c`.
 
-Menu e avvisi ESPHome leggono il TTF locale e usano `bpp: 1`.
-Per Racing, `generate_native.py` usa Pillow/FreeType, layout BASIC e maschere
-monocromatiche alla dimensione finale; ogni pixel del glifo resta un pixel
-del pannello. Coordinate, avanzamento e limiti reali dell'inchiostro sono
-conservati separatamente. Non vengono applicati resize, correzioni morfologiche,
-dilatazioni, antialiasing o dithering temporale.
+Tutte le schermate usano il motore `Font` di ESPHome con `bpp: 1`.
+Le dimensioni (13, 16, 20, 28, 36, 42, 44, 52, 60, 64, 72, 78, 82 px) e la
+selezione del font in funzione del riquadro sono quelle della RLCD RC3.3.
+Il font viene rasterizzato da ESPHome alla dimensione finale: non si applicano
+resize, dilatazioni, correzioni dei tratti o dithering temporale.
 
-Sono incluse dimensioni 13–95 px. I caratteri latini dei nomi circuiti sono
-disponibili nei font piccoli; un codepoint non disponibile diventa un `?`.
-La sequenza UTF-8 viene consumata per intero, evitando tagli a metà carattere.
-
-Per rigenerare, con Pillow installato:
-
-```sh
-python GOATS_RLCD_COLOR_RC3_3/fonts/generate_native.py
-```
-
-La riproducibilità byte per byte del raster richiede la stessa versione
-di Pillow/FreeType. La compilazione ESPHome usa il raster già incluso e
-non richiede questo passaggio.
+Il TTF locale evita il download dei font Google durante la compilazione.
+Non è necessario un generatore separato dei glifi. Nel test host del layout
+si usano `glyph_to_glyphinfo` e la classe C++ `Font` della stessa versione
+ESPHome per produrre le anteprime e confrontare i due renderer.

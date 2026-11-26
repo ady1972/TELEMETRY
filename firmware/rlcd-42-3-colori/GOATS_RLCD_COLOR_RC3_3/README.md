@@ -21,10 +21,18 @@ Baseline: `firmware/rlcd-42/GOATS_RLCD_RC3_3`, commit di riferimento
   in piccoli gruppi, salvataggio/scarto e riarmo senza riavvio.
 - Catalogo circuiti, archivio, esportazione USB e modalità disco microSD.
 
-Manteniamo l'hardware e la geometria Racing COLOR: velocità a sinistra,
-DELTA/BEST a destra, campo principale sotto, settori in basso. In modalità
-DELTA si scambiano tempo e delta, incluse le etichette. Il rosso evidenzia
-il delta negativo; lo zero non viene più trattato come negativo.
+Tutte le schermate usano il rendering della RLCD RC3.3: stessa geometria,
+stesse coordinate, etichette, riquadri e dimensioni dei font. In Racing:
+
+- campo principale tempo/DELTA in alto, con settori immediatamente sotto;
+- DELTA/LAP TIME e BEST a sinistra, velocità a destra;
+- GPS/HDOP, nome circuito e icona batteria nella barra inferiore.
+
+Sono identici anche menu, riepiloghi, schermate di conferma, post-giro, Best Lap
+e USB. Le sole differenze di presentazione sono identità COLOR, indicazioni dei
+quattro pulsanti e rosso nei riempimenti dei delta negativi. La batteria resta
+non disponibile se non esiste un partitore: si mantiene lo stesso spazio e
+l'icona senza inventare una percentuale.
 
 Le cartelle V0.40.5 e V0.40.6 TEST26 e i firmware monocromatici restano intatti.
 Questa è una nuova variante da collaudare, non una certificazione di stabilità.
@@ -45,25 +53,25 @@ L'aggiornamento differenziale invia solo i gruppi 6×2 pixel fisici cambiati:
 - righe adiacenti raggruppate quando possibile nella stessa finestra;
 - un solo aggiornamento completo al primo frame, nessun reset/blank periodico.
 
-Nel test di rendering con tempo, velocità e delta modificati insieme: **1.998
-byte contro 3.084 byte** del precedente inviluppo per riga, sullo stesso frame
-finale. È una misura software di traffico, non una misura di flicker o frame
-rate sul display. TE resta scollegato: la scansione fisica del pannello non è
-sincronizzata. La riduzione dei piccoli refresh visibili va verificata al banco.
-Il lampeggio configurato di post-giro/Best Lap resta intenzionale.
+Il controllo del driver verifica che ogni gruppo cambiato venga trasmesso una
+sola volta e che i gruppi immutati non siano riscritti. È una verifica software:
+TE resta scollegato e la scansione fisica del pannello non è sincronizzata.
+La riduzione dei piccoli refresh visibili va confermata al banco; i lampeggi
+configurati di post-giro/Best Lap restano intenzionali.
 
 ## Definizione dei caratteri
 
-Stessa famiglia Roboto Condensed Bold, rasterizzata a **1 bit e alla dimensione
-nativa**. Il font più grande che entra viene scelto sui limiti reali dell'inchiostro:
-nessuna compressione orizzontale, ingrandimento di bitmap, riparazione dei fori,
-dithering o alternanza temporale dei pixel. Le vecchie etichette laterali
-rimangono bitmap native; numeri, segni, punti e testi piccoli usano i nuovi glifi.
+Tutti i valori e testi usano il motore font nativo di ESPHome, **Roboto Condensed
+Bold a 1 bit**, con le stesse dimensioni e la stessa selezione del font della
+RC3.3. Nessuna compressione orizzontale, ingrandimento di bitmap, riparazione dei
+fori o dithering temporale. Etichette laterali e relativi bitmap sono quelli
+del riferimento RC3.3. Il TTF è locale, con licenza e provenienza in `fonts/`.
 
-La risoluzione fisica resta 400×300: il miglioramento riguarda rasterizzazione,
-allineamento e assenza di deformazioni, non un aumento dei pixel del pannello.
-Menu, Info, splash e avvisi usano il TTF locale. Licenza e provenienza sono in
-`fonts/`. I glifi Racing pregenerati sono inclusi: non serve Pillow per compilare.
+La risoluzione fisica resta 400×300. Le anteprime in `anteprime/` eseguono il
+rendering effettivo degli YAML con la classe Font di ESPHome, usando dati
+simulati. Non sono foto del pannello. Un test confronta i comandi di disegno e
+i pixel logici della variante COLOR con la RC3.3 per tutte le pagine e nelle
+due modalità Racing, ammettendo solo le differenze di testo/colore sopra.
 
 ## Collegamenti, invariati dalla COLOR TEST26
 
@@ -106,7 +114,7 @@ goats_42_color_rc3_3.yaml
 GOATS_RLCD_COLOR_RC3_3/
 ```
 
-Aprire lo YAML esterno. Componenti, TTF, glifi e splash sono locali. ESPHome,
+Aprire lo YAML esterno. Componenti, TTF e splash sono locali. ESPHome,
 ESP-IDF e dipendenze TinyUSB richiedono il normale download alla prima build.
 
 [Pacchetti sorgenti e binario factory su GitHub](https://github.com/ady1972/TELEMETRY/tree/codex/rlcd-color-rc3-3-display/firmware/rlcd-42-3-colori/GOATS_RLCD_COLOR_RC3_3/download).

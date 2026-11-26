@@ -5,7 +5,8 @@
 Allineamento al motore e alle funzioni dell'ultima RLCD RC3.3, con pinout
 del progetto completo ESP32-S3 da **16 MB** e display ST7306 tricolore.
 Aggiornamento differenziale delle sole zone cambiate e caratteri nativi
-senza compressione orizzontale o ritocchi dei pixel.
+senza compressione orizzontale o ritocchi dei pixel. Layout di tutte le schermate
+identico alla RC3.3 monocromatica, compresa la disposizione Racing.
 
 [YAML ESPHome](goats_42_color_rc3_3.yaml) ·
 [Guida, collegamenti e verifiche](GOATS_RLCD_COLOR_RC3_3/README.md).

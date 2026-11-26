@@ -27,7 +27,7 @@ for pin in ['GPIO10','GPIO9','GPIO8','GPIO11','GPIO12','GPIO4','GPIO5','GPIO6','
     assert pin in color,pin
 assert 'name: goats_rt.rlcd42_color' in color and 'firmware_version: "RC3.3"' in color
 assert 'FW: COLOR ${firmware_version}' in color and 'COLOR ${firmware_version}' in color
-assert 'race.delta_mode=goats_screen_mode::delta()' in color
+assert 'const bool screen_delta=goats_screen_mode::delta()' in color
 assert 'best_active(now)' in color and 'text_visible' in color
 old=PORT.parent/'GOATS_V0406_TEST26/components/goats_st7306'
 assert (PORT/'components/goats_st7306/pixel_pack.h').read_bytes()==(old/'pixel_pack.h').read_bytes()

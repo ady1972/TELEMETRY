@@ -45,10 +45,6 @@ void write_byte(uint8_t){} void write_array(const uint8_t*,size_t){}
  subprocess.run(['g++','-std=c++17','-Wall','-Wextra','-Werror','-Wno-unused-variable',
   '-fsanitize=address,undefined','-fno-omit-frame-pointer','-I'+str(t),'-I'+str(COMP),
   str(COMP/'goats_st7306.cpp'),str(ROOT/'tests/rlcd_color_rc3/test_display.cpp'),'-o',str(exe)],check=True)
- args=[str(exe)]
- if os.environ.get('COLOR_PREVIEW_DIR'):
-  out=Path(os.environ['COLOR_PREVIEW_DIR']);out.mkdir(parents=True,exist_ok=True)
-  args +=[str(out/'lap.ppm'),str(out/'delta.ppm')]
- subprocess.run(args,check=True)
-print('PASS: real driver and native renderer under ASan/UBSan; no unchanged-group writes,')
-print('coalesced SPI windows, glyph bounds/ink, UTF-8, screen mode, blink and static pages')
+ subprocess.run([str(exe)],check=True)
+print('PASS: real differential driver under ASan/UBSan; no unchanged-group writes,')
+print('coalesced SPI windows, full first frame, static pages, independent changed pixels')

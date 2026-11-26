@@ -11,17 +11,34 @@
 - V0.40.5, COLOR TEST26 e le versioni monocromatiche non modificate.
 - Target confermato dall'utente: ESP32-S3 **16 MB**, nessuna PSRAM abilitata.
 
+## Layout identico alla RC3.3
+
+La prima bozza della PR conservava la vecchia disposizione COLOR. In seguito
+alla correzione richiesta dall'utente, è stata sostituita con l'intera lambda
+di rendering della RC3.3, comprendente Racing, menu, conferme, sessioni,
+post-giro, Best Lap e USB. Il driver ora si occupa solo del trasporto dei pixel,
+senza un renderer Racing alternativo.
+
+Sono identici coordinate, riquadri, posizioni delle etichette, dimensioni e
+selezione dei font. Le sole differenze ammesse nel confronto sono:
+
+- identità `COLOR RC3.3` e istruzioni dei quattro tasti;
+- canale rosso nei quattro riempimenti relativi ai delta negativi.
+
+Il sensore batteria resta non disponibile sull'hardware senza partitore, ma
+il suo riquadro/icona rimane nella posizione originale della RC3.3.
+
 ## Compilazione effettiva
 
 - Validazione ESPHome 2026.7.3: **PASS**.
 - Compilazione/link ESP32-S3, ESP-IDF 5.5.5: **PASS**.
-- Applicazione: **869.623 byte**, 10,7% dello slot da 8.126.464 byte.
+- Applicazione: **625.675 byte**, 7,7% dello slot da 8.126.464 byte.
 - RAM statica: **165.555 byte**, 48,4% dei 341.760 byte riportati dal linker.
   I picchi di RAM durante registrazione e trasferimento non sono misurati.
-- Generati immagine combinata factory, immagine app ed ELF. Nel pacchetto USB
-  si consegna la factory da scrivere a **0x0**, per la scheda da 16 MB.
-- Unico avviso di configurazione: formato `image:` storico deprecato da
-  ESPHome, ancora valido per questa versione; nessun errore di compilazione.
+- Generati factory, app ed ELF. Il pacchetto USB contiene la factory da scrivere
+  a **0x0**, esclusivamente per la scheda da 16 MB.
+- Avviso noto: formato storico `image:` deprecato da ESPHome, ancora valido
+  nella versione usata; nessun errore di compilazione.
 - Nessun firmware caricato automaticamente su un dispositivo.
 
 ## Test software
@@ -31,62 +48,63 @@ python tests/rlcd_color_rc3/check_contracts.py
 python tests/rlcd_color_rc3/run.py
 python tests/rlcd_color/check_reference.py
 python tests/rc2/run.py
+# Con Python dell'ambiente ESPHome 2026.7.3:
+python tests/rlcd_color_rc3/test_layout.py
 ```
 
-Tutti **PASS**.
+Tutti **PASS**. Le suite storiche di acquisizione e sessioni sono state eseguite
+nella stessa revisione funzionale: questa correzione successiva cambia soltanto
+il rendering e i test delle schermate, con parità dei 19 header ricontrollata.
 
 - Parità RC3.3 dei sorgenti, parser GNSS passivo, configurazione UART, scheduling,
   pinout, versione splash/Info, assenza di PSRAM/ADC inventato/Wi-Fi/OTA.
 - Date e ora italiana/DST, metadati persistenti, massima e media per giro,
   selezione BEST, preferenza DELTA/LAP TIME in NVS.
 - Save/save/discard e nuovi passaggi sullo stesso traguardo senza riavvio,
-  richiesta di chiusura differita e scarto fallito che conserva la sessione.
+  chiusura differita e scarto fallito che conserva la sessione.
 - Suite storica: CSV 25 Hz, GSA3, recupero NVS, code, chiusura FAT, errori SD/NVS.
 - Mapping di tutti i pixel ST7306 nei tre colori e pattern misti, limiti pannello.
-- Driver reale e nuovo renderer eseguiti su host con **AddressSanitizer e
-  UndefinedBehaviorSanitizer**: finestre SPI nei limiti, nessun gruppo immutato
-  o duplicato trasmesso, nessun dato cambiato perso, frame uguale a quello inviato.
+- Driver reale con **AddressSanitizer e UndefinedBehaviorSanitizer**: finestre
+  SPI nei limiti, nessun gruppo immutato/duplicato trasmesso, nessun gruppo
+  cambiato perso e framebuffer uguale al contenuto inviato.
 - Primo frame: una sola finestra completa. Frame identico: zero finestre e zero
   byte. Rettangolo stretto alto 200 righe: una finestra anziché 200.
-- 120 sequenze pseudo-casuali di cambiamenti, aggiornamenti distanti, passaggi
-  LAP TIME/DELTA, post-giro lampeggiante e pagina statica.
-- Bounds dei glifi, segni e decimali, controllo che il numero dei pixel disegnati
-  corrisponda esattamente ai bitmap nativi, fallback e troncamento UTF-8.
+- 120 sequenze pseudo-casuali e pixel distanti: solo i due gruppi cambiati
+  vengono trasmessi, per un totale di 6 byte di pixel.
 
-Il test di regressione delle sessioni condiviso ora accetta anche una cartella
-firmware completa; il suo comportamento sulle versioni storiche rimane testato.
+## Confronto dei layout e anteprime
 
-## Refresh e anteprime
+`test_layout.py` confronta l'intera lambda COLOR con quella della RC3.3,
+normalizzando soltanto i testi di modello/tasti e i quattro riempimenti rossi.
+Poi esegue i due renderer effettivi su host con la classe C++ **Font originale
+di ESPHome**, glifi generati con `glyph_to_glyphinfo` e lo stesso TTF locale.
+ASan e UBSan sono abilitati anche per questo test.
 
-Il caso simulato modifica insieme tempo, velocità e delta. Confronto sullo
-stesso framebuffer finale:
+**397 scenari superati**: tutte le 17 pagine, sei posizioni del cursore, le due
+modalità Racing, delta negativo/zero/positivo/non disponibile, post-giro,
+lampeggio, Best Lap e USB. Vengono confrontati i comandi e gli ancoraggi di
+disegno, le dimensioni dei font e i pixel logici normalizzando il canale rosso.
+I pixel dei testi di modello/aiuto, volutamente differenti, sono esclusi dal
+confronto delle rispettive fasce; i loro ancoraggi rimangono confrontati.
 
-| Metodo | Byte di pixel trasmessi |
-|---|---:|
-| Vecchio inviluppo sinistra/destra per ogni riga | 3.084 |
-| Nuovi gruppi effettivamente modificati | 1.998 |
-
-Sono dati di payload, esclusi comandi SPI. Non sono misure di velocità reale
-né di flicker sul pannello. Il test verifica che i gruppi immutati fra aree
-distanti non vengano più riscritti; il controller fisico non è emulato.
-
-Anteprime dal renderer C++ effettivo, a risoluzione nativa, con valori simulati:
+Anteprime native con valori simulati, prodotte dagli YAML effettivi:
 
 - [LAP TIME](anteprime/lap.png)
 - [DELTA](anteprime/delta.png)
 
-Controllati dimensioni/posizione delle cifre e dei punti nei riquadri. Nessuna
-riscalatura orizzontale, interpolazione del raster o riparazione dei tratti.
+Queste sostituiscono le anteprime con la vecchia disposizione COLOR. Non sono
+foto del pannello. La classe Font rasterizza nativamente a 1 bit: nessuna
+riscalatura orizzontale, interpolazione o riparazione dei tratti.
 
 ## Prove ancora richieste
 
-- Avvio, resa dei colori e assenza di refresh indesiderati sul vero ST7306.
+- Avvio, resa dei colori e riduzione del refresh indesiderato sul vero ST7306.
 - Leggibilità al sole, segni/punti, cambio modalità e menu.
 - Sessioni consecutive con GPS e SD, salvataggio manuale/automatico, scarto,
   CSV, circuiti e trasferimento USB/MSC.
 - Memoria dinamica e continuità dell'acquisizione sotto carico.
 
 TE resta scollegato; non si dichiara sincronizzazione con la scansione del
-pannello. I lampeggi Best Lap/post-giro configurati rimangono intenzionali.
-La compilazione e i test host non certificano la soluzione del difetto visivo
-osservato né l'affidabilità in pista. Nessuna prova hardware effettuata.
+pannello. I lampeggi Best Lap/post-giro rimangono intenzionali. I test host non
+certificano la soluzione del difetto visivo né l'affidabilità in pista.
+Nessuna prova hardware effettuata.
