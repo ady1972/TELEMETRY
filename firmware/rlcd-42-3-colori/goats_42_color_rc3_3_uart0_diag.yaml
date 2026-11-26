@@ -1,0 +1,48 @@
+# Temporary GPS inspection without buttons. Uses the exact RC3.3 GNSS/core.
+# Keep both YAMLs together; flash the standard YAML to return to Racing.
+packages:
+  rc33: !include goats_42_color_rc3_3_uart0.yaml
+
+esphome:
+  friendly_name: GOATS 4.2 COLOR RC3.3 GPS UART0 DIAG
+  comment: "Diagnostica senza tasti; logger seriale off come COLOR V0.40.5; GPS UART0"
+
+display:
+  - id: !extend rlcd
+    lambda: |-
+      it.fill(COLOR_OFF);
+      const auto W=COLOR_ON;
+      it.print(200,8,id(f28),W,TextAlign::TOP_CENTER,"RC3.3 - GPS UART0");
+      if(goats_usb_msc::active()){
+        it.print(200,100,id(f20),W,TextAlign::TOP_CENTER,"USB MSC ATTIVO");
+        it.print(200,140,id(f20),W,TextAlign::TOP_CENTER,"DIAGNOSTICA GPS SOSPESA");
+        return;
+      }
+      const auto &s=goats_diag::data();
+      const auto &b=goats_b::state();
+      const uint32_t now=millis();
+      const bool pvt=s.last_pvt && uint32_t(now-s.last_pvt)<3000U;
+      const bool fix=pvt && s.fix_type>=3 && b.fix_ok && s.used>=4;
+      goats_uart_baud::refresh(*id(gps_uart));
+      char row[80];
+      auto print_row=[&](int y){it.print(12,y,id(f20),W,TextAlign::TOP_LEFT,row);};
+      snprintf(row,sizeof(row),"U%u SET:%lu HW:%lu",goats_uart_baud::port,(unsigned long)id(gps_uart).get_baud_rate(),(unsigned long)goats_uart_baud::actual_baud);
+      print_row(49);
+      snprintf(row,sizeof(row),"RX: %lu byte  UBX: %lu",(unsigned long)s.bytes,(unsigned long)s.good);
+      print_row(76);
+      snprintf(row,sizeof(row),"PVT: %.1f Hz  POLL: %lu",s.pvt_hz,(unsigned long)s.poll_calls);
+      print_row(103);
+      snprintf(row,sizeof(row),"SAT: %u/%u  FIX: %u  OK: %u",s.used,s.seen,s.fix_type,(unsigned)b.fix_ok);
+      print_row(130);
+      snprintf(row,sizeof(row),"HDOP: %.2f  CKERR: %lu",s.hdop,(unsigned long)s.bad);
+      print_row(157);
+      snprintf(row,sizeof(row),"ACK:%lu NAK:%lu ERR:%ld/%ld",(unsigned long)s.cfg_ack,(unsigned long)s.cfg_nak,(long)goats_uart_baud::apply_error,(long)goats_uart_baud::readback_error);
+      print_row(184);
+      if(s.last_pvt)snprintf(row,sizeof(row),"ULTIMO PVT: %lu ms",(unsigned long)(now-s.last_pvt));
+      else snprintf(row,sizeof(row),"NO PVT - UPTIME: %lus",(unsigned long)(now/1000));
+      print_row(211);
+      const char *status=(id(gps_uart).is_failed() || goats_uart_baud::apply_error || goats_uart_baud::readback_error)?"ERRORE DRIVER UART":
+        s.bytes==0?"NESSUN BYTE DAL GPS":s.good==0?"BYTE RX, UBX ASSENTE":
+        !pvt?"UBX PRESENTE, PVT ASSENTE":fix?"FIX 3D PRESENTE":"PVT PRESENTE, ATTESA FIX";
+      it.print(200,249,id(f20),W,TextAlign::TOP_CENTER,status);
+      it.print(200,286,id(f13),W,TextAlign::TOP_CENTER,"LOGGER OFF - RX1/TX2 - SENZA TASTI");

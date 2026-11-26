@@ -202,6 +202,14 @@ COLOR al catalogo di aggiornamento firmato del Manager Windows. Il trasferimento
 di circuiti/sessioni e MSC mantengono invece il protocollo della baseline.
 Nessun Wi-Fi o OTA. Nessun flash automatico eseguito.
 
+## UART0 come la COLOR — nuova variante da verificare
+
+Dopo la conferma che la V0.40.5 originale torna a funzionare sullo stesso
+hardware, è disponibile la [variante UART0](UART0_COLOR.md). Disattiva il
+logger seriale come la COLOR, liberando UART0 per il GPS. Include Racing
+completa e diagnostica senza tasti. I precedenti test con RX zero restano
+archiviati; non si dichiara ancora risolto il difetto sul dispositivo.
+
 ## Test UART dopo RX zero
 
 La prima foto diagnostica conferma RX 0 byte. È disponibile il
