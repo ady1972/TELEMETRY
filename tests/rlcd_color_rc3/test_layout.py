@@ -13,12 +13,12 @@ import freetype
 from esphome.components.font import glyph_to_glyphinfo, pt_to_px
 import esphome
 ROOT=Path(__file__).resolve().parents[2]
-PORT=ROOT/'firmware/rlcd-42-3-colori/GOATS_RLCD_COLOR_RC3_3'
+PORT=ROOT/'firmware/rlcd-42-3-colori'/os.environ.get('COLOR_PORT_FOLDER','GOATS_RLCD_COLOR_RC3_3')
 COMP=PORT/'components/goats_st7306'
 class Loader(yaml.SafeLoader):pass
 Loader.add_multi_constructor('!',lambda loader,tag,node:loader.construct_scalar(node))
 mono=yaml.load((ROOT/'firmware/rlcd-42/goats_rlcd_rc3_3.yaml').read_text(),Loader=Loader)['display'][0]['lambda']
-color=yaml.load((PORT.parent/'goats_42_color_rc3_3.yaml').read_text(),Loader=Loader)['display'][0]['lambda']
+color=yaml.load((PORT.parent/os.environ.get('COLOR_YAML_NAME','goats_42_color_rc3_3.yaml')).read_text(),Loader=Loader)['display'][0]['lambda']
 def without_splash(text):
     # The user explicitly requested removing the COLOR boot logo. All actual
     # runtime layouts still match RC3.3; the reference keeps its own splash.

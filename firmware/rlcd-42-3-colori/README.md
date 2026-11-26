@@ -1,5 +1,32 @@
 # GOATS RT — RLCD 4.2 a tre colori
 
+## RC3.3-GNSS2-NSD — microSD non ancora saldata
+
+[Variante senza SD](GOATS_RLCD_COLOR_RC3_3_GNSS2_NOSD/README.md): schermate e
+laptimer RC3.3, GNSS DIAG2, sessioni in NVS. Nessun mount SD, CSV su scheda o
+USB Mass Storage. Rimosso il tentativo ripetuto di mount dopo il primo fix,
+che includeva almeno 400 ms di attesa per chiamata. Effetto sul GPS ancora
+da verificare sul dispositivo; il precedente completo aveva dato esito negativo.
+
+[YAML Racing](goats_42_color_rc3_3_gnss2_nosd.yaml) ·
+[YAML AUDIT senza tasti](goats_42_color_rc3_3_gnss2_nosd_audit.yaml) ·
+[ZIP sorgenti e binari USB](GOATS_RLCD_COLOR_RC3_3_GNSS2_NOSD/download/GOATS_RLCD_COLOR_RC3.3_GNSS2_NOSD_ESPHOME.zip).
+
+
+## COLOR RC3.3-GNSS2 — gestione GPS della DIAG2
+
+[**Firmware completo RC3.3-GNSS2**](GOATS_RLCD_COLOR_RC3_3_GNSS_DIAG2/README.md):
+schermate e logiche RC3.3, con UART/configuratore/parser Arduino della DIAG2
+confermata funzionante con fix dall'utente. Componente GNSS separato e
+clock isolati; avvio diretto Racing, nessuna pagina diagnostica imposta.
+
+[YAML ESPHome](goats_42_color_rc3_3_gnss_diag2.yaml) ·
+[ZIP sorgenti e firmware USB](GOATS_RLCD_COLOR_RC3_3_GNSS_DIAG2/download/GOATS_RLCD_COLOR_RC3.3_GNSS_DIAG2_ESPHOME.zip).
+Affiancare lo YAML alla cartella `GOATS_RLCD_COLOR_RC3_3_GNSS_DIAG2`.
+Compilazione e confronti GNSS/grafici superati, ma il primo riscontro utente
+segnala GPS assente nel completo: regressione aperta.
+[AUDIT automatico del runtime completo](GOATS_RLCD_COLOR_RC3_3_GNSS2_NOSD/AUDIT_GPS.md). Le precedenti varianti sotto restano conservate.
+
 ## COLOR RC3.3 — nuova variante da collaudare
 
 Allineamento al motore e alle funzioni dell'ultima RLCD RC3.3, con pinout
