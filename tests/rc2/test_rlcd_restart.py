@@ -6,12 +6,12 @@ import tempfile
 
 root = Path(__file__).resolve().parents[2]
 variant = sys.argv[1] if len(sys.argv) > 1 else 'GOATS_RLCD_RC2'
-firmware = root / 'firmware/rlcd-42' / variant
+firmware = root / variant if '/' in variant else root / 'firmware/rlcd-42' / variant
 source = (firmware / 'goats_legacy_menu_ui.h').read_text()
 start = source.index('inline void finish(bool save){')
 end = source.index('inline void boot_release()', start)
 finalizer = source[start:end]
-staged = variant == 'GOATS_RLCD_RC3_2'
+staged = 'inline constexpr int CLOSING_SCREEN=16;' in source
 key_handlers = ''
 boot_handlers = ''
 if staged:
@@ -154,7 +154,7 @@ with tempfile.TemporaryDirectory() as tmp:
     cpp=Path(tmp)/'restart.cpp'
     cpp.write_text(harness)
     exe=Path(tmp)/'restart'
-    flags = ['-DEXPECT_LAP_SPEED_RESET'] if variant in ('GOATS_RLCD_RC3_1', 'GOATS_RLCD_RC3_2') else []
+    flags = ['-DEXPECT_LAP_SPEED_RESET'] if 'goats_lap_speed::reset();' in finalizer else []
     if staged:
         flags.extend(['-DEXPECT_STAGED_CLOSE', '-I', str(root/'tests/rc2/screen_mode_stubs')])
     subprocess.run(['g++','-std=c++17','-Wall','-Wextra','-Werror','-Wno-unused-variable',
