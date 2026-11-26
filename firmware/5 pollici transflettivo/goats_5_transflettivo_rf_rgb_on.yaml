@@ -1,0 +1,11 @@
+# Prova A/B: RGB e retroilluminazione 50%, diagnostica anche sulla USB CH340C.
+substitutions:
+  rf_test_mode: RGB_ON
+
+packages:
+  application: !include goats_5_transflettivo.yaml
+  rf_log: !include GOATS_5_TRANSFLETTIVO_V010/config/gnss_rf_log.yaml
+
+esphome:
+  name: ${device_name}-rgb-on
+  friendly_name: GOATS 5 test GNSS RGB ON

@@ -1,0 +1,16 @@
+# Prova A/B: nessun driver RGB o font, retroilluminazione mantenuta spenta.
+substitutions:
+  rf_test_mode: RGB_OFF
+
+packages:
+  application: !include goats_5_transflettivo.yaml
+  rf_log: !include GOATS_5_TRANSFLETTIVO_V010/config/gnss_rf_log.yaml
+
+esphome:
+  name: ${device_name}-rgb-off
+  friendly_name: GOATS 5 test GNSS RGB OFF
+  # Il profilo hardware ha restore_mode ALWAYS_OFF: nessun comando di accensione.
+  on_boot: !remove
+
+display: !remove
+font: !remove

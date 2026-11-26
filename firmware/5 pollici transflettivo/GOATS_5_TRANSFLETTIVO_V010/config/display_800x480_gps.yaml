@@ -39,10 +39,66 @@ display:
           !sample.valid_fix ? "GPS RICEVUTO - IN ATTESA FIX" : "FIX GPS VALIDO";
       const Color status_ink = usable ? Color(0, 110, 55) :
           fresh ? Color(150, 90, 0) : Color(170, 0, 0);
+      const uint32_t next_page_seconds = 10U - (now % 10000U) / 1000U;
+
+      // Nessun comando fisico necessario: dati e diagnostica, 10 s ciascuna.
+      if ((now / 10000U) % 2U == 1U) {
+        const auto &rx = app.uart_diagnostics();
+        const uint32_t capacity = app.uart_buffer_capacity();
+        const uint32_t max_percent = capacity == 0 ? 0 :
+            static_cast<uint32_t>(uint64_t(rx.max_pending_bytes) * 100U / capacity);
+        it.fill(paper);
+        it.filled_rectangle(0, 0, 800, 58, ink);
+        it.print(24, 11, id(gps_value), paper, "GOATS - DIAGNOSTICA GPS (2/2)");
+        it.printf(776, 18, id(gps_label), paper, TextAlign::TOP_RIGHT, "V%s", "${firmware_version}");
+        it.print(24, 74, id(gps_value), status_ink, status);
+        if (received)
+          it.printf(24, 113, id(gps_label), muted,
+              "Fix: %u | gnssFixOK: %u | Usati: %u | Eta': %lu ms | PVT: %.1f Hz",
+              sample.fix_type, sample.fix_ok ? 1U : 0U, sample.satellites,
+              static_cast<unsigned long>(age), diag.pvt_hz());
+        else
+          it.print(24, 113, id(gps_label), muted, "Fix: -- | gnssFixOK: -- | Usati: -- | In attesa di NAV-PVT");
+
+        it.line(24, 142, 776, 142, rule);
+        it.print(24, 151, id(gps_label), muted, "UART RX - CODA OSSERVATA AI POLL");
+        it.printf(24, 176, id(gps_value), ink, "Ora %lu / %lu byte | Max %lu (%lu%%)",
+            static_cast<unsigned long>(rx.pending_bytes), static_cast<unsigned long>(capacity),
+            static_cast<unsigned long>(rx.max_pending_bytes), static_cast<unsigned long>(max_percent));
+        it.printf(24, 215, id(gps_label), muted, "Pausa poll: %lu ms | Max %lu ms | Cicli al limite: %lu",
+            static_cast<unsigned long>(rx.poll_gap_ms), static_cast<unsigned long>(rx.max_poll_gap_ms),
+            static_cast<unsigned long>(rx.limited_polls));
+
+        it.print(24, 250, id(gps_label), muted, "ERRORI CHECKSUM (DALL'AVVIO)");
+        it.printf(24, 276, id(gps_label), ink, "PVT %lu | SAT %lu | DOP %lu | Altri %lu",
+            static_cast<unsigned long>(diag.pvt_checksum_errors()),
+            static_cast<unsigned long>(diag.sat_checksum_errors()),
+            static_cast<unsigned long>(diag.dop_checksum_errors()),
+            static_cast<unsigned long>(diag.other_checksum_errors()));
+        it.printf(24, 304, id(gps_label), muted, "Validi PVT %lu | SAT %lu | DOP %lu | Duplicati PVT %lu",
+            static_cast<unsigned long>(diag.pvt_frames()), static_cast<unsigned long>(diag.sat_frames()),
+            static_cast<unsigned long>(diag.dop_frames()), static_cast<unsigned long>(diag.duplicates()));
+
+        it.line(24, 336, 776, 336, rule);
+        it.print(24, 349, id(gps_label), muted, "SEGNALE NAV-SAT - C/N0 DEI SATELLITI VISTI (dBHz)");
+        if (fresh_sat && sat.seen > 0)
+          it.printf(24, 373, id(gps_value), ink, "Min %u | Media %.1f | Max %u", sat.cno_min, sat.cno_mean, sat.cno_max);
+        else
+          it.print(24, 373, id(gps_value), ink, "Min -- | Media -- | Max --");
+        if (fresh_sat)
+          it.printf(24, 411, id(gps_label), muted, "Elencati %u | Visti %u | C/N0 >=30: %u | Eta' SAT: %lu ms",
+              sat.reported, sat.seen, sat.cno_at_least_30,
+              static_cast<unsigned long>(now - sat.received_ms));
+        else
+          it.print(24, 411, id(gps_label), muted, "NAV-SAT assente o non aggiornato: C/N0 non disponibile");
+        it.printf(24, 449, id(gps_label), muted, "Massimi dall'avvio | Luce 50%% | Dati GPS fra %lu s",
+            static_cast<unsigned long>(next_page_seconds));
+        return;
+      }
 
       it.fill(paper);
       it.filled_rectangle(0, 0, 800, 58, ink);
-      it.print(24, 11, id(gps_value), paper, "GOATS - DATI GPS");
+      it.print(24, 11, id(gps_value), paper, "GOATS - DATI GPS (1/2)");
       it.printf(776, 18, id(gps_label), paper, TextAlign::TOP_RIGHT, "V%s", "${firmware_version}");
       it.print(24, 74, id(gps_value), status_ink, status);
       if (received) {
@@ -55,7 +111,8 @@ display:
         if (fresh_dop) snprintf(hdop_text, sizeof(hdop_text), "%.2f", dop.hdop);
         else snprintf(hdop_text, sizeof(hdop_text), "--");
         it.printf(776, 113, id(gps_label), muted, TextAlign::TOP_RIGHT,
-            "Fix: %u | PVT: %.1f Hz | HDOP: %s", sample.fix_type, diag.pvt_hz(), hdop_text);
+            "Fix: %u OK: %u | PVT: %.1f Hz | HDOP: %s", sample.fix_type,
+            sample.fix_ok ? 1U : 0U, diag.pvt_hz(), hdop_text);
       }
 
       it.rectangle(24, 153, 356, 140, rule);
@@ -97,4 +154,5 @@ display:
           static_cast<unsigned long>(diag.pvt_frames()),
           static_cast<unsigned long>(diag.duplicates()),
           static_cast<unsigned long>(diag.checksum_errors()));
-      it.print(24, 449, id(gps_label), muted, "RX GPIO17 | UBX passivo RLCD | 230400 baud | Retroilluminazione 50%");
+      it.printf(24, 449, id(gps_label), muted, "RX17 | UBX passivo RLCD | 230400 baud | Luce 50%% | Diagnostica fra %lu s",
+          static_cast<unsigned long>(next_page_seconds));

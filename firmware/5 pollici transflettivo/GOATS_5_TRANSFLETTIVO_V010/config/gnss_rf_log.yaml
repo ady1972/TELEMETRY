@@ -1,0 +1,41 @@
+# Solo i due YAML di confronto includono questi log; il firmware normale resta silenzioso.
+logger:
+  level: INFO
+  baud_rate: 115200
+  hardware_uart: UART0  # USB CH340C della scheda; non e' la UART GNSS su GPIO17.
+
+interval:
+  - interval: 1s
+    then:
+      - lambda: |-
+          const auto &app = *id(goats_application);
+          const auto &sample = app.latest_sample();
+          const auto &diag = app.diagnostics();
+          const auto &sat = diag.satellites();
+          const auto &rx = app.uart_diagnostics();
+          const uint32_t now = millis();
+          const bool received = app.has_sample();
+          const bool fresh_pvt = received && now - sample.received_ms < 3000U;
+          const bool fresh_sat = diag.sat_frames() > 0 && now - sat.received_ms < 5000U;
+          ESP_LOGI("gnss_rf",
+              "${rf_test_mode} up_s=%lu received=%u fresh_pvt=%u fix=%u ok=%u used=%u hz=%.1f PVT=%lu age_ms=%lu",
+              static_cast<unsigned long>(now / 1000U), received ? 1U : 0U, fresh_pvt ? 1U : 0U,
+              sample.fix_type, sample.fix_ok ? 1U : 0U, sample.satellites, diag.pvt_hz(),
+              static_cast<unsigned long>(diag.pvt_frames()), static_cast<unsigned long>(now - sample.received_ms));
+          if (fresh_sat && sat.seen > 0) {
+            ESP_LOGI("gnss_rf",
+                "${rf_test_mode} fresh_sat=1 seen=%u listed=%u cno_min=%u cno_mean=%.1f cno_max=%u over30=%u SAT=%lu age_ms=%lu",
+                sat.seen, sat.reported, sat.cno_min, sat.cno_mean, sat.cno_max, sat.cno_at_least_30,
+                static_cast<unsigned long>(diag.sat_frames()), static_cast<unsigned long>(now - sat.received_ms));
+          } else {
+            ESP_LOGI("gnss_rf", "${rf_test_mode} fresh_sat=%u seen=%d listed=%d cno=NA SAT=%lu",
+                fresh_sat ? 1U : 0U, fresh_sat ? int(sat.seen) : -1, fresh_sat ? int(sat.reported) : -1,
+                static_cast<unsigned long>(diag.sat_frames()));
+          }
+          ESP_LOGI("gnss_rf",
+              "${rf_test_mode} rx_now=%lu rx_max=%lu/%lu gap_ms=%lu gap_max_ms=%lu limits=%lu CS_PVT=%lu CS_SAT=%lu CS_DOP=%lu CS_OTHER=%lu",
+              static_cast<unsigned long>(rx.pending_bytes), static_cast<unsigned long>(rx.max_pending_bytes),
+              static_cast<unsigned long>(app.uart_buffer_capacity()), static_cast<unsigned long>(rx.poll_gap_ms),
+              static_cast<unsigned long>(rx.max_poll_gap_ms), static_cast<unsigned long>(rx.limited_polls),
+              static_cast<unsigned long>(diag.pvt_checksum_errors()), static_cast<unsigned long>(diag.sat_checksum_errors()),
+              static_cast<unsigned long>(diag.dop_checksum_errors()), static_cast<unsigned long>(diag.other_checksum_errors()));

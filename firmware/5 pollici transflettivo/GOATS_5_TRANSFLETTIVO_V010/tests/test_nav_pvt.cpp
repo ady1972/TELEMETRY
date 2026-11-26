@@ -40,30 +40,34 @@ int main(){
   NavPvtParser parser;NavSample sample;unsigned received=0;
   for(auto b:frame(1000))if(parser.consume(b,50,sample))++received;
   assert(received==1 && sample.itow_ms==1000 && sample.received_ms==50);
-  assert(sample.valid_fix && sample.latitude==45 && sample.longitude==9);
+  assert(sample.valid_fix && sample.fix_ok && sample.latitude==45 && sample.longitude==9);
   assert(sample.speed_kmh>35.99f && sample.speed_kmh<36.01f);
   for(auto b:frame(1000))if(parser.consume(b,60,sample))++received;
   assert(received==1 && parser.duplicates()==1);
   auto corrupt=frame(1040);corrupt.back()^=1;
   for(auto b:corrupt)if(parser.consume(b,70,sample))++received;
   assert(received==1 && parser.checksum_errors()==1);
+  assert(parser.pvt_checksum_errors()==1 && parser.sat_checksum_errors()==0);
   for(auto b:frame(1040,false))if(parser.consume(b,80,sample))++received;
-  assert(received==2 && !sample.valid_fix);
+  assert(received==2 && !sample.valid_fix && !sample.fix_ok);
 
   // NAV-SAT >92 bytes: only SVs with C/N0 >0 count as seen, like RLCD.
   // A QZSS SV contributes to the total even without a dedicated UI subtotal.
   std::vector<uint8_t> sat(8+12*12,0);
   sat[4]=1;sat[5]=12;
   const uint8_t systems[]={0,1,2,3,6,5};
-  for(unsigned i=0;i<6;++i){sat[8+12*i]=systems[i];sat[10+12*i]=30;}
+  for(unsigned i=0;i<6;++i){sat[8+12*i]=systems[i];sat[10+12*i]=uint8_t(10+10*i);}
   assert(feed(parser,packet(0x35,sat),100,sample)==0);
   assert(parser.sat_frames()==1 && parser.satellites().received_ms==100);
   const auto &sv=parser.satellites();
   assert(sv.seen==6 && sv.gps==1 && sv.sbas==1 && sv.galileo==1 && sv.beidou==1 && sv.glonass==1);
+  assert(sv.reported==12 && sv.cno_min==10 && sv.cno_max==60 && sv.cno_at_least_30==4);
+  assert(std::abs(sv.cno_mean-35.0f)<0.001f);
   assert(sample.itow_ms==1040 && sample.received_ms==80 && sample.satellites==10);
   auto bad_sat=packet(0x35,sat);bad_sat.back()^=1;
   assert(feed(parser,bad_sat,110,sample)==0 && parser.sat_frames()==1);
   assert(parser.checksum_errors()==2 && sv.received_ms==100);
+  assert(parser.sat_checksum_errors()==1 && parser.pvt_checksum_errors()==1 && sv.cno_max==60);
   auto truncated=sat;truncated.pop_back();
   feed(parser,packet(0x35,truncated),120,sample);
   auto version=sat;version[4]=2;
@@ -72,6 +76,7 @@ int main(){
   std::vector<uint8_t> empty(8,0);empty[4]=1;
   feed(parser,packet(0x35,empty),140,sample);
   assert(parser.sat_frames()==2 && sv.seen==0 && sv.gps==0 && sv.received_ms==140);
+  assert(sv.reported==0 && sv.cno_min==0 && sv.cno_max==0 && sv.cno_mean==0 && sv.cno_at_least_30==0);
 
   std::vector<uint8_t> dop(18,0);dop[12]=123;
   assert(feed(parser,packet(0x04,dop),150,sample)==0);
@@ -81,6 +86,7 @@ int main(){
   feed(parser,bad_dop,160,sample);
   dop.pop_back();feed(parser,packet(0x04,dop),170,sample);
   assert(parser.dop_frames()==1 && parser.dop().received_ms==150);
+  assert(parser.dop_checksum_errors()==1);
   dop.resize(18);dop[12]=dop[13]=0xFF;
   feed(parser,packet(0x04,dop),180,sample);
   assert(parser.dop().hdop<0);
@@ -88,6 +94,15 @@ int main(){
   feed(parser,packet(0x22,std::vector<uint8_t>(1201,0)),200,sample);
   assert(parser.oversized_frames()==1);
   assert(feed(parser,frame(1080),210,sample)==1 && sample.valid_fix);
+  auto bad_other=packet(0x22,std::vector<uint8_t>(18,0));bad_other.back()^=1;
+  feed(parser,bad_other,220,sample);
+  assert(parser.other_checksum_errors()==1);
+  assert(parser.checksum_errors()==parser.pvt_checksum_errors()+parser.sat_checksum_errors()+
+      parser.dop_checksum_errors()+parser.other_checksum_errors());
+  auto two_d=frame(1120);
+  std::vector<uint8_t> two_d_payload(two_d.begin()+6,two_d.end()-2);two_d_payload[20]=2;
+  assert(feed(parser,packet(7,two_d_payload),230,sample)==1 && sample.fix_ok && !sample.valid_fix);
+  assert(sample.fix_type==2); // Receiver flag exposed; RLCD 3D criterion retained.
 
   // Rate is measured over real PVT traffic, becomes zero after silence and
   // handles the ESP millis rollover without changing navigation timestamps.
