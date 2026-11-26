@@ -9,7 +9,7 @@ I 14 file originali sono conservati senza modifiche nella sottocartella
 Le note originali descrivono anche release precedenti: per lo stato attuale
 fare riferimento all'analisi dei sorgenti qui sotto.
 
-## Diagnostico GPS DIAG2: correzione del contatore temporale
+## Diagnostico GPS DIAG2: correzione del contatore temporale - OK FUNZIONANTE
 
 [**V0.40.5 GPS DIAG2**](GOATS_V0405_GPS_DIAG2/README.md) corregge il confronto
 tra l'orologio Arduino del parser e quello ESPHome della schermata, che poteva
