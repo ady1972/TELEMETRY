@@ -16,6 +16,16 @@ su richiesta dell'utente: GNSS passivo e logiche/menu della RLCD TEST26,
 con driver ST7306 tricolore, quattro pulsanti e microSD SDMMC.
 La V0.40.5 originale qui descritta rimane invariata.
 
+## TEST26 con inizializzazione GNSS V0.40.5
+
+Nuova variante separata per ESP32-S3 **16 MB**: mantiene la base COLOR TEST26
+e configura il GPS all'avvio come la V0.40.5, con richiesta NAV-PVT 25 Hz e
+230400 baud in RAM. Richiede **TX GPS → GPIO1 e RX GPS → GPIO2**.
+Avvio senza splash; le versioni originali restano conservate.
+
+[YAML ESPHome](goats_42_color_v0406_test26_gnss_v0405.yaml) ·
+[Collegamenti, configurazione e verifica](GOATS_V0406_TEST26_GNSS_V0405/README.md).
+
 ## Apertura del progetto
 
 Copiare nel workspace ESPHome Builder gli YAML di ingresso e le cartelle
