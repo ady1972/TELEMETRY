@@ -1,5 +1,17 @@
 # GOATS RT — RLCD 4.2 a tre colori
 
+## RC3.3 STEP3A LCD — prova allineamento
+
+La foto mostra tratti dei caratteri spostati/sdoppiati.
+[STEP3A LCD](GOATS_DIAG3_RC33_STEP3A_LCD/README.md) verifica la compensazione
+XDE con ordine pagine MY=1: un solo bit LCD cambia, font/core/GPS/Manager
+restano STEP3. Include una pagina con pattern da 1 px per il collaudo.
+
+[YAML Racing](goats_42_diag3_rc33_step3a_lcd.yaml) ·
+[YAML pagina test](goats_42_diag3_rc33_step3a_lcd_test.yaml) ·
+[ZIP ESPHome](GOATS_DIAG3_RC33_STEP3A_LCD/download/GOATS_DIAG3_RC33_STEP3A_LCD_ESPHOME.zip).
+Compilazione e test software superati; efficacia sul pannello da confermare.
+
 ## DIAG3 + RC3.3 STEP3 — primo test telemetria/Manager
 
 [STEP3](GOATS_DIAG3_RC33_STEP3/README.md) aggiunge cataloghi USB persistenti,
