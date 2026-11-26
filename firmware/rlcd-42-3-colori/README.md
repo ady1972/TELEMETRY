@@ -1,5 +1,17 @@
 # GOATS RT — RLCD 4.2 a tre colori
 
+## DIAG3 + RC3.3 STEP2A — correzione LCD
+
+La foto dello STEP2 mostra testi frammentati e blocchi di colonne spostati.
+[STEP2A](GOATS_DIAG3_RC33_STEP2A/README.md) elimina le finestre LCD parziali:
+usa la finestra completa della DIAG3, con un solo flusso RAMWR suddiviso
+in blocchi e poll GPS tra i blocchi. Renderer/font/core/GNSS invariati.
+
+[YAML Racing](goats_42_diag3_rc33_step2a.yaml) ·
+[YAML diagnostica](goats_42_diag3_rc33_step2a_diag.yaml) ·
+[ZIP ESPHome](GOATS_DIAG3_RC33_STEP2A/download/GOATS_DIAG3_RC33_STEP2A_ESPHOME.zip).
+STEP2A compilato; esito grafico e GPS da confermare sulla scheda.
+
 ## DIAG3 + RC3.3 STEP2 — schermata Racing
 
 **DIAG3 e STEP1 confermati sulla scheda dall'utente il 26/11/2026.**
@@ -13,7 +25,7 @@ Disponibile anche uno YAML con avvio diretto in diagnostica.
 [YAML diagnostica](goats_42_diag3_rc33_step2_diag.yaml) ·
 [ZIP sorgenti e binario USB](GOATS_DIAG3_RC33_STEP2/download/GOATS_DIAG3_RC33_STEP2_ESPHOME.zip) ·
 [Anteprima software](GOATS_DIAG3_RC33_STEP2/preview/racing_lap_time.png).
-STEP2 compilato e verificato via software; da provare sul dispositivo.
+STEP2 compilato e verificato via software; la foto del dispositivo mostra difetti grafici. Usare STEP2A.
 
 ## DIAG3 + RC3.3 STEP1 — primo blocco del motore
 
