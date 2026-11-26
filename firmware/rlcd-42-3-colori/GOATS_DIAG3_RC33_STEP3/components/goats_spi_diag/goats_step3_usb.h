@@ -1,6 +1,7 @@
 #pragma once
 #ifdef GOATS_RC33_STEP1_IMPL
 #include "goats_step3_store.h"
+#include "esp_heap_caps.h"
 namespace goats_step3 {bool stop();bool free_start();bool arm();void catalog_changed();const char *status();}
 namespace goats_step3_usb {
 struct State {
@@ -68,7 +69,11 @@ inline void command(const std::string&c){
  unsigned long n=0,crc=0;char trailing=0;
  if(sscanf(c.c_str(),"GTRK_BEGIN %lu %lx %c",&n,&crc,&trailing)==2&&n>=8&&n<=60000){
   if(catalog_busy()||s.file||s.raw_tx||s.listing){reply("GTRK_ERR BUSY");return;}
-  b.need=n;b.expected_crc=crc;b.incoming.clear();b.incoming.reserve(n);b.receiving=true;reply("GTRK_READY");return;
+  // Keep enough heap for the incoming catalog, parsed track structures and
+  // NVS scratch, while preserving the active catalog if memory is insufficient.
+  std::vector<uint8_t>().swap(b.incoming);
+  if(heap_caps_get_free_size(MALLOC_CAP_8BIT)<3*n+16384 || heap_caps_get_largest_free_block(MALLOC_CAP_8BIT)<n+16){reply("GTRK_ERR MEMORY");return;}
+  b.need=n;b.expected_crc=crc;b.incoming.reserve(n);b.receiving=true;reply("GTRK_READY");return;
  }
  // Explicitly report unsupported legacy/MSC protocols, never fake empty success.
  reply(c.rfind("GSD",0)==0?"GSD_ERR COMMAND":"GTRK_ERR COMMAND");
@@ -83,7 +88,7 @@ inline void input(uint8_t v){
   else if(catalog_busy())reply("GTRK_ERR BUSY");
   else if(!goats_b::save(b.incoming))reply("GTRK_ERR STORAGE");
   else {b.raw=std::move(b.incoming);b.tracks=std::move(tracks);goats_step3::catalog_changed();reply("GTRK_OK "+std::to_string(b.tracks.size()));}
-  b.incoming.clear();return;
+  std::vector<uint8_t>().swap(b.incoming);return;
  }
  if(v=='\n'){command(b.command);b.command.clear();}else if(v!='\r'){if(b.command.size()<127)b.command.push_back(char(v));else b.command="INVALID";}
 }
@@ -96,7 +101,7 @@ inline void tick(){
  // Keep all USB writes nonblocking, including disconnected/slow hosts.
  if(s.size){const unsigned n=std::min<unsigned>({512,s.size,unsigned(sizeof(s.output)-s.rd)});int written=usb_serial_jtag_write_bytes(s.output+s.rd,n,0);if(written>0){s.rd=(s.rd+written)%sizeof(s.output);s.size-=written;}}
  if(s.size<6144){uint8_t bytes[256];const int n=usb_serial_jtag_read_bytes(bytes,sizeof(bytes),0);for(int i=0;i<n;i++)input(bytes[i]);}
- if(b.receiving&&uint32_t(::millis()-s.activity)>10000){b.receiving=false;b.incoming.clear();reply("GTRK_ERR RX_TIMEOUT");}
+ if(b.receiving&&uint32_t(::millis()-s.activity)>10000){b.receiving=false;std::vector<uint8_t>().swap(b.incoming);reply("GTRK_ERR RX_TIMEOUT");}
  if((s.file||s.raw_tx)&&uint32_t(::millis()-s.activity)>15000)cancel();
  if(s.size>4096)return;
  if(s.raw_tx){

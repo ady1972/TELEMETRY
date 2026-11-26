@@ -46,7 +46,7 @@ static void units(){
  init();assert(flash_writes==0&&flash_erases==0);auto raw=catalog();upload(raw);
  assert(goats_b::state().tracks.size()==2&&goats_step3_catalog::crc==goats_b::crc32(raw.data(),raw.size()));
  auto download=command("GTRK_GET\n");auto first=download.find('\n');assert(first!=std::string::npos&&download.substr(first+1,raw.size())==std::string(raw.begin(),raw.end()));assert(download.substr(first+1+raw.size())=="GTRK_END\n");
- upload(raw,false);assert(goats_b::state().raw==raw);
+ upload(raw,false);assert(goats_b::state().raw==raw);test_heap=100;assert(command("GTRK_BEGIN 100 00000000\n")=="GTRK_ERR MEMORY\n");assert(goats_b::state().raw==raw);test_heap=512*1024;
  auto &b=goats_b::state();feed(1000);assert(b.auto_hits==1&&b.active_track==-1);
  feed(1000);assert(b.auto_hits==1);feed(1040,44.9995,9,0,2);assert(b.auto_hits==0);
  feed(1080);feed(1120);assert(b.active_track==-1);feed(1160);assert(b.active_track==0);feed(1200);
@@ -71,6 +71,9 @@ static void units(){
  test_partition.size=4096;reboot_store();assert(rt::free_start());
  for(unsigned i=0;i<200;i++){feed(80000+i*40);pump(1);}assert(st::state().readonly&&!st::state().recording);assert(rt::stop()||!goats_session_ctl::has_started());pump();assert(st::state().count==1&&st::state().sessions[0].points>0);
  test_partition.size=flash_bytes.size();
+ goats_b::state().~State();new(&goats_b::state())goats_b::State();new(&goats_rc33_step1::state())goats_rc33_step1::State();new(&rt::state())rt::State();
+ goats_tracks::load();goats_rc33_step1::attach();rt::start();pump();
+ assert(goats_b::state().raw==raw&&goats_b::state().tracks.size()==2&&goats_tracks::tracks.empty());
  std::cout<<"PASS: Manager catalog persistence/CRC, three-fix AUTO and lock, actual GNSS reader, 25Hz trace with USB disconnected, no PVT flash writes/auto erase, reboot, deletion, torn tail and full capacity\n";
 }
 static std::vector<uint8_t>decode(const std::string&h){std::vector<uint8_t>v;assert(h.size()%2==0);for(size_t i=0;i<h.size();i+=2)v.push_back(usb::unhex(h[i])*16+usb::unhex(h[i+1]));return v;}

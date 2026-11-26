@@ -19,7 +19,9 @@ Non richiede microSD, tasti esterni, Wi-Fi, OTA o USB Mass Storage.
 3. Da fermo, inviare il catalogo dal normale editor circuiti del Manager.
    Traguardo e linee settore devono essere reali. Rileggere il catalogo per
    controllare che sia stato memorizzato. I circuiti restano nella NVS anche
-   dopo un riavvio. Non occorre selezionare la pista a mano.
+   dopo un riavvio. Non occorre selezionare la pista a mano. Cataloghi molto grandi possono
+   ricevere `GTRK_ERR MEMORY`: ridurre il catalogo per il test. Quello gia’
+   memorizzato resta attivo se il nuovo invio viene rifiutato.
 4. Per il test Racing: ottenere un fix 3D con almeno quattro satelliti.
    Dopo tre NAV-PVT validi consecutivi entro 2 km dal centro di un traguardo
    viene selezionato il circuito piu' vicino. La pista non cambia durante
@@ -90,6 +92,8 @@ La scrittura e' fuori dal parser GPS: solo coda RAM da 512 record nel callback,
 poi al massimo otto record / 256 byte per iterazione. Il GPS viene letto prima
 di USB, scrittura flash e blocco LCD; le scritture USB sono non bloccanti.
 Il CRC del catalogo viene calcolato su caricamento/modifica, non a ogni PVT.
+La copia legacy del catalogo viene liberata dopo l’attach. Il ricevitore USB
+rifiuta un nuovo catalogo se non rimane RAM sufficiente per decodificarlo.
 
 Si usa esclusivamente la partizione `goatsfs` di 2 MB gia' riservata nella
 configurazione DIAG3. Il giornale binario interno e' specifico dello STEP3;

@@ -1,4 +1,11 @@
 FILES={
+'esp_heap_caps.h':r'''#pragma once
+#include <cstddef>
+#define MALLOC_CAP_8BIT 1
+inline size_t test_heap=512*1024;
+inline size_t heap_caps_get_free_size(int){return test_heap;}
+inline size_t heap_caps_get_largest_free_block(int){return test_heap;}
+''',
 'esp_partition.h':r'''#pragma once
 #include <cstdint>
 #include <cstring>

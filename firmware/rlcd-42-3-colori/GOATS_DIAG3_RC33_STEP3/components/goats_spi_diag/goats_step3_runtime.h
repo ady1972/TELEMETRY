@@ -46,12 +46,16 @@ inline void start(){
  auto&s=state();if(s.started)return;s.started=true;
  // Original GNSS setup/attach already completed. Load the catalog bytes once
  // for Manager round-trip; never install another UART or invoke legacy setup.
- auto&b=goats_b::state();nvs_handle_t h;
+ auto&b=goats_b::state();
+ // The DIAG3 catalog has already been validated and cloned by attach().
+ // Release its legacy copy; the Racing/Manager path uses b.tracks only.
+ std::vector<GoatsTrackUsb>().swap(goats_tracks::tracks);
+ nvs_handle_t h;
  if(nvs_open("goats_tracks",NVS_READONLY,&h)==ESP_OK){
   size_t n=0;if(nvs_get_blob(h,"catalog",nullptr,&n)==ESP_OK&&n>=8&&n<=60000){
-   std::vector<uint8_t>raw(n);uint32_t crc=0;std::vector<goats_b::Track>tracks;
+   std::vector<uint8_t>raw(n);uint32_t crc=0;
    const bool have_crc=nvs_get_u32(h,"catalog_crc",&crc)==ESP_OK;
-   if(nvs_get_blob(h,"catalog",raw.data(),&n)==ESP_OK&&(!have_crc||goats_b::crc32(raw.data(),raw.size())==crc)&&goats_step3_usb::validate(raw,tracks)){b.raw=std::move(raw);b.tracks=std::move(tracks);}
+   if(nvs_get_blob(h,"catalog",raw.data(),&n)==ESP_OK&&(!have_crc||goats_b::crc32(raw.data(),raw.size())==crc)){b.raw=std::move(raw);}
   }nvs_close(h);
  }
  catalog_changed();goats_step3_store::init();goats_step3_usb::init();goats_gps_diag::frame_observer=on_frame;

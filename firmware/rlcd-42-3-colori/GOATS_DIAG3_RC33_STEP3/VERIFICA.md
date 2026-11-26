@@ -18,6 +18,8 @@ python tests/diag3_rc33_step3/check_build.py
   burst, tre fix validi per AUTO con reset dopo fix invalido e blocco del cambio
   pista durante un giro. Traccia a passo simulato 40ms mentre USB non accetta
   scritture: tutti i campioni distinti validi attesi, senza perdite della coda.
+- Controllo di memoria prima del nuovo catalogo; rifiuto MEMORY senza perdere
+  quello precedente e ricaricamento da NVS dopo riavvio: verificati.
 - Catalogo Manager persistente, GTRK_GET identico al payload inviato, CRC
   errato preserva il catalogo; un commit NVS fallito segnala STORAGE e
   preserva il catalogo RAM. Il mock NVS non dimostra atomicita’ fisica sotto
@@ -40,7 +42,7 @@ python tests/diag3_rc33_step3/check_build.py
   Canvas non registrato; USB serial JTAG e partizione collegati, setup/tick
   USB legacy, mount SD e TinyUSB/MSC assenti.
 - ESPHome 2026.7.3 / Arduino 3.3.10 / ESP-IDF 5.5.5: compilazione riuscita.
-  App 615455 byte, RAM statica 150559 byte, config_hash 0x4482559a.
+  App 615579 byte, RAM statica 150559 byte, config_hash 0x4482559a.
 - ZIP controllato per CRC/SHA256 e validazione dei due YAML dopo estrazione.
 
 Non sono stati fatti test fisici ESP32/GPS/flash/USB con questo STEP3, ne'
