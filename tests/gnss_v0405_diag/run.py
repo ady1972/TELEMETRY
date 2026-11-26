@@ -11,7 +11,7 @@ ROOT = Path(__file__).resolve().parents[2]
 BASE = ROOT / 'firmware/rlcd-42-3-colori'
 REF = BASE / 'GOATS_V0405_BOOT_FAST_FONT_TEST/components/goats_spi_diag'
 VERSION = sys.argv[1] if len(sys.argv)>1 else '2'
-assert VERSION in ['1','2']
+assert VERSION in ['1','2','3']
 DIAG = BASE / f'GOATS_V0405_GPS_DIAG{VERSION}/components/goats_spi_diag'
 assert (REF/'goats_m9n_cfg.h').read_bytes() == (DIAG/'goats_m9n_cfg.h').read_bytes()
 for filename in ['goats_laptimer.h','goats_lap_storage.h','goats_track_catalog.h',
@@ -161,7 +161,7 @@ int main(){
 }
 '''.replace('REF/',str(REF)+'/').replace('DIAG/',str(DIAG)+'/')
     clock_expr=re.search(r'const uint32_t now=([^;]+);',dst[dst.index('void GoatsSpiDiag::gps_diag_draw_()'):]).group(1)
-    source=source.replace('DISPLAY_NOW_EXPR',clock_expr).replace('TEST_CLOCK_FIXED','true' if VERSION=='2' else 'false')
+    source=source.replace('DISPLAY_NOW_EXPR',clock_expr).replace('TEST_CLOCK_FIXED','true' if VERSION in ['2','3'] else 'false')
     (p/'reference_cfg.h').write_text((REF/'goats_m9n_cfg.h').read_text().replace('#pragma once', ''))
     source=source.replace(str(REF/'goats_m9n_cfg.h'),str(p/'reference_cfg.h'))
     (p/'test.cpp').write_text(source)

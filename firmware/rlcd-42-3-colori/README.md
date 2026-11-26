@@ -1,5 +1,18 @@
 # GOATS RT — RLCD 4.2 a tre colori
 
+## GPS DIAG3 — satelliti, HDOP, velocita' e stabilita'
+
+[Diagnostico standalone basato sulla DIAG2 funzionante](GOATS_V0405_GPS_DIAG3/README.md).
+VISTI/USATI/HDOP/KM-H sempre visibili, tipo fix, continuita', interruzioni e
+passo iTOW; valori scaduti sostituiti da --. UART, configuratore e parser
+identici alla DIAG2. Nessun componente Racing RC3.3 o SD introdotto.
+
+[YAML ESPHome](goats_42_v0405_gps_diag3.yaml) ·
+[ZIP sorgenti e binario USB](GOATS_V0405_GPS_DIAG3/download/GOATS_V0405_GPS_DIAG3_ESPHOME.zip).
+Compilazione e test software superati; nuova versione da provare sul dispositivo.
+La DIAG2 rimane conservata per confronto.
+
+
 Versione **V0.40.5 BOOT FAST + FONT TEST**, per ESP32-S3 con display
 riflettivo ST7306 rosso/nero/bianco. Importata dall'archivio
 `GOATS_V0405_BOOT_FAST_FONT_TEST_2026_11_03.zip` fornito dall'utente.
