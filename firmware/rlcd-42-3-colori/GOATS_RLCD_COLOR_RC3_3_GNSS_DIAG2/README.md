@@ -2,8 +2,9 @@
 
 Firmware completo: schermate e logiche della RLCD RC3.3, con trasporto e
 configurazione GNSS della V0.40.5 GPS DIAG2 confermata dall'utente il 26/11/2026.
-La foto DIAG2 mostra comunicazione e fix attivi; il firmware completo di questa
-cartella deve ancora essere collaudato sulla scheda.
+La foto DIAG2 mostra comunicazione e fix attivi; il primo riscontro sul firmware
+completo segnala invece GPS assente. Regressione ancora aperta: usare
+[AUDIT GPS](../GOATS_RLCD_COLOR_RC3_3_GNSS2_NOSD/AUDIT_GPS.md) per localizzare il punto di arresto senza tasti.
 
 ## Installazione ESPHome USB
 
@@ -36,7 +37,7 @@ precedenti. Mantenere il cablaggio esistente.
 | LCD CS / DC / RESET | 10 / 9 / 8 |
 | LCD MOSI / SCLK | 11 / 12 |
 | SU / GIU / INDIETRO / OK | 4 / 5 / 6 / 7, verso GND |
-| microSD SDMMC CLK / CMD / D0 | 21 / 38 / 39 |
+| microSD SDMMC CLK / CMD / D0 | 38 / 21 / 39 |
 
 Massa comune tra ESP, GPS e display. I pulsanti non occorrono per vedere
 la Racing o acquisire il fix. Rimangono necessari per navigare nei menu.

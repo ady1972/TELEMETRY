@@ -38,5 +38,6 @@ Esiti:
 - ZIP: CRC, manifest SHA256 e validazione ESPHome dopo estrazione.
 
 La foto DIAG2 dell'utente conferma comunicazione/fix del diagnostico.
-Questa integrazione completa deve ancora essere provata sul dispositivo;
-nessun collaudo fisico di display, SD/USB, sessioni o giri e' dichiarato.
+Il successivo riscontro dell'utente segnala GPS assente sul completo ricompilato
+dallo YAML: regressione ancora da localizzare, vedere ../GOATS_RLCD_COLOR_RC3_3_GNSS2_NOSD/AUDIT_GPS.md. Le prove
+software non dimostrano comunicazione GPS, SD/USB o giri sulla scheda.

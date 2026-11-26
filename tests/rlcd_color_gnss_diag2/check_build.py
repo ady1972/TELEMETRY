@@ -1,19 +1,25 @@
 """Check the actual compiled transport isolation, USB ownership and flash map."""
 from pathlib import Path
-import subprocess,json,shlex,tempfile,struct
+import subprocess,json,shlex,tempfile,struct,os
 ROOT=Path(__file__).resolve().parents[2]
 BASE=ROOT/'firmware/rlcd-42-3-colori'
-PORT=BASE/'GOATS_RLCD_COLOR_RC3_3_GNSS_DIAG2'
-BUILD=BASE/'.esphome/build/goats-42-color-rc3-3-gnss2/build'
+NOSD=os.environ.get('COLOR_GNSS_NOSD')=='1'
+PORT=BASE/('GOATS_RLCD_COLOR_RC3_3_GNSS2_NOSD' if NOSD else 'GOATS_RLCD_COLOR_RC3_3_GNSS_DIAG2')
+BUILD=BASE/('.esphome/build/goats-rc33-gnss2-nosd/build' if NOSD else '.esphome/build/goats-42-color-rc3-3-gnss2/build')
 commands=json.loads((BUILD/'compile_commands.json').read_text())
 def entry(suffix):return next(c for c in commands if c['file'].endswith(suffix))
 main=entry('/src/main.cpp');gnss=entry('/goats_gnss_color/goats_gnss_color.cpp')
 arduino=entry('/cores/esp32/USBMSC.cpp')
-msc=next(c for c in commands if 'espressif__esp_tinyusb' in c['file'] and 'msc' in Path(c['file']).name)
 assert '-DUSE_ARDUINO' in main['command']
 assert '-DUSE_ESP_IDF ' not in main['command']
-assert 'arduino_usb_owner.h' in arduino['command'] and 'GOATS_ARDUINO_CORE_USB_COMPAT=1' in arduino['command']
-for c in [main,gnss,msc]:assert 'arduino_usb_owner.h' not in c['command'] and 'GOATS_ARDUINO_CORE_USB_COMPAT' not in c['command']
+if NOSD:
+ for c in commands:assert 'GOATS_ARDUINO_CORE_USB_COMPAT' not in c['command']
+ config=(BUILD/'config/sdkconfig.h').read_text()
+ assert '#define CONFIG_TINYUSB_MSC_ENABLED' not in config
+else:
+ msc=next(c for c in commands if 'espressif__esp_tinyusb' in c['file'] and 'msc' in Path(c['file']).name)
+ assert 'arduino_usb_owner.h' in arduino['command'] and 'GOATS_ARDUINO_CORE_USB_COMPAT=1' in arduino['command']
+ for c in [main,gnss,msc]:assert 'arduino_usb_owner.h' not in c['command'] and 'GOATS_ARDUINO_CORE_USB_COMPAT' not in c['command']
 def preprocess(c,path):
  args=shlex.split(c['command']);clean=[];i=0
  while i<len(args):
@@ -45,4 +51,11 @@ compiler=Path(shlex.split(arduino['command'])[0]);nm=compiler.with_name(compiler
 args=shlex.split(arduino['command']);obj=Path(arduino['directory'])/args[args.index('-o')+1]
 symbols=subprocess.check_output([str(nm),'--defined-only',str(obj)],text=True)
 assert 'tud_msc_' not in symbols and 'tusb_msc_load_descriptor' not in symbols
-print('PASS: actual USB override belongs only to Arduino core, no duplicate Arduino MSC callbacks, RC3.3 partition offsets preserved')
+if NOSD:
+ elf=next(BUILD.glob('*.elf'))
+ linked=subprocess.check_output([str(nm),'--defined-only',str(elf)],text=True)
+ for forbidden in ['esp_vfs_fat_sdmmc_mount','sdmmc_card_init','tinyusb_driver_install','tinyusb_msc_new_storage','tud_msc_',' f_mount']:
+  assert forbidden not in linked,forbidden
+ print('PASS: linked NOSD firmware has no SD mount, SD card init, FatFS mount or TinyUSB MSC functions; RC3.3 NVS/partitions preserved')
+else:
+ print('PASS: actual USB override belongs only to Arduino core, no duplicate Arduino MSC callbacks, RC3.3 partition offsets preserved')

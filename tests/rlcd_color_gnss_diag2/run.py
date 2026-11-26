@@ -3,25 +3,30 @@ from pathlib import Path
 import subprocess, tempfile, sys, os, re, yaml
 ROOT=Path(__file__).resolve().parents[2]
 BASE=ROOT/'firmware/rlcd-42-3-colori'
-PORT=BASE/'GOATS_RLCD_COLOR_RC3_3_GNSS_DIAG2'
+NOSD=os.environ.get('COLOR_GNSS_NOSD')=='1'
+PORT=BASE/('GOATS_RLCD_COLOR_RC3_3_GNSS2_NOSD' if NOSD else 'GOATS_RLCD_COLOR_RC3_3_GNSS_DIAG2')
+YAML_NAME='goats_42_color_rc3_3_gnss2_nosd.yaml' if NOSD else 'goats_42_color_rc3_3_gnss_diag2.yaml'
 COMP=PORT/'components/goats_gnss_color'
 REF=BASE/'GOATS_V0405_BOOT_FAST_FONT_TEST/components/goats_spi_diag'
 RC33=ROOT/'firmware/rlcd-42/GOATS_RLCD_RC3_3'
 OLD=BASE/'GOATS_RLCD_COLOR_RC3_3'
 class Loader(yaml.SafeLoader):pass
 Loader.add_multi_constructor('!',lambda loader,tag,node:loader.construct_scalar(node))
-new=yaml.load((BASE/'goats_42_color_rc3_3_gnss_diag2.yaml').read_text(),Loader=Loader)
+new=yaml.load((BASE/YAML_NAME).read_text(),Loader=Loader)
 old=yaml.load((BASE/'goats_42_color_rc3_3.yaml').read_text(),Loader=Loader)
 original=yaml.load((BASE/'GOATS_V0405_BOOT_FAST_FONT_TEST/v0405_boot_fast_font_test.yaml').read_text(),Loader=Loader)
-for p in RC33.glob('*.h'):assert p.read_bytes()==(PORT/p.name).read_bytes(),p.name
+disabled={'goats_sd_storage.h','goats_sd_r14_bridge.h','goats_sd_usb_export.h','goats_usb_msc.h','goats_gps_trace.h'} if NOSD else set()
+for p in RC33.glob('*.h'):
+ if p.name not in disabled:assert p.read_bytes()==(PORT/p.name).read_bytes(),p.name
 for key in ['display','font','sensor','interval','binary_sensor','spi']:
- a=str(new[key]).replace('GOATS_RLCD_COLOR_RC3_3_GNSS_DIAG2/','GOATS_RLCD_COLOR_RC3_3/')
- assert a==str(old[key]),key
+ a=str(new[key]).replace(PORT.name+'/','GOATS_RLCD_COLOR_RC3_3/')
+ expected_section=old[key][1:] if NOSD and key=='interval' else old[key]
+ assert a==str(expected_section),key
 assert new['uart']==original['uart']
 assert new['logger']==original['logger']
 assert new['esp32']['framework']['type']=='arduino'
 assert (PORT/'partitions_rc33.csv').read_bytes()==(OLD/'partitions_rc33.csv').read_bytes()
-for component in ['goats_st7306','goats_arduino_usb_compat']:
+for component in (['goats_st7306'] if NOSD else ['goats_st7306','goats_arduino_usb_compat']):
  for p in (OLD/'components'/component).glob('*'):
   if p.is_file():assert p.read_bytes()==(PORT/'components'/component/p.name).read_bytes()
 assert not set(new)&{'wifi','ota','api','web_server','psram'}
@@ -107,7 +112,7 @@ int main(){return 0;}
  subprocess.run([str(exe)],check=True)
 print('PASS: private Arduino owner, original DIAG2 UART/config/parser, RC3.3 core/UI/scheduling, clock epochs')
 if '--all' in sys.argv:
- env=dict(os.environ,COLOR_PORT_FOLDER=PORT.name,COLOR_YAML_NAME='goats_42_color_rc3_3_gnss_diag2.yaml')
+ env=dict(os.environ,COLOR_PORT_FOLDER=PORT.name,COLOR_YAML_NAME=YAML_NAME)
  subprocess.run([sys.executable,str(ROOT/'tests/rlcd_color_rc3/test_layout.py')],env=env,check=True)
  with tempfile.TemporaryDirectory(prefix='rc33-core-') as tmp:
   for name,stubs in [('test_clock.cpp','tests/rc2/stubs'),('test_dates.cpp','tests/rc2/stubs'),('test_screen_mode.cpp','tests/rc2/screen_mode_stubs'),('test_rlcd_summary.cpp','tests/guition_port/stubs')]:
