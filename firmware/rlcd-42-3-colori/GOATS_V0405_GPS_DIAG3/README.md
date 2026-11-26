@@ -87,3 +87,9 @@ usano lo stesso orologio Arduino ::millis(), come nella DIAG2 corretta.
 La DIAG2 originale rimane conservata. La base ha riscontro hardware positivo;
 questa nuova pagina e le statistiche DIAG3 sono da verificare sul dispositivo.
 Prove software in `VERIFICA.md`.
+
+## Riscontro utente successivo
+
+Il 26/11/2026 l'utente ha confermato «la diag3 e' perfetta». Questa versione
+viene quindi conservata come riferimento funzionante per l'integrazione RC3.3.
+La conferma non sostituisce il collaudo delle successive varianti STEP.
