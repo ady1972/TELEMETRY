@@ -1,5 +1,16 @@
 # GOATS RT - 5 pollici transflettivo
 
+## Nuova variante diagnostica GPS DIAG3
+
+- YAML: [`goats_5_gps_diag3.yaml`](goats_5_gps_diag3.yaml).
+- [ZIP ESPHome pronto, con binario USB](GOATS_5_GPS_DIAG3/download/GOATS_5_GPS_DIAG3_ESPHOME.zip).
+- [Collegamenti, origine e verifiche](GOATS_5_GPS_DIAG3/README.md).
+
+Questa variante usa la **configurazione GNSS attiva della RLCD tricolore DIAG3**:
+TX GPS → GPIO17 e RX GPS ← GPIO10, GND comune, **slot microSD vuoto**.
+Pagina unica, luce 50%, versione 0.1.0. Le sezioni seguenti descrivono il
+precedente progetto passivo `GOATS_5_TRANSFLETTIVO_V010`.
+
 Nuovo progetto autonomo ESP32-S3/ESPHome, creato da zero esclusivamente in questa
 cartella. Il display previsto e' **non touch**. RLCD TEST26 e' il riferimento
 funzionale e grafico, non una libreria inclusa dallo scaffold.

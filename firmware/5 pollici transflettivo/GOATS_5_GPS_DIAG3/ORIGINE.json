@@ -1,0 +1,10 @@
+{
+  "source_commit": "1e73b8bd7bc1df0647569a8dd768909af2c4d345",
+  "source_directory": "firmware/rlcd-42-3-colori/GOATS_V0405_GPS_DIAG3/components/goats_spi_diag/",
+  "files": {
+    "goats_m9n_cfg.h": "a40b8d3cc6ba63e033159baf7c5af3d7f786635aa89baa0d2c031d6e1a2b1357",
+    "goats_ubx_m9n_ak97_full.h": "d7b7a973af96c07056eb211e4600673c765f1bee733d1f3d68b80fe6e81f9cc6",
+    "goats_gps_diag.h": "d6d3562011aa1f6ad9d8e3dae378b1cda0947d1c356b2f442e6419a74ce38565",
+    "goats_gps_stability.h": "70800300abb144c13a6e139830e068522d19dd43a3a4270b9facb1aab58a7cee"
+  }
+}
