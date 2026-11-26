@@ -1,5 +1,18 @@
 # GOATS RT — RLCD 4.2 a tre colori
 
+## DIAG3 + RC3.3 STEP1 — primo blocco del motore
+
+La DIAG3 e' confermata dall'utente come funzionante.
+[STEP1](GOATS_DIAG3_RC33_STEP1/README.md) mantiene quel progetto e collega
+i NAV-PVT al motore RC3.3, al riconoscimento circuiti e allo stato sessione/velocita'
+in RAM. La pagina resta DIAG3 con velocita' 60px e contatore CORE.
+Nessun nuovo avvio USB, SD, archivi o renderer Racing.
+
+[YAML ESPHome](goats_42_diag3_rc33_step1.yaml) ·
+[ZIP sorgenti e binario USB](GOATS_DIAG3_RC33_STEP1/download/GOATS_DIAG3_RC33_STEP1_ESPHOME.zip).
+Compilazione e test software superati; il nuovo blocco va verificato sulla scheda.
+
+
 ## GPS DIAG3 — satelliti, HDOP, velocita' e stabilita'
 
 [Diagnostico standalone basato sulla DIAG2 funzionante](GOATS_V0405_GPS_DIAG3/README.md).
