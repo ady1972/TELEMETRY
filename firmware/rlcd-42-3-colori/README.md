@@ -3,7 +3,7 @@
 ## GPS DIAG3 — satelliti, HDOP, velocita' e stabilita'
 
 [Diagnostico standalone basato sulla DIAG2 funzionante](GOATS_V0405_GPS_DIAG3/README.md).
-VISTI/USATI/HDOP/KM-H sempre visibili, tipo fix, continuita', interruzioni e
+VISTI/USATI/HDOP e velocita' grande a 60 px sempre visibili, tipo fix, continuita', interruzioni e
 passo iTOW; valori scaduti sostituiti da --. UART, configuratore e parser
 identici alla DIAG2. Nessun componente Racing RC3.3 o SD introdotto.
 

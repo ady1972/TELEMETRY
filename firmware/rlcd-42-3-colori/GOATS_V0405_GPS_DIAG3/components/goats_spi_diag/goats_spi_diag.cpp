@@ -554,22 +554,36 @@ void GoatsSpiDiag::gps_diag_draw_(){
  auto row=[&](int y){font_text_(8,y,b,font_width_(b,16)<=384?16:13,BLACK,0);};
  if(m.sat_fresh(now))snprintf(b,sizeof(b),"VISTI %u",g.visible_sats);else snprintf(b,sizeof(b),"VISTI --");large(8,60);
  if(fresh)snprintf(b,sizeof(b),"USATI %u",g.used_sats);else snprintf(b,sizeof(b),"USATI --");large(206,60);
- if(m.dop_fresh(now))snprintf(b,sizeof(b),"HDOP %.2f",(double)g.hdop);else snprintf(b,sizeof(b),"HDOP --");large(8,96);
- if(position)snprintf(b,sizeof(b),"KM/H %.1f",(double)g.speed_kmh);else snprintf(b,sizeof(b),"KM/H --");large(206,96);
+ if(m.dop_fresh(now))snprintf(b,sizeof(b),"HDOP %.2f",(double)g.hdop);else snprintf(b,sizeof(b),"HDOP --");large(8,111);
+ font_text_(300,82,"KM/H",13,BLACK,1);
+ if(position)snprintf(b,sizeof(b),"%.1f",(double)g.speed_kmh);else snprintf(b,sizeof(b),"--");
+ // Native 60px numeric speed. Align the decimal at the baseline, without
+ // scaling bitmaps or changing the original shared font renderer.
+ const int speed_size=font_width_(b,60)<=184?60:font_width_(b,42)<=184?42:28;
+ auto speed_font=goats_font::table(speed_size);
+ const int cap_height=speed_font.g[goats_font::idx('8')].h;
+ int speed_x=300-font_width_(b,speed_size)/2;
+ for(unsigned i=0;b[i];++i){
+   const auto &glyph=speed_font.g[goats_font::idx(b[i])];
+   const int offset=b[i]=='-'?(cap_height-glyph.h)/2:cap_height-glyph.h;
+   const char character[]={b[i],0};
+   font_text_(speed_x,94+offset,character,speed_size,BLACK,0);
+   speed_x+=glyph.advance;
+ }
  if(fresh)snprintf(b,sizeof(b),"PVT %.1f Hz   ETA %lu ms",(double)g.pvt_hz,(unsigned long)(now-m.last_pvt));
- else snprintf(b,sizeof(b),"PVT -- Hz   ETA %s",m.have_pvt?">1500 ms":"MAI RICEVUTO");row(135);
+ else snprintf(b,sizeof(b),"PVT -- Hz   ETA %s",m.have_pvt?">1500 ms":"MAI RICEVUTO");row(145);
  const uint32_t seconds=m.continuous_fix_ms()/1000;
- snprintf(b,sizeof(b),"FIX CONT %lu:%02lu   PERSI %lu",(unsigned long)(seconds/60),(unsigned long)(seconds%60),(unsigned long)m.fix_losses);row(158);
- snprintf(b,sizeof(b),"BUCHI PVT %lu   GAP MAX %lu ms",(unsigned long)m.stream_losses,(unsigned long)m.max_gap_ms);row(181);
+ snprintf(b,sizeof(b),"FIX CONT %lu:%02lu   PERSI %lu",(unsigned long)(seconds/60),(unsigned long)(seconds%60),(unsigned long)m.fix_losses);row(167);
+ snprintf(b,sizeof(b),"BUCHI PVT %lu   GAP MAX %lu ms",(unsigned long)m.stream_losses,(unsigned long)m.max_gap_ms);row(189);
  if(m.have_step)snprintf(b,sizeof(b),"PASSO GPS %lu ms   ERR CK %lu",(unsigned long)m.step_ms,(unsigned long)d.checksum_errors);
- else snprintf(b,sizeof(b),"PASSO GPS -- ms   ERR CK %lu",(unsigned long)d.checksum_errors);row(204);
- snprintf(b,sizeof(b),"RX %lu  UBX %lu  UP %lu s",(unsigned long)d.bytes,(unsigned long)d.frames,(unsigned long)(now/1000));row(227);
+ else snprintf(b,sizeof(b),"PASSO GPS -- ms   ERR CK %lu",(unsigned long)d.checksum_errors);row(211);
+ snprintf(b,sizeof(b),"RX %lu  UBX %lu  UP %lu s",(unsigned long)d.bytes,(unsigned long)d.frames,(unsigned long)(now/1000));row(233);
  char sat_age[20],dop_age[20];
  if(m.have_sat)snprintf(sat_age,sizeof(sat_age),"%lu ms",(unsigned long)(now-m.last_sat));else snprintf(sat_age,sizeof(sat_age),"MAI");
  if(m.have_dop)snprintf(dop_age,sizeof(dop_age),"%lu ms",(unsigned long)(now-m.last_dop));else snprintf(dop_age,sizeof(dop_age),"MAI");
- snprintf(b,sizeof(b),"ETA SAT %s   ETA HDOP %s",sat_age,dop_age);row(250);
+ snprintf(b,sizeof(b),"ETA SAT %s   ETA HDOP %s",sat_age,dop_age);row(255);
  snprintf(b,sizeof(b),"RX1/TX2 - %lu BAUD - NO SD",(unsigned long)(gps_uart_?gps_uart_->get_baud_rate():0));
- font_text_(200,278,b,16,BLACK,1);
+ font_text_(200,282,b,13,BLACK,1);
  region_(0,0,400,300,"GPS-DIAG3");
 }
 

@@ -25,6 +25,8 @@ PSRAM non richiesta. Lo YAML conserva anche la tabella partizioni DIAG2.
 All'avvio compare brevemente il primo frame originale della V0.40.5,
 per mantenere la sequenza provata; poi resta la pagina **GPS DIAG3 - STABILITA**.
 Nessuna alternanza delle schermate e nessun tasto richiesto. Aggiornamento a 1 s.
+La velocita' e' in caratteri nativi da 60 px, con etichetta KM/H separata e
+punto decimale allineato alla base; satelliti e HDOP rimangono a 28 px.
 
 ## Valori sempre visibili
 

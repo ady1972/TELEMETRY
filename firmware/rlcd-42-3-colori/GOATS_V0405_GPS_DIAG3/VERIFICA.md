@@ -13,9 +13,10 @@
 - Metodo reale gps_diag_draw_ eseguito su host con font bitmap originali:
   valori freschi, campi mai ricevuti/scaduti, aggiornamenti indipendenti,
   velocita' nascosta senza fix, orologi con epoche differenti e limiti 400x300:
-  PASS. L'anteprima usa valori simulati, non misure hardware.
+  PASS. Velocita' nativa a 60 px e punto decimale alla base verificati.
+  L'anteprima usa valori simulati, non misure hardware.
 - Compilazione ESPHome 2026.7.3 / Arduino 3.3.10 / ESP-IDF 5.5.5: PASS.
-  App 375539 byte; RAM statica 87991 byte.
+  App 375747 byte; RAM statica 87991 byte.
 - Archivio consegnato verificato per CRC ZIP, SHA256 e validazione ESPHome
   dei sorgenti dopo estrazione.
 
