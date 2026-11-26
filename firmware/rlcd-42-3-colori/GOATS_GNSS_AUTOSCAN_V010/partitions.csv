@@ -1,0 +1,7 @@
+# Same offsets/sizes as the previously delivered RC3.3 ESP-IDF factory.
+# Name, Type, SubType, Offset, Size, Flags
+otadata,data,ota,0x9000,0x2000,
+phy_init,data,phy,0xB000,0x1000,
+app0,app,ota_0,0x10000,0x7C0000,
+app1,app,ota_1,0x7D0000,0x7C0000,
+nvs,data,nvs,0xF90000,0x70000,
