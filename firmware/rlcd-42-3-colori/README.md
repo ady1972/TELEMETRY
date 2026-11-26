@@ -8,6 +8,8 @@ Aggiornamento differenziale delle sole zone cambiate e caratteri nativi
 senza compressione orizzontale o ritocchi dei pixel. Layout di tutte le schermate operative
 identico alla RC3.3 monocromatica, compresa la disposizione Racing.
 Splash eliminato: avvio diretto alla Racing per evitare il logo residuo segnalato.
+Grafica e logica RC3.3 conservate; configurazione GNSS V0.40.5 ripristinata solo
+all’avvio, con TX GPS → GPIO1 e RX GPS → GPIO2.
 
 [YAML ESPHome](goats_42_color_rc3_3.yaml) ·
 [Guida, collegamenti e verifiche](GOATS_RLCD_COLOR_RC3_3/README.md).
@@ -30,15 +32,6 @@ su richiesta dell'utente: GNSS passivo e logiche/menu della RLCD TEST26,
 con driver ST7306 tricolore, quattro pulsanti e microSD SDMMC.
 La V0.40.5 originale qui descritta rimane invariata.
 
-## TEST26 con inizializzazione GNSS V0.40.5
-
-Nuova variante separata per ESP32-S3 **16 MB**: mantiene la base COLOR TEST26
-e configura il GPS all'avvio come la V0.40.5, con richiesta NAV-PVT 25 Hz e
-230400 baud in RAM. Richiede **TX GPS → GPIO1 e RX GPS → GPIO2**.
-Avvio senza splash; le versioni originali restano conservate.
-
-[YAML ESPHome](goats_42_color_v0406_test26_gnss_v0405.yaml) ·
-[Collegamenti, configurazione e verifica](GOATS_V0406_TEST26_GNSS_V0405/README.md).
 
 ## Apertura del progetto
 

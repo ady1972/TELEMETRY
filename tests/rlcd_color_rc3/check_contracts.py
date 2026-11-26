@@ -16,13 +16,15 @@ def section(text,name):
 
 mono=(REF.parent/'goats_rlcd_rc3_3.yaml').read_text()
 color=(PORT.parent/'goats_42_color_rc3_3.yaml').read_text()
-for name in ['uart','esp32','logger']:
+for name in ['esp32','logger']:
     assert section(mono,name)==section(color,name),name
 assert section(color,'interval')==section(mono,'interval').replace(
     '!id(key_button).state,!id(boot_button).state',
     '!id(key_button).state && !id(up_button).state && !id(back_button).state,!id(boot_button).state')
 assert not re.search(r'^(psram|wifi|ota|api|web_server):',color,re.M)
-assert 'platform: adc' not in color and 'tx_pin:' not in color
+assert 'platform: adc' not in color
+for value in ['rx_pin: GPIO1','tx_pin: GPIO2','baud_rate: 38400','rx_buffer_size: 16384']:
+    assert value in section(color,'uart')
 for pin in ['GPIO10','GPIO9','GPIO8','GPIO11','GPIO12','GPIO4','GPIO5','GPIO6','GPIO7']:
     assert pin in color,pin
 assert 'name: goats_rt.rlcd42_color' in color and 'firmware_version: "RC3.3"' in color

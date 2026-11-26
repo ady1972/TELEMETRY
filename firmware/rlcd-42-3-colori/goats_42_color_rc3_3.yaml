@@ -14,6 +14,9 @@ esphome:
       - lambda: |-
           ESP_LOGI("SAVE_DIAG","boot reset_reason=%d",int(esp_reset_reason()));
           if(!goats_usb_msc::boot_if_requested()) {
+            ESP_LOGI("m9n_init", "Configurazione RAM COLOR V0.40.5: RX1/TX2");
+            goats_cfg::configure(*id(gps_uart));
+            ESP_LOGI("m9n_init", "Sequenza trasmessa; UART 230400, NAV-PVT richiesto 25 Hz: verificare Info GPS");
             goats_b::setup();
             goats_archive::setup();
             goats_dates::setup();
@@ -26,6 +29,7 @@ esphome:
     name: goats_rt.rlcd42_color
     version: "${firmware_version}"
   includes:
+    - GOATS_RLCD_COLOR_RC3_3/goats_m9n_cfg.h
     - GOATS_RLCD_COLOR_RC3_3/goats_recording_clock.h
     - GOATS_RLCD_COLOR_RC3_3/goats_recording_dates.h
     - GOATS_RLCD_COLOR_RC3_3/goats_recording_time_runtime.h
@@ -72,10 +76,10 @@ external_components:
 uart:
   - id: gps_uart
     rx_pin: GPIO1
-    # TEST C4: UART a 230400 fissi; il M9N deve essere configurato allo stesso baud.
-    # TX assente: nessuna possibilità di inizializzazione M9N.
-    baud_rate: 230400
-    rx_buffer_size: 8192
+    tx_pin: GPIO2
+    # Bootstrap GNSS V0.40.5; on_boot termina a 230400 prima del loop RC3.3.
+    baud_rate: 38400
+    rx_buffer_size: 16384
 
 spi:
   clk_pin: GPIO12

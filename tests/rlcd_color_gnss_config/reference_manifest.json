@@ -1,0 +1,24 @@
+{
+  "reference": "c49e7423d4d07382700f4f806cf12117deb4326d",
+  "files": {
+    "firmware/rlcd-42-3-colori/GOATS_RLCD_COLOR_RC3_3/anteprime/delta.png": "b2817552b09a849ddc79428f10eb5f9e529efcc5e9bdc4928143d98745dadee3",
+    "firmware/rlcd-42-3-colori/GOATS_RLCD_COLOR_RC3_3/anteprime/lap.png": "c39b1f0e305e7c8603796820c52cec5d5e3d32c5f2ba25c36d7491161c132bba",
+    "firmware/rlcd-42-3-colori/GOATS_RLCD_COLOR_RC3_3/components/goats_st7306/__init__.py": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "firmware/rlcd-42-3-colori/GOATS_RLCD_COLOR_RC3_3/components/goats_st7306/changed_regions.h": "f5880220c79c15851f5fcf334908331f71f7aeff79a9dc70910e964fa908d76c",
+    "firmware/rlcd-42-3-colori/GOATS_RLCD_COLOR_RC3_3/components/goats_st7306/display.py": "ba605640a4ecb20fc76a2bb68fa9dd9b2a30c272845e989ce26c2d7be7928fca",
+    "firmware/rlcd-42-3-colori/GOATS_RLCD_COLOR_RC3_3/components/goats_st7306/goats_st7306.cpp": "906447f4acb966444d53d929711c150a3b632e5cd7d4943b1413025596f97fec",
+    "firmware/rlcd-42-3-colori/GOATS_RLCD_COLOR_RC3_3/components/goats_st7306/goats_st7306.h": "485629d1deb9b79ba5f3c6ef576adaf5859c7a9619b0507fc9f050e7b141616d",
+    "firmware/rlcd-42-3-colori/GOATS_RLCD_COLOR_RC3_3/components/goats_st7306/pixel_pack.h": "669985d41bd3f94ffc6f1da2ce3f81817848921448568a521aa9b547dff42d56",
+    "firmware/rlcd-42-3-colori/GOATS_RLCD_COLOR_RC3_3/fonts/OFL.txt": "0b3098464626138c0e2b29b95239e9f27ffbe322c6256305852018d8a9587ede",
+    "firmware/rlcd-42-3-colori/GOATS_RLCD_COLOR_RC3_3/fonts/PROVENIENZA.md": "8f9dd1b394857513c0073f83630df539876c1a2db36c9868e5dfa905879d1ed7",
+    "firmware/rlcd-42-3-colori/GOATS_RLCD_COLOR_RC3_3/fonts/RobotoCondensed-Bold.ttf": "288e36c14ddb22beb83317e7089b497586e1c190abdc7cb46b81f4c4cafc3a7c"
+  },
+  "sections": {
+    "display": "2bd7e1f0b9286f4171a59c62bab260a065e9427ace8d637414a53f7673b16fcd",
+    "interval": "f3abe27dfb9c8cfc532efd1a089ded36b0ceafd060bf26fd75289667759ed0c8",
+    "esp32": "bc76b2e771f0be2aa4bc977e62ad77d642ba52ebcceb98774986ba2688fcfbbc",
+    "logger": "5e98da5092a1c4547aa6312bf688e45838c282e98eb1befcc81ea9fea4e836ce",
+    "spi": "336327091e382d7307a61212c13faa31ea24962e0c276da27c94939d983c3885",
+    "binary_sensor": "d49563cf868313da41fa61082dcb9c4bb516cd9ab195a134713811131197d0b3"
+  }
+}

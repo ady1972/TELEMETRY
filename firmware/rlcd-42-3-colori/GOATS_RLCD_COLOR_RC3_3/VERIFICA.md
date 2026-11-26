@@ -5,7 +5,8 @@
 - Riferimento: RLCD monocromatico RC3.3 su `main`, commit
   `855954ed7c4b96e7f36ec8fffcd786c6c5973a07`.
 - I **19 header applicativi** sono identici byte per byte a quelli RC3.3.
-- UART, framework ESP-IDF/TinyUSB e logger identici al riferimento. Scheduling
+- Framework ESP-IDF/TinyUSB e logger identici al riferimento. UART modificata
+  soltanto per il bootstrap GNSS V0.40.5 descritto sotto. Scheduling
   1 s / 10 ms / 5 s invariato, con il solo adattamento di arming ai quattro tasti.
 - Pinout e sequenza comandi/reset/pixel packing ST7306 conservati dalla COLOR.
 - V0.40.5, COLOR TEST26 e le versioni monocromatiche non modificate.
@@ -33,8 +34,8 @@ il suo riquadro/icona rimane nella posizione originale della RC3.3.
 
 - Validazione ESPHome 2026.7.3: **PASS**.
 - Compilazione/link ESP32-S3, ESP-IDF 5.5.5: **PASS**.
-- Applicazione: **609.155 byte**, 7,5% dello slot da 8.126.464 byte.
-- RAM statica: **165.507 byte**, 48,4% dei 341.760 byte riportati dal linker.
+- Applicazione: **610.831 byte**, 7,5% dello slot da 8.126.464 byte.
+- RAM statica: **165.515 byte**, 48,4% dei 341.760 byte riportati dal linker.
   I picchi di RAM durante registrazione e trasferimento non sono misurati.
 - Generati factory, app ed ELF. Il pacchetto USB contiene la factory da scrivere
   a **0x0**, esclusivamente per la scheda da 16 MB.
@@ -45,6 +46,7 @@ il suo riquadro/icona rimane nella posizione originale della RC3.3.
 ## Test software
 
 ```sh
+python tests/rlcd_color_gnss_config/run.py
 python tests/rlcd_color_rc3/check_contracts.py
 python tests/rlcd_color_rc3/run.py
 python tests/rlcd_color/check_reference.py
@@ -54,10 +56,11 @@ python tests/rlcd_color_rc3/test_layout.py
 ```
 
 Tutti **PASS**. Le suite storiche di acquisizione e sessioni sono state eseguite
-nella stessa revisione funzionale: questa correzione successiva cambia soltanto
-il rendering e i test delle schermate, con parità dei 19 header ricontrollata.
+nella stessa revisione funzionale: gli aggiornamenti successivi hanno
+ricontrollato parità dei 19 header e delle schermate; è stato aggiunto soltanto
+il bootstrap GNSS V0.40.5, con i test dedicati descritti sotto.
 
-- Parità RC3.3 dei sorgenti, parser GNSS passivo, configurazione UART, scheduling,
+- Parità RC3.3 dei sorgenti, parser GNSS passivo, bootstrap UART attivo V0.40.5, scheduling,
   pinout, versione Info, assenza di PSRAM/ADC inventato/Wi-Fi/OTA.
 - Date e ora italiana/DST, metadati persistenti, massima e media per giro,
   selezione BEST, preferenza DELTA/LAP TIME in NVS.
@@ -123,3 +126,24 @@ TE resta scollegato; non si dichiara sincronizzazione con la scansione del
 pannello. I lampeggi Best Lap/post-giro rimangono intenzionali. I test host non
 certificano la soluzione del difetto visivo né l'affidabilità in pista.
 Nessuna prova hardware effettuata.
+
+## GNSS V0.40.5: unica modifica funzionale alla base RC3.3
+
+Baseline grafica/logica congelata: commit `c49e7423d4d07382700f4f806cf12117deb4326d`.
+Il test `tests/rlcd_color_gnss_config/run.py` verifica **identità del rendering
+YAML, dello scheduling, dei pulsanti, dei font, delle anteprime e di ogni file
+del driver** con un manifest SHA-256. I 19 header applicativi restano identici
+alla RLCD RC3.3. Si aggiunge solo `goats_m9n_cfg.h`, con il codice della COLOR
+V0.40.5 adattato da Arduino.h a esphome/core/hal.h e delay qualificato.
+
+Test ASan/UBSan PASS: identici 17 frame UBX e tempi della V0.40.5, checksum,
+layer solo RAM, nessun CFG-CFG/reset, bootstrap da tutti e quattro i baud,
+richieste NAV-PVT/DOP/SAT, NMEA e costellazioni. Due avvii normali ripetono
+la configurazione; il ramo MSC non scrive al GNSS. Il test esegue la lambda
+on_boot reale e verifica anche setup date, preferenze schermata e menu.
+
+RX1/TX2, bootstrap 38400, buffer RX 16384; UART finale 230400. Attese esplicite
+2430 ms. La configurazione finisce prima di iniziare il normale loop RC3.3.
+Nessuna modifica ai messaggi durante la registrazione. La sequenza non verifica
+ACK/NAK come nell'originale: la risposta reale del ricevitore, i 25 Hz e il fix
+restano da collaudare. Nessuna misura o prova hardware effettuata.

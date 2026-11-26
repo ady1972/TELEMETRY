@@ -61,6 +61,8 @@ namespace goats_usb_msc {bool boot_if_requested(){return usb_mode;}}
 namespace goats_b {unsigned calls=0;void setup(){calls++;}}
 namespace goats_archive {unsigned calls=0;void setup(){calls++;}}
 namespace goats_menu {unsigned calls=0;void init(){calls++;}}
+namespace goats_dates {unsigned calls=0;void setup(){calls++;}}
+namespace goats_screen_mode {unsigned calls=0;void load(){calls++;}}
 #define id(x) x
 #define ESP_LOGI(...) do{}while(0)
 inline UARTComponent active;
@@ -77,9 +79,11 @@ int main(){
  for(unsigned boot=0;boot<2;boot++){
   active=UARTComponent{};test_ms=0;usb_mode=false;run_actual_boot();
   verify_frames(active);assert(active.frames==new_uart.frames);
+  assert(goats_dates::calls==boot+1&&goats_screen_mode::calls==boot+1);
   assert(goats_b::calls==boot+1&&goats_archive::calls==boot+1&&goats_menu::calls==boot+1);
  }
  active=UARTComponent{};test_ms=0;usb_mode=true;run_actual_boot();
  assert(active.frames.empty()&&active.bauds.empty()&&test_ms==0);
  assert(goats_b::calls==2&&goats_archive::calls==2&&goats_menu::calls==2);
+ assert(goats_dates::calls==2&&goats_screen_mode::calls==2);
 }

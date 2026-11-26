@@ -10,8 +10,8 @@ Baseline: `firmware/rlcd-42/GOATS_RLCD_RC3_3`, commit di riferimento
 `855954ed` (usare l'hash completo nel rapporto `VERIFICA.md`). Tutti i suoi
 19 header applicativi sono copiati senza modifiche. Restano gli stessi:
 
-- GNSS passivo UBX NAV-PVT, 25 Hz già configurati nel ricevitore, UART RX1
-  a 230400 baud, nessun TX né comandi GPS.
+- Parser UBX NAV-PVT e acquisizione temporale RC3.3 invariati; configurazione
+  del ricevitore all’avvio come COLOR V0.40.5, descritta sotto.
 - Motore giri, settori, delta e acquisizione temporale del riferimento.
 - Correzioni data/ora italiana e nomi CSV, metadati di registrazione.
 - Riepilogo con tempo, velocità massima/media e BEST evidenziato.
@@ -36,6 +36,30 @@ l'icona senza inventare una percentuale.
 
 Le cartelle V0.40.5 e V0.40.6 TEST26 e i firmware monocromatici restano intatti.
 Questa è una nuova variante da collaudare, non una certificazione di stabilità.
+
+## Solo inizializzazione GNSS dalla COLOR V0.40.5
+
+Grafica, menu, font, driver display, motore giri, settori, delta, sessioni e
+scheduling sono quelli RC3.3. L'unica modifica funzionale rispetto alla base
+RC3.3 senza splash è il configuratore GNSS eseguito all'avvio normale.
+
+Servono **TX GPS → GPIO1 e RX GPS → GPIO2**, oltre a GND comune. La UART parte
+come V0.40.5 a 38400 e prova 38400/9600/115200/230400; al termine ESP e ricevitore
+sono a 230400. Richiede NAV-PVT a ogni epoca da 40 ms (25 Hz), NAV-DOP/NAV-SAT
+una volta ogni 25 epoche e NMEA GGA/GSA/GSV/RMC alla stessa cadenza. Ripristina
+anche le richieste di costellazioni della V0.40.5: GPS, Galileo, BeiDou, GLONASS,
+SBAS attivi, QZSS disattivato e MAXSVS 32 soggetto ai limiti del ricevitore.
+
+La sequenza è solo RAM, senza salvataggio flash/BBR, e viene ripetuta a ogni
+avvio normale. Le attese esplicite sono circa 2,43 secondi, oltre ai tempi UART.
+Non aspetta il fix e non riconfigura durante il cronometraggio. In USB MSC viene
+saltata. Se il GPS perde alimentazione mentre l'ESP resta acceso, riavviare
+anche l'ESP per ripetere la configurazione.
+
+Come nel codice V0.40.5, non verifica ACK/NAK: si dichiara trasmessa la sequenza,
+non accettata dal modulo. Controllare in Info GPS NAV-PVT Hz e satelliti dopo
+un avvio a freddo. Il parser `m9n_passive.h` rimane invariato e di sola lettura:
+la trasmissione dei comandi appartiene soltanto al configuratore iniziale.
 
 ## Avvio senza splash
 
@@ -89,7 +113,7 @@ simulati. Non sono foto del pannello. Un test confronta i comandi di disegno e
 i pixel logici della variante COLOR con la RC3.3 per tutte le pagine e nelle
 due modalità Racing, ammettendo solo le differenze di testo/colore sopra.
 
-## Collegamenti, invariati dalla COLOR TEST26
+## Collegamenti — aggiunta della linea RX GPS → GPIO2
 
 | Funzione | Collegamento ESP32-S3 |
 |---|---|
@@ -98,7 +122,7 @@ due modalità Racing, ammettendo solo le differenze di testo/colore sopra.
 | LCD MOSI / SCLK | GPIO11 / GPIO12, SPI mode 0, 4 MHz |
 | LCD TE | Scollegato |
 | TX GPS | GPIO1, RX ESP a 230400 baud |
-| RX GPS | Scollegato: GNSS passivo |
+| RX GPS | **GPIO2, TX ESP necessario per inviare la configurazione** |
 | GPS VCC / GND | Secondo la scheda ricevitore / GND comune; 3V3 solo se ammesso su VCC |
 | SU / GIÙ / BACK / OK | GPIO4 / GPIO5 / GPIO6 / GPIO7, pulsanti verso GND |
 | microSD CMD / CLK / DAT0 | GPIO21 / GPIO38 / GPIO39, SDMMC a 1 bit |
@@ -133,8 +157,10 @@ GOATS_RLCD_COLOR_RC3_3/
 Aprire lo YAML esterno. Componenti e TTF sono locali. ESPHome,
 ESP-IDF e dipendenze TinyUSB richiedono il normale download alla prima build.
 
-[Pacchetti sorgenti e binario factory su GitHub](https://github.com/ady1972/TELEMETRY/tree/codex/rlcd-color-rc3-3-display/firmware/rlcd-42-3-colori/GOATS_RLCD_COLOR_RC3_3/download).
-I pacchetti di download sono separati dalle dipendenze di compilazione.
+Pacchetti aggiornati con grafica/logica RC3.3 e configuratore GNSS V0.40.5:
+[ZIP sorgenti](download/GOATS_RLCD_COLOR_RC3.3_GNSS_V0405_SORGENTI.zip) ·
+[Primo flash USB](download/GOATS_RLCD_COLOR_RC3.3_GNSS_V0405_PRIMO_FLASH_USB.zip).
+I pacchetti precedenti senza suffisso GNSS_V0405 restano archiviati per riferimento.
 
 ```sh
 esphome config goats_42_color_rc3_3.yaml
@@ -159,7 +185,8 @@ Nessun Wi-Fi o OTA. Nessun flash automatico eseguito.
 2. Racing ferma e in movimento: osservare i piccoli refresh, contorni di cifre,
    punto e segni, nelle due modalità, specialmente quando più valori cambiano.
 3. Menu e ritorno: nessuna immagine residua; test post-giro e Best Lap.
-4. Con GPS e SD: salvare due sessioni consecutive, scartarne una, riattraversare
+4. Con entrambe le linee GPS collegate, verificare NAV-PVT e satelliti dopo
+   avvio a freddo. Con GPS e SD: salvare due sessioni consecutive, scartarne una, riattraversare
    il traguardo senza riavvio; verificare CSV a 25 Hz, date e riepiloghi.
 5. Catalogo circuiti e download sessioni via USB; MSC con espulsione corretta.
 

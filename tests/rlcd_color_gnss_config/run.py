@@ -1,28 +1,28 @@
-"""Verify the real V0.40.5 configurator port and its real TEST26 boot integration."""
+"""Verify the real V0.40.5 configurator port and its real RC3.3 boot integration."""
 from pathlib import Path
 import re
+import json
+import hashlib
 import subprocess
 import tempfile
 import yaml
 ROOT=Path(__file__).resolve().parents[2]
 BASE=ROOT/'firmware/rlcd-42-3-colori'
 ORIGINAL=BASE/'GOATS_V0405_BOOT_FAST_FONT_TEST/components/goats_spi_diag/goats_m9n_cfg.h'
-PASSIVE=BASE/'GOATS_V0406_TEST26'
-PORT=BASE/'GOATS_V0406_TEST26_GNSS_V0405'
+PASSIVE=ROOT/'firmware/rlcd-42/GOATS_RLCD_RC3_3'
+PORT=BASE/'GOATS_RLCD_COLOR_RC3_3'
 original=ORIGINAL.read_text()
 ported=(PORT/'goats_m9n_cfg.h').read_text()
 assert ported==original.replace('#include <Arduino.h>','#include "esphome/core/hal.h"').replace('delay(','esphome::delay(')
 for source in PASSIVE.glob('*.h'):
  assert source.read_bytes()==(PORT/source.name).read_bytes(),source.name
-for source in (PASSIVE/'components').rglob('*'):
- if source.is_file():assert source.read_bytes()==(PORT/'components'/source.relative_to(PASSIVE/'components')).read_bytes()
-current=(BASE/'goats_42_color_v0406_test26_gnss_v0405.yaml').read_text()
-old=(BASE/'goats_42_color_v0406_test26.yaml').read_text()
+manifest=json.loads((ROOT/'tests/rlcd_color_gnss_config/reference_manifest.json').read_text())
+for name,digest in manifest['files'].items():
+ assert hashlib.sha256((ROOT/name).read_bytes()).hexdigest()==digest,name
+current=(BASE/'goats_42_color_rc3_3.yaml').read_text()
 def section(text,name):return re.search(r'^'+name+r':\n.*?(?=^[a-z_]+:|\Z)',text,re.M|re.S)[0]
-assert section(current,'interval')==section(old,'interval')
-assert section(current,'esp32')==section(old,'esp32')
-assert section(current,'spi')==section(old,'spi')
-assert section(current,'binary_sensor')==section(old,'binary_sensor')
+for name,digest in manifest['sections'].items():
+ assert hashlib.sha256(section(current,name).encode()).hexdigest()==digest,name
 assert not re.search(r'^(wifi|ota|api|web_server|psram|image):',current,re.M)
 for text in ['rx_pin: GPIO1','tx_pin: GPIO2','baud_rate: 38400','rx_buffer_size: 16384']:
  assert text in section(current,'uart')
@@ -59,7 +59,7 @@ void flush(){flushes++;}
 '''}
  for name,data in files.items():
   p=t/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_text(data)
- source=(ROOT/'tests/rlcd_color_test26_gnss/test_config.cpp').read_text().replace('ACTUAL_BOOT_LAMBDA',bootcode)
+ source=(ROOT/'tests/rlcd_color_gnss_config/test_config.cpp').read_text().replace('ACTUAL_BOOT_LAMBDA',bootcode)
  cpp=t/'test.cpp';cpp.write_text(source);exe=t/'test_config'
  subprocess.run(['g++','-std=c++17','-Wall','-Wextra','-Werror','-Wno-misleading-indentation',
   '-fsanitize=address,undefined','-fno-omit-frame-pointer','-DORIGINAL_CFG_HEADER="'+str(ORIGINAL)+'"',
@@ -67,4 +67,4 @@ void flush(){flushes++;}
  subprocess.run([str(exe)],check=True)
 print('PASS: V0.40.5 exact UART frames/timing; all four boot baud scenarios; UBX checksums,')
 print('RAM-only layer, rates/constellations/messages, repeated normal boot, no GNSS writes in USB MSC')
-print('PASS: TEST26 headers/parser/renderer/scheduling preserved; RX1/TX2, no splash, no network/OTA')
+print('PASS: RC3.3 core/parser/layout/driver/fonts/scheduling preserved; RX1/TX2, no splash, no network/OTA')
