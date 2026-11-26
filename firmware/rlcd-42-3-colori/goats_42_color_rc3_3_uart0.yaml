@@ -1,0 +1,11 @@
+# RC3.3 Racing with the original COLOR serial-logger setting.
+# With one UART bus and serial logging disabled, ESPHome allocates UART0 to GPS.
+packages:
+  rc33: !include goats_42_color_rc3_3.yaml
+
+esphome:
+  friendly_name: GOATS 4.2 COLOR RC3.3 UART0
+  comment: "RC3.3 completa; logger seriale disattivato come COLOR V0.40.5; GPS su UART0"
+
+logger:
+  baud_rate: 0

@@ -8,6 +8,13 @@ Aggiornamento differenziale delle sole zone cambiate e caratteri nativi
 senza compressione orizzontale o ritocchi dei pixel. Layout di tutte le schermate operative
 identico alla RC3.3 monocromatica, compresa la disposizione Racing.
 Splash eliminato: avvio diretto alla Racing per evitare il logo residuo segnalato.
+Grafica e logica RC3.3 conservate; inizializzazione **e ricezione GNSS** dalla
+COLOR V0.40.5 dello ZIP confermato funzionante. I NAV-PVT vengono inoltrati
+integri al motore RC3.3. TX GPS → GPIO1 e RX GPS → GPIO2.
+
+[Variante Arduino e diagnostica senza tasti](GOATS_RLCD_COLOR_RC3_3/ARDUINO_COLOR.md).
+
+[Variante UART0 precedente e diagnostica senza tasti](GOATS_RLCD_COLOR_RC3_3/UART0_COLOR.md).
 
 [YAML ESPHome](goats_42_color_rc3_3.yaml) ·
 [Guida, collegamenti e verifiche](GOATS_RLCD_COLOR_RC3_3/README.md).
@@ -29,6 +36,7 @@ Disponibile anche [V0.40.6 TEST26](GOATS_V0406_TEST26/README.md), sviluppata
 su richiesta dell'utente: GNSS passivo e logiche/menu della RLCD TEST26,
 con driver ST7306 tricolore, quattro pulsanti e microSD SDMMC.
 La V0.40.5 originale qui descritta rimane invariata.
+
 
 ## Apertura del progetto
 

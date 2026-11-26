@@ -1,0 +1,21 @@
+# COLOR compatibility runtime: Arduino as in the proven V0.40.5.
+# Retain RC3.3 renderer/core/SD/USB and the original serial-logger setting.
+packages:
+  rc33: !include goats_42_color_rc3_3_uart0.yaml
+
+esphome:
+  friendly_name: GOATS 4.2 COLOR RC3.3 ARDUINO
+  comment: "Runtime Arduino come COLOR V0.40.5; grafica e motore RC3.3; GPS RX1 TX2"
+
+esp32:
+  partitions: GOATS_RLCD_COLOR_RC3_3/partitions_rc33.csv
+  framework:
+    type: arduino
+
+external_components:
+  - source:
+      type: local
+      path: GOATS_RLCD_COLOR_RC3_3/components
+    components: [goats_arduino_usb_compat]
+
+goats_arduino_usb_compat:
