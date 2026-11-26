@@ -1,0 +1,262 @@
+# GOATS 5 pollici transflettivo - diagnostico derivato da RLCD GPS DIAG3.
+# GPS: TX -> GPIO17, RX <- GPIO10; GND comune. Slot SD vuoto.
+esphome:
+  name: goats-5-gps-diag3
+  friendly_name: GOATS 5 GPS DIAG3
+  project:
+    name: goats.gps_diag3_5
+    version: "0.1.0"
+  on_boot:
+    priority: -100
+    then:
+      - light.turn_on:
+          id: backlight
+          brightness: 50%
+      - lvgl.resume:
+
+substitutions:
+  pclk: 32.4MHz
+
+esp32:
+  board: esp32-s3-devkitc-1
+  variant: esp32s3
+  flash_size: 16MB
+  cpu_frequency: 240MHz
+  framework:
+    type: esp-idf
+    sdkconfig_options:
+      CONFIG_ESP32S3_DATA_CACHE_64KB: "y"
+      CONFIG_ESP32S3_DATA_CACHE_LINE_64B: "y"
+      CONFIG_LCD_RGB_ISR_IRAM_SAFE: "y"
+    advanced:
+      execute_from_psram: true
+
+psram:
+  mode: octal
+  speed: 80MHz
+
+# La USB "UART" della scheda passa da un CH340C su UART0.
+# La USB nativa dell'ESP32-S3 usa GPIO19/20, che qui sono riservati al touch.
+logger:
+  hardware_uart: UART0
+  level: INFO
+
+# Nessun Wi-Fi/OTA: diagnostica via USB UART0.
+
+external_components:
+  - source:
+      type: local
+      path: GOATS_5_GPS_DIAG3/components
+
+# UART DIAG3: baud iniziale e buffer originali. RX/TX adattati alla board 5 pollici.
+uart:
+  - id: gps_uart
+    rx_pin: GPIO17
+    tx_pin: GPIO10
+    baud_rate: 38400
+    rx_buffer_size: 16384
+
+goats_diag3:
+  id: gnss
+  uart_id: gps_uart
+
+output:
+  - platform: ledc
+    id: bl_pwm
+    pin: GPIO2
+    frequency: 1000Hz
+
+light:
+  - platform: monochromatic
+    name: "Retroilluminazione"
+    id: backlight
+    output: bl_pwm
+    gamma_correct: 1.0
+    default_transition_length: 0s
+    restore_mode: ALWAYS_OFF
+
+# ---------------------------------------------------------------------
+#  Display RGB565 parallelo
+# ---------------------------------------------------------------------
+display:
+  - platform: mipi_rgb
+    id: lcd
+    model: RPI
+    dimensions:
+      width: 800
+      height: 480
+    color_order: RGB
+    pclk_frequency: ${pclk}
+    pclk_inverted: true
+    # Profilo gia' usato sul 5 pollici: totale 1000 x 540, 60 Hz
+    hsync_pulse_width: 24
+    hsync_back_porch: 136
+    hsync_front_porch: 40
+    vsync_pulse_width: 2
+    vsync_back_porch: 21
+    vsync_front_porch: 37
+    de_pin: GPIO40
+    hsync_pin: GPIO39
+    vsync_pin: GPIO41
+    pclk_pin: GPIO42
+    data_pins:
+      red: [45, 48, 47, 21, 14]        # R3..R7 del pannello
+      green: [5, 6, 7, 15, 16, 4]      # G2..G7
+      blue: [8, 3, 46, 9, 1]           # B3..B7
+    auto_clear_enabled: false
+    update_interval: never
+
+# Unica pagina sempre visibile: nessun tasto o touch richiesto.
+font:
+  - file: "gfonts://Roboto Mono@700"
+    id: diag_font
+    size: 20
+    bpp: 4
+  - file: "gfonts://Roboto Mono@700"
+    id: diag_value
+    size: 44
+    bpp: 4
+  - file: "gfonts://Roboto Mono@700"
+    id: diag_speed
+    size: 72
+    bpp: 4
+
+lvgl:
+  id: ui
+  displays: [lcd]
+  paused: false
+  full_refresh: false
+  refresh_interval: 33ms
+  buffer_size: 25%
+  default_font: diag_font
+  text_color: 0x000000
+  on_draw_end:
+    - lambda: |-
+        id(draw_count)++;
+        id(last_draw_ms) = ::millis();
+  pages:
+    - id: gps_page
+      bg_color: 0xFFFFFF
+      scrollable: false
+      widgets:
+        - label:
+            x: 12
+            y: 6
+            text: "GOATS 5 - GPS DIAG3 / V0.1.0"
+        - label:
+            id: status
+            x: 12
+            y: 38
+            text: "AVVIO - CONFIGURAZIONE GPS DIAG3"
+        - label: {x: 12, y: 82, text: "VISTI"}
+        - label: {x: 210, y: 82, text: "USATI"}
+        - label: {x: 408, y: 82, text: "HDOP"}
+        - label: {x: 610, y: 82, text: "KM/H"}
+        - label:
+            id: visible
+            x: 12
+            y: 112
+            text: "--"
+            text_font: diag_value
+        - label:
+            id: used
+            x: 210
+            y: 112
+            text: "--"
+            text_font: diag_value
+        - label:
+            id: hdop
+            x: 408
+            y: 112
+            text: "--"
+            text_font: diag_value
+        - label:
+            id: speed
+            x: -12
+            y: 112
+            align: TOP_RIGHT
+            text: "--"
+            text_font: diag_speed
+        - label:
+            id: stability
+            x: 12
+            y: 214
+            text: ""
+        - label:
+            id: transport
+            x: 12
+            y: 280
+            text: ""
+        - label:
+            id: ages
+            x: 12
+            y: 346
+            text: ""
+        - label:
+            id: display_status
+            x: 12
+            y: 380
+            text: ""
+        - label:
+            x: 12
+            y: 446
+            text: "RX17/TX10 | 230400 DOPO BOOT | LUCE 50% | NO SD"
+
+globals:
+  - id: draw_count
+    type: uint32_t
+    initial_value: '0'
+  - id: last_draw_ms
+    type: uint32_t
+    initial_value: '0'
+
+interval:
+  - interval: 1s
+    then:
+      - lvgl.label.update:
+          id: status
+          text: !lambda return id(gnss).status_text();
+      - lvgl.label.update:
+          id: visible
+          text: !lambda return id(gnss).visible_text();
+      - lvgl.label.update:
+          id: used
+          text: !lambda return id(gnss).used_text();
+      - lvgl.label.update:
+          id: hdop
+          text: !lambda return id(gnss).hdop_text();
+      - lvgl.label.update:
+          id: speed
+          text: !lambda return id(gnss).speed_text();
+          text_font: !lambda |-
+            const auto s = id(gnss).speed_text();
+            return s.size() <= 4 ? id(diag_speed) :
+              (s.size() <= 6 ? id(diag_value) : id(diag_font));
+      - lvgl.label.update:
+          id: stability
+          text: !lambda return id(gnss).stability_text();
+      - lvgl.label.update:
+          id: transport
+          text: !lambda return id(gnss).transport_text();
+      - lvgl.label.update:
+          id: ages
+          text: !lambda return id(gnss).age_text();
+      - lvgl.label.update:
+          id: display_status
+          text: !lambda |-
+            char b[100];
+            snprintf(b, sizeof(b), "UP %lu s | DRAW %lu | ETA DRAW %lu ms",
+              (unsigned long)(::millis()/1000), (unsigned long)id(draw_count),
+              (unsigned long)(::millis()-id(last_draw_ms)));
+            return std::string(b);
+  - interval: 10s
+    then:
+      - if:
+          condition:
+            lambda: return id(ui).is_paused();
+          then:
+            - lvgl.resume:
+      - lambda: |-
+          ESP_LOGI("display_diag3", "draw=%lu age=%lu ms paused=%d",
+            (unsigned long)id(draw_count), (unsigned long)(::millis()-id(last_draw_ms)),
+            id(ui).is_paused());

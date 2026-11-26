@@ -1,0 +1,34 @@
+GOATS 5 GPS DIAG3 / V0.1.0
+Verifiche del 26 novembre 2026
+
+Base RLCD DIAG3: commit 1e73b8bd7bc1df0647569a8dd768909af2c4d345.
+ORIGINE.json conserva gli hash dei quattro header originali.
+
+PASS - 17 frame GNSS trasmessi identici alla fixture RLCD originale,
+       cinque cambi baud host (38400,9600,115200,230400,230400),
+       2430 ms di ritardi espliciti. Nessuna modifica dei payload GNSS.
+PASS - hash sorgenti originali, normalizzando il solo include dell'orologio.
+PASS - test dell'osservatore originale e del componente portato con ASan/UBSan:
+       lettore unico, boot, UBX frammentato, dati scaduti, fix solo tempo,
+       velocita', HDOP, VISTI, ACK/NAK, checksum, perdite di flusso/fix,
+       timer e settimana GPS in rollover; nessuna scrittura dopo il boot.
+PASS - configurazione ESPHome risolta: RX17/TX10, baud iniziale 38400,
+       buffer 16384, luce iniziale 50%, RGB 32,4 MHz, pagina unica,
+       nessun Wi-Fi/OTA/SD/SPI/I2C/touch.
+PASS - larghezza dei font reali per velocita', HDOP e righe diagnostiche lunghe.
+PASS - compilazione ESPHome 2026.7.3, ESP-IDF 5.5.5.
+       config_hash=0x485daa7a
+       RAM statica 62383 byte; flash applicazione 574051 byte.
+       Avvisi di indentazione nei sorgenti GNSS originali conservati.
+
+L'include Arduino.h nei due header GNSS e' adattato a un piccolo ponte HAL
+ESPHome. Non si dichiara identita' del framework, del backend UART o dei tempi
+complessivi di boot tra RLCD e 5 pollici. Parita' verificata sui sorgenti GNSS,
+sui frame trasmessi, sui ritardi espliciti e sui comportamenti osservati.
+
+firmware.factory.bin: 639696 byte, USB offset 0x0.
+SHA256 a91adc4055deb50397e1419e1d64e0db60aa86eeb20c1a4b39c3738725bdab62
+Il binario incluso e' un'immagine factory per la scheda 5 pollici VIEWE WB-B.
+
+Nessun collaudo hardware: il fix GNSS e l'assenza dell'oscuramento del display
+restano da verificare sul dispositivo con entrambi i fili UART collegati.
