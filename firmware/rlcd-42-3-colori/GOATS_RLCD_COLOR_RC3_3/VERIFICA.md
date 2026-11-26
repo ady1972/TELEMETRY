@@ -4,9 +4,11 @@
 
 - Riferimento: RLCD monocromatico RC3.3 su `main`, commit
   `855954ed7c4b96e7f36ec8fffcd786c6c5973a07`.
-- I **19 header applicativi** sono identici byte per byte a quelli RC3.3.
-- Framework ESP-IDF/TinyUSB e logger identici al riferimento. UART modificata
-  soltanto per il bootstrap GNSS V0.40.5 descritto sotto. Scheduling
+- I **19 header applicativi di riferimento** sono conservati identici byte per
+  byte a quelli RC3.3. Tra questi, `m9n_passive.h` resta solo come riferimento:
+  la ricezione usa il parser COLOR e l'adattatore aggiunti senza modificare il motore.
+- Framework ESP-IDF/TinyUSB e logger identici al riferimento. UART e ricezione
+  usano la gestione GNSS V0.40.5 descritta sotto. Scheduling
   1 s / 10 ms / 5 s invariato, con il solo adattamento di arming ai quattro tasti.
 - Pinout e sequenza comandi/reset/pixel packing ST7306 conservati dalla COLOR.
 - V0.40.5, COLOR TEST26 e le versioni monocromatiche non modificate.
@@ -34,8 +36,8 @@ il suo riquadro/icona rimane nella posizione originale della RC3.3.
 
 - Validazione ESPHome 2026.7.3: **PASS**.
 - Compilazione/link ESP32-S3, ESP-IDF 5.5.5: **PASS**.
-- Applicazione: **610.831 byte**, 7,5% dello slot da 8.126.464 byte.
-- RAM statica: **165.515 byte**, 48,4% dei 341.760 byte riportati dal linker.
+- Applicazione: **611.803 byte**, 7,5% dello slot da 8.126.464 byte.
+- RAM statica: **164.483 byte**, 48,1% dei 341.760 byte riportati dal linker.
   I picchi di RAM durante registrazione e trasferimento non sono misurati.
 - Generati factory, app ed ELF. Il pacchetto USB contiene la factory da scrivere
   a **0x0**, esclusivamente per la scheda da 16 MB.
@@ -47,6 +49,7 @@ il suo riquadro/icona rimane nella posizione originale della RC3.3.
 
 ```sh
 python tests/rlcd_color_gnss_config/run.py
+python tests/rlcd_color_gnss_config/run_reception.py
 python tests/rlcd_color_rc3/check_contracts.py
 python tests/rlcd_color_rc3/run.py
 python tests/rlcd_color/check_reference.py
@@ -57,10 +60,12 @@ python tests/rlcd_color_rc3/test_layout.py
 
 Tutti **PASS**. Le suite storiche di acquisizione e sessioni sono state eseguite
 nella stessa revisione funzionale: gli aggiornamenti successivi hanno
-ricontrollato parità dei 19 header e delle schermate; è stato aggiunto soltanto
-il bootstrap GNSS V0.40.5, con i test dedicati descritti sotto.
+ricontrollato parità dei 19 header e delle schermate. L'ultima revisione ha
+eseguito nuovamente tutte le suite COLOR sopra elencate (compresi salvataggio,
+scarto e riarmo), aggiungendo il test della ricezione GNSS descritto sotto.
+La suite storica `tests/rc2/run.py` era già passata e non è stata ripetuta.
 
-- Parità RC3.3 dei sorgenti, parser GNSS passivo, bootstrap UART attivo V0.40.5, scheduling,
+- Parità RC3.3 del motore, ricezione e bootstrap UART COLOR V0.40.5, scheduling,
   pinout, versione Info, assenza di PSRAM/ADC inventato/Wi-Fi/OTA.
 - Date e ora italiana/DST, metadati persistenti, massima e media per giro,
   selezione BEST, preferenza DELTA/LAP TIME in NVS.
@@ -133,8 +138,8 @@ Baseline grafica/logica congelata: commit `c49e7423d4d07382700f4f806cf12117deb43
 Il test `tests/rlcd_color_gnss_config/run.py` verifica **identità del rendering
 YAML, dello scheduling, dei pulsanti, dei font, delle anteprime e di ogni file
 del driver** con un manifest SHA-256. I 19 header applicativi restano identici
-alla RLCD RC3.3. Si aggiunge solo `goats_m9n_cfg.h`, con il codice della COLOR
-V0.40.5 adattato da Arduino.h a esphome/core/hal.h e delay qualificato.
+alla RLCD RC3.3. L'ambito funzionale modificato è esclusivamente il GNSS:
+configuratore, ricezione e adattatore verso il motore RC3.3.
 
 Test ASan/UBSan PASS: identici 17 frame UBX e tempi della V0.40.5, checksum,
 layer solo RAM, nessun CFG-CFG/reset, bootstrap da tutti e quattro i baud,
@@ -147,3 +152,32 @@ RX1/TX2, bootstrap 38400, buffer RX 16384; UART finale 230400. Attese esplicite
 Nessuna modifica ai messaggi durante la registrazione. La sequenza non verifica
 ACK/NAK come nell'originale: la risposta reale del ricevitore, i 25 Hz e il fix
 restano da collaudare. Nessuna misura o prova hardware effettuata.
+
+
+## Ricezione completa dalla versione provata — aggiornamento finale
+
+Lo ZIP V0.40.5 allegato dall'utente è stato aperto e confrontato: **14 file su
+14 identici byte per byte** alla copia V0.40.5 già archiviata. La nuova variante
+usa il configuratore effettivamente chiamato da quel firmware e il suo parser
+UBX completo, anziché ripristinare soltanto l'inizializzazione del ricevitore.
+
+`run_reception.py` confronta il parser originale con la porta ESP-IDF,
+ammettendo solo include HAL, qualifiche millis/delay e osservazione dei frame
+validi/contatori. Il confronto runtime ASan/UBSan usa entrambi i parser reali
+sugli stessi byte: stato, date, frequenza, campioni e tempi mappati coincidono.
+Copre frammentazione byte per byte, checksum errati, recupero dopo payload
+oltre 1024 byte, NAV-PVT corto, rumore/NMEA, NAV-DOP, NAV-SAT, raffica di 100
+campioni, limite della coda a 64 e scadenze a 1,5/3 secondi.
+
+Il test dell'adattatore verifica che tutti i 100 payload validi arrivino al
+punto d'ingresso RC3.3 integri e in ordine, una sola volta; quelli corrotti o
+corti non sono consegnati. Il conteggio satelliti segue il campo originale
+NAV-SAT e HDOP è disponibile alla registrazione. Nessuna scrittura/configurazione
+UART durante la ricezione. Le condizioni di eleggibilità dei campioni restano
+nel motore RC3.3: l'adattatore non converte fix 2D in fix 3D né altera iTOW.
+Il parser alternativo `m9n_passive.h` non è più incluso nello YAML; la funzione
+`goats_m9n::configure` del parser COLOR non viene mai chiamata.
+
+Questo verifica il software e la compilazione, non la ricezione radio reale.
+Il buon funzionamento GPS confermato dall'utente riguarda lo ZIP originale;
+la combinazione RC3.3 qui consegnata richiede ancora il collaudo hardware.

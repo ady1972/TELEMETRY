@@ -10,8 +10,8 @@ Baseline: `firmware/rlcd-42/GOATS_RLCD_RC3_3`, commit di riferimento
 `855954ed` (usare l'hash completo nel rapporto `VERIFICA.md`). Tutti i suoi
 19 header applicativi sono copiati senza modifiche. Restano gli stessi:
 
-- Parser UBX NAV-PVT e acquisizione temporale RC3.3 invariati; configurazione
-  del ricevitore all’avvio come COLOR V0.40.5, descritta sotto.
+- Acquisizione temporale e gestione dei NAV-PVT nel motore RC3.3 invariate;
+  ricezione UART e configurazione del ricevitore dalla COLOR V0.40.5, descritte sotto.
 - Motore giri, settori, delta e acquisizione temporale del riferimento.
 - Correzioni data/ora italiana e nomi CSV, metadati di registrazione.
 - Riepilogo con tempo, velocità massima/media e BEST evidenziato.
@@ -37,11 +37,32 @@ l'icona senza inventare una percentuale.
 Le cartelle V0.40.5 e V0.40.6 TEST26 e i firmware monocromatici restano intatti.
 Questa è una nuova variante da collaudare, non una certificazione di stabilità.
 
-## Solo inizializzazione GNSS dalla COLOR V0.40.5
+## GNSS dalla COLOR V0.40.5 confermata funzionante
 
 Grafica, menu, font, driver display, motore giri, settori, delta, sessioni e
-scheduling sono quelli RC3.3. L'unica modifica funzionale rispetto alla base
-RC3.3 senza splash è il configuratore GNSS eseguito all'avvio normale.
+scheduling sono quelli RC3.3. L'aggiornamento usa il GNSS della COLOR V0.40.5
+che l'utente ha confermato funzionante nello ZIP
+`GOATS_V0405_BOOT_FAST_FONT_TEST_2026_11_03.zip`: tutti i suoi 14 file sono
+identici a quelli conservati nel repository. Non viene sostituito il motore
+RLCD con il vecchio laptimer COLOR.
+
+Sono ripresi sia il configuratore `goats_m9n_cfg.h` effettivamente chiamato
+dalla COLOR, sia il parser `goats_ubx_m9n_ak97_full.h`, adattati alle API HAL
+di ESPHome per ESP-IDF. Il parser è in `goats_color_gnss_v0405.h`; l'adattatore
+`goats_color_gnss_bridge.h` inoltra ogni NAV-PVT valido, con payload e iTOW
+originali, alla stessa funzione `goats_b::on_pvt` della RLCD RC3.3. Non introduce
+un secondo motore giri né sostituisce il tempo con quello mappato dal vecchio
+laptimer COLOR. La coda legacy viene svuotata dopo l'inoltro per evitare doppi
+consumatori. Date, registrazioni, criteri di fix del motore (3D e almeno quattro
+satelliti) e gestione dei duplicati rimangono RC3.3.
+
+La ricezione drena la UART come la COLOR; conserva verifica checksum UBX,
+limite payload 1024 byte, misura della frequenza, scadenze dello stato GNSS
+e conteggio satelliti visibili dal campo NAV-SAT originale. Le righe NMEA non
+alimentano il laptimer e vengono ignorate dal parser, come nella COLOR. Il
+contatore diagnostico `nmea_ok` resta quindi zero. Il file `m9n_passive.h`
+RC3.3 è conservato come riferimento, ma non è incluso nel firmware.
+
 
 Servono **TX GPS → GPIO1 e RX GPS → GPIO2**, oltre a GND comune. La UART parte
 come V0.40.5 a 38400 e prova 38400/9600/115200/230400; al termine ESP e ricevitore
@@ -58,8 +79,10 @@ anche l'ESP per ripetere la configurazione.
 
 Come nel codice V0.40.5, non verifica ACK/NAK: si dichiara trasmessa la sequenza,
 non accettata dal modulo. Controllare in Info GPS NAV-PVT Hz e satelliti dopo
-un avvio a freddo. Il parser `m9n_passive.h` rimane invariato e di sola lettura:
-la trasmissione dei comandi appartiene soltanto al configuratore iniziale.
+un avvio a freddo. La trasmissione dei comandi appartiene soltanto al
+configuratore iniziale `goats_cfg::configure`. La funzione di configurazione
+alternativa presente nel vecchio parser COLOR non viene chiamata: invierebbe
+impostazioni NMEA differenti da quelle della versione provata.
 
 ## Avvio senza splash
 
@@ -157,7 +180,7 @@ GOATS_RLCD_COLOR_RC3_3/
 Aprire lo YAML esterno. Componenti e TTF sono locali. ESPHome,
 ESP-IDF e dipendenze TinyUSB richiedono il normale download alla prima build.
 
-Pacchetti aggiornati con grafica/logica RC3.3 e configuratore GNSS V0.40.5:
+Pacchetti aggiornati con grafica/logica RC3.3 e GNSS V0.40.5 completo (inizializzazione e ricezione):
 [ZIP sorgenti](download/GOATS_RLCD_COLOR_RC3.3_GNSS_V0405_SORGENTI.zip) ·
 [Primo flash USB](download/GOATS_RLCD_COLOR_RC3.3_GNSS_V0405_PRIMO_FLASH_USB.zip).
 I pacchetti precedenti senza suffisso GNSS_V0405 restano archiviati per riferimento.

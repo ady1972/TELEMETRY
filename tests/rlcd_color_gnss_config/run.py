@@ -67,4 +67,4 @@ void flush(){flushes++;}
  subprocess.run([str(exe)],check=True)
 print('PASS: V0.40.5 exact UART frames/timing; all four boot baud scenarios; UBX checksums,')
 print('RAM-only layer, rates/constellations/messages, repeated normal boot, no GNSS writes in USB MSC')
-print('PASS: RC3.3 core/parser/layout/driver/fonts/scheduling preserved; RX1/TX2, no splash, no network/OTA')
+print('PASS: RC3.3 core/layout/driver/fonts/scheduling preserved; RX1/TX2, no splash, no network/OTA')

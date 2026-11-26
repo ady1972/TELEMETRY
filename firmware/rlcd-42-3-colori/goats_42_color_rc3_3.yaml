@@ -6,7 +6,7 @@ substitutions:
 # GOATS RLCD V1.5 — FASE 2 R12.1 — GPS GRANDE AUTO CENTRO — 2026-11-02
 # GOATS RLCD — TEST C3: V3 GPS intoccato + grafica geometria Layout 8 originale
 # MG902: gestione microSD differita al primo fix valido oppure richiesta esplicita del Manager; nessun test di scrittura SD.
-# File m9n_passive.h identico alla V3 diagnostica funzionante.
+# Ricezione GNSS della COLOR V0.40.5, inoltro dei NAV-PVT grezzi al motore RC3.3.
 esphome:
   on_boot:
     priority: -100
@@ -41,7 +41,8 @@ esphome:
     - GOATS_RLCD_COLOR_RC3_3/goats_laptimer.h
     - GOATS_RLCD_COLOR_RC3_3/goats_lap_speed_stats.h
     - GOATS_RLCD_COLOR_RC3_3/goats_racing_bridge.h
-    - GOATS_RLCD_COLOR_RC3_3/m9n_passive.h
+    - GOATS_RLCD_COLOR_RC3_3/goats_color_gnss_v0405.h
+    - GOATS_RLCD_COLOR_RC3_3/goats_color_gnss_bridge.h
     - GOATS_RLCD_COLOR_RC3_3/goats_postlap_ui.h
     - GOATS_RLCD_COLOR_RC3_3/goats_session_archive.h
     - GOATS_RLCD_COLOR_RC3_3/goats_legacy_menu_ui.h
