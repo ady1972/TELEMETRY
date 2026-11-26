@@ -1,7 +1,7 @@
 #pragma once
 #include "esphome/components/uart/uart.h"
 #include <cstdint>
-#if defined(USE_ESP32) && defined(USE_ESP_IDF)
+#if defined(USE_ESP32) && (defined(USE_ESP_IDF) || defined(USE_ARDUINO))
 #include "esphome/components/uart/uart_component_esp_idf.h"
 #include "driver/uart.h"
 #endif
@@ -13,7 +13,7 @@ inline uint32_t actual_baud{0};
 inline int32_t apply_error{0}, readback_error{0};
 inline uint8_t port{255};
 inline void refresh(esphome::uart::UARTComponent &uart) {
-#if defined(USE_ESP32) && defined(USE_ESP_IDF)
+#if defined(USE_ESP32) && (defined(USE_ESP_IDF) || defined(USE_ARDUINO))
   auto &hw = static_cast<esphome::uart::IDFUARTComponent &>(uart);
   port = hw.get_hw_serial_number();
   uint32_t baud = 0;

@@ -12,7 +12,9 @@ Grafica e logica RC3.3 conservate; inizializzazione **e ricezione GNSS** dalla
 COLOR V0.40.5 dello ZIP confermato funzionante. I NAV-PVT vengono inoltrati
 integri al motore RC3.3. TX GPS → GPIO1 e RX GPS → GPIO2.
 
-[Variante UART0 e diagnostica senza tasti](GOATS_RLCD_COLOR_RC3_3/UART0_COLOR.md).
+[Variante Arduino e diagnostica senza tasti](GOATS_RLCD_COLOR_RC3_3/ARDUINO_COLOR.md).
+
+[Variante UART0 precedente e diagnostica senza tasti](GOATS_RLCD_COLOR_RC3_3/UART0_COLOR.md).
 
 [YAML ESPHome](goats_42_color_rc3_3.yaml) ·
 [Guida, collegamenti e verifiche](GOATS_RLCD_COLOR_RC3_3/README.md).

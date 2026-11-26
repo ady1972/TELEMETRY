@@ -202,7 +202,15 @@ COLOR al catalogo di aggiornamento firmato del Manager Windows. Il trasferimento
 di circuiti/sessioni e MSC mantengono invece il protocollo della baseline.
 Nessun Wi-Fi o OTA. Nessun flash automatico eseguito.
 
-## UART0 come la COLOR — nuova variante da verificare
+## Arduino come la COLOR — nuova variante da verificare
+
+Anche UART0 è stata segnalata senza GPS. La nuova
+[variante Arduino](ARDUINO_COLOR.md) allinea il runtime alla V0.40.5 originale,
+conservando grafica, laptimer e integrazione SD/USB RC3.3. Sono disponibili
+firmware completo e diagnostica senza tasti. Il funzionamento hardware di
+questa combinazione resta da verificare.
+
+## UART0 come la COLOR — variante precedente
 
 Dopo la conferma che la V0.40.5 originale torna a funzionare sullo stesso
 hardware, è disponibile la [variante UART0](UART0_COLOR.md). Disattiva il
