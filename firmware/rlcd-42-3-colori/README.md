@@ -1,5 +1,18 @@
 # GOATS RT — RLCD 4.2 a tre colori
 
+## COLOR RC3.3-GNSS2 — gestione GPS della DIAG2
+
+[**Firmware completo RC3.3-GNSS2**](GOATS_RLCD_COLOR_RC3_3_GNSS_DIAG2/README.md):
+schermate e logiche RC3.3, con UART/configuratore/parser Arduino della DIAG2
+confermata funzionante con fix dall'utente. Componente GNSS separato e
+clock isolati; avvio diretto Racing, nessuna pagina diagnostica imposta.
+
+[YAML ESPHome](goats_42_color_rc3_3_gnss_diag2.yaml) ·
+[ZIP sorgenti e firmware USB](GOATS_RLCD_COLOR_RC3_3_GNSS_DIAG2/download/GOATS_RLCD_COLOR_RC3.3_GNSS_DIAG2_ESPHOME.zip).
+Affiancare lo YAML alla cartella `GOATS_RLCD_COLOR_RC3_3_GNSS_DIAG2`.
+Compilazione e confronti GNSS/grafici superati; integrazione da collaudare
+sul dispositivo. Le precedenti varianti sotto restano conservate.
+
 ## COLOR RC3.3 — nuova variante da collaudare
 
 Allineamento al motore e alle funzioni dell'ultima RLCD RC3.3, con pinout
