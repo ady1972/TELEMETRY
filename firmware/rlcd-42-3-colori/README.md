@@ -9,6 +9,26 @@ I 14 file originali sono conservati senza modifiche nella sottocartella
 Le note originali descrivono anche release precedenti: per lo stato attuale
 fare riferimento all'analisi dei sorgenti qui sotto.
 
+## Diagnostico GPS DIAG2: correzione del contatore temporale
+
+[**V0.40.5 GPS DIAG2**](GOATS_V0405_GPS_DIAG2/README.md) corregge il confronto
+tra l'orologio Arduino del parser e quello ESPHome della schermata, che poteva
+mostrare una falsa interruzione. Conserva gli stessi comandi e lo stesso lettore
+GPS della V0.40.5. Il video della prova DIAG1 mostra frame UBX/NAV-PVT intorno
+a 25 Hz, senza fix; DIAG2 deve ancora essere provata sull'hardware.
+Aprire `goats_42_v0405_gps_diag2.yaml`.
+[Pacchetto ESPHome DIAG2](GOATS_V0405_GPS_DIAG2/download/GOATS_V0405_GPS_DIAG2_ESPHOME.zip).
+
+## Diagnostico GPS sulla V0.40.5 funzionante
+
+[**V0.40.5 GPS DIAG1**](GOATS_V0405_GPS_DIAG1/README.md) mantiene la UART,
+il configuratore e la sequenza di avvio originali, aggiungendo contatori
+sullo schermo accessibili senza tasti. Aprire
+`goats_42_v0405_gps_diag1.yaml` con la cartella di supporto affiancata.
+[Pacchetto ESPHome con sorgenti e binari USB](GOATS_V0405_GPS_DIAG1/download/GOATS_V0405_GPS_DIAG1_ESPHOME.zip).
+Compilazione e confronto software con il riferimento superati; collaudo
+hardware ancora da eseguire. La V0.40.5 originale resta invariata.
+
 ## Versione allineata a TEST26
 
 Disponibile anche [V0.40.6 TEST26](GOATS_V0406_TEST26/README.md), sviluppata
