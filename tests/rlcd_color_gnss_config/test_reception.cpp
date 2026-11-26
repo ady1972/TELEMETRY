@@ -73,9 +73,14 @@ int main(){
  goats_m9n::parser={};goats_m9n::state={};goats_m9n::pending_samples.clear();
  goats_m9n::nav_timebase_set=false;goats_m9n::rx_bytes=goats_m9n::checksum_errors=0;
  goats_diag::data()={};UARTComponent runtime;
+ runtime.append(packet(5,1,{6,0x8A})); // Configuration accepted.
+ runtime.append(packet(5,0,{6,1}));    // Configuration rejected.
+ runtime.append(packet(5,1,{1,7}));    // Non-configuration ACK: do not count.
+ runtime.append(packet(5,0,{6}));     // Truncated ACK: do not count.
  runtime.append(packet(1,4,dop));runtime.append(packet(1,0x35,sat));
  runtime.append(noise);runtime.append(corrupt);runtime.append(packet(1,7,std::vector<uint8_t>(91)));
  goats_diag::poll(&runtime);assert(delivered.empty());
+ assert(goats_diag::data().cfg_ack==1&&goats_diag::data().cfg_nak==1);
  runtime.append(burst);goats_diag::poll(&runtime);
  assert(delivered.size()==100&&runtime.available()==0&&goats_m9n::pending_samples.empty());
  for(unsigned i=0;i<100;i++)assert(delivered[i]==pvt(2000+i*40));

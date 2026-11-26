@@ -8,6 +8,7 @@ namespace goats_diag {
 struct State {
   uint32_t bytes{0}, good{0}, bad{0}, last_pvt{0}, last_sat{0}, last_dop{0};
   uint32_t rate{230400}, nmea_valid{0}, last_valid{0};
+  uint32_t cfg_ack{0}, cfg_nak{0};
   bool locked{false}, found_ubx{false};
   uint8_t seen{0}, used{0}, fix_type{0};
   float hdop{-1.f}, pvt_hz{0.f}, speed_kmh{0.f};
@@ -19,6 +20,11 @@ inline void on_frame(uint8_t cls, uint8_t id, const std::vector<uint8_t> &payloa
   auto &s = data();
   ++s.good;
   s.last_valid = esphome::millis();
+  // Observe receiver replies without changing configuration, timing or parsing.
+  if (cls == 0x05 && payload.size() >= 2 && payload[0] == 0x06) {
+    if (id == 0x01) ++s.cfg_ack;
+    else if (id == 0x00) ++s.cfg_nak;
+  }
   if (cls != 0x01) return;
   if (id == 0x07 && payload.size() >= 92) {
     s.last_pvt = esphome::millis();

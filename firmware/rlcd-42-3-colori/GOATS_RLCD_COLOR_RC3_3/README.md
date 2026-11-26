@@ -202,6 +202,15 @@ COLOR al catalogo di aggiornamento firmato del Manager Windows. Il trasferimento
 di circuiti/sessioni e MSC mantengono invece il protocollo della baseline.
 Nessun Wi-Fi o OTA. Nessun flash automatico eseguito.
 
+## Diagnostica GPS senza pulsanti
+
+Se il GPS resta assente e i tasti non sono ancora saldati, usare temporaneamente
+`goats_42_color_rc3_3_gps_diag.yaml`, affiancato allo YAML normale: mostra da solo
+byte UART, UBX, NAV-PVT, satelliti, fix e risposte ACK/NAK CFG. La gestione GNSS
+resta la stessa. Vedere [procedura e lettura dei dati](DIAGNOSTICA_GPS.md).
+Questa variante raccoglie la diagnosi: la causa del mancato GPS segnalato
+sull'ultimo firmware non è ancora determinata.
+
 ## Collaudo richiesto
 
 1. Avvio a freddo: Racing diretta senza logo, Info COLOR RC3.3, colori corretti, nessun reset.
