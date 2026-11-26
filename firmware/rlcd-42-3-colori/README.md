@@ -1,5 +1,20 @@
 # GOATS RT — RLCD 4.2 a tre colori
 
+## DIAG3 + RC3.3 STEP3 — primo test telemetria/Manager
+
+[STEP3](GOATS_DIAG3_RC33_STEP3/README.md) aggiunge cataloghi USB persistenti,
+AUTO circuito RC3.3 e traccia GPS nella flash interna gia' riservata (nessuna SD).
+Compatibile con elenco/download CSV BURST4 del Manager Windows, verificato
+con il codice reale V5.4.15.20. Include comando banco per traccia libera/STOP.
+Racing e flusso LCD sono STEP2A; UART/configuratore/parser restano DIAG3.
+
+[YAML Racing](goats_42_diag3_rc33_step3.yaml) ·
+[YAML diagnostica](goats_42_diag3_rc33_step3_diag.yaml) ·
+[ZIP ESPHome](GOATS_DIAG3_RC33_STEP3/download/GOATS_DIAG3_RC33_STEP3_ESPHOME.zip).
+Compilazione/test software superati; USB/flash/GPS da provare sulla scheda.
+Capacita' di prova: circa 43 minuti totali a 25Hz, massimo 64 sessioni,
+nessuna sovrascrittura automatica. Dettagli/limiti nel README del progetto.
+
 ## DIAG3 + RC3.3 STEP2A — correzione LCD
 
 La foto dello STEP2 mostra testi frammentati e blocchi di colonne spostati.
