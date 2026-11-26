@@ -7,7 +7,11 @@
 #include ORIGINAL_CFG_HEADER
 #undef goats_cfg
 #include "goats_m9n_cfg.h"
+#ifdef TEST_LIVE_UART
+using UARTComponent=esphome::uart::IDFUARTComponent;
+#else
 using esphome::uart::UARTComponent;
+#endif
 static uint32_t value(const std::vector<uint8_t>&p,size_t at,unsigned bytes){
  uint32_t v=0;for(unsigned i=0;i<bytes;i++)v|=uint32_t(p.at(at+i))<<(8*i);return v;
 }
@@ -75,6 +79,12 @@ int main(){
  test_ms=0;original_cfg::configure(old_uart);verify_frames(old_uart);
  test_ms=0;goats_cfg::configure(new_uart);verify_frames(new_uart);
  assert(old_uart.frames==new_uart.frames&&old_uart.bauds==new_uart.bauds);
+#ifdef TEST_LIVE_UART
+ assert(old_uart.reloads==5&&new_uart.reloads==0);
+ assert(new_uart.pending_rx==std::vector<uint8_t>({0xB5,0x62}));
+ assert(goats_uart_baud::actual_baud==230400&&test_live_sets==5&&test_last_port==1);
+ assert(goats_uart_baud::apply_error==0&&goats_uart_baud::readback_error==0);
+#endif
  for(auto baud:{38400U,9600U,115200U,230400U})verify_bootstrap(new_uart,baud);
  for(unsigned boot=0;boot<2;boot++){
   active=UARTComponent{};test_ms=0;usb_mode=false;run_actual_boot();
@@ -82,8 +92,23 @@ int main(){
   assert(goats_dates::calls==boot+1&&goats_screen_mode::calls==boot+1);
   assert(goats_b::calls==boot+1&&goats_archive::calls==boot+1&&goats_menu::calls==boot+1);
  }
+#ifdef TEST_LIVE_UART
+ const auto sets_before_usb=test_live_sets;
+#endif
  active=UARTComponent{};test_ms=0;usb_mode=true;run_actual_boot();
  assert(active.frames.empty()&&active.bauds.empty()&&test_ms==0);
  assert(goats_b::calls==2&&goats_archive::calls==2&&goats_menu::calls==2);
  assert(goats_dates::calls==2&&goats_screen_mode::calls==2);
+#ifdef TEST_LIVE_UART
+ assert(test_live_sets==sets_before_usb);
+ UARTComponent broken;
+ test_set_error=123;goats_uart_baud::apply(broken,115200);
+ assert(goats_uart_baud::apply_error==123&&broken.baud==38400);
+ assert(broken.reloads==0&&test_hw_baud==230400);
+ test_set_error=0;test_get_error=456;goats_uart_baud::apply(broken,9600);
+ assert(goats_uart_baud::apply_error==0&&goats_uart_baud::readback_error==456);
+ assert(goats_uart_baud::actual_baud==0&&broken.baud==9600&&broken.reloads==0);
+ test_get_error=0;goats_uart_baud::refresh(broken);
+ assert(goats_uart_baud::actual_baud==9600&&goats_uart_baud::readback_error==0);
+#endif
 }

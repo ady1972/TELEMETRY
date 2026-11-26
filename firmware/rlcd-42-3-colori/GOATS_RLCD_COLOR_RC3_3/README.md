@@ -202,6 +202,14 @@ COLOR al catalogo di aggiornamento firmato del Manager Windows. Il trasferimento
 di circuiti/sessioni e MSC mantengono invece il protocollo della baseline.
 Nessun Wi-Fi o OTA. Nessun flash automatico eseguito.
 
+## Test UART dopo RX zero
+
+La prima foto diagnostica conferma RX 0 byte. È disponibile il
+[test ESPHome GPS UART TEST2](GPS_UART_TEST2.md), con cambio baud senza
+ricreare il driver ESP-IDF e lettura del baud hardware. Usare temporaneamente
+`goats_42_color_rc3_3_gps_uart_fix.yaml`; la pagina compare senza tasti.
+La causa del difetto rimane da verificare sul dispositivo.
+
 ## Diagnostica GPS senza pulsanti
 
 Se il GPS resta assente e i tasti non sono ancora saldati, usare temporaneamente

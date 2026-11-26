@@ -2,6 +2,7 @@
 #pragma once
 #include "esphome/components/uart/uart.h"
 #include "esphome/core/hal.h"
+#include "goats_uart_baud.h"
 #include <cstdint>
 #include <vector>
 namespace goats_cfg {
@@ -32,7 +33,7 @@ static void key_u4(std::vector<uint8_t>&p,uint32_t key,uint32_t v){
   for(int i=0;i<4;++i) p.push_back(uint8_t(v>>(8*i)));
 }
 static void valset(UART &u,const std::vector<uint8_t>&p){write_frame(u,0x06,0x8A,p);}
-static void host_baud(UART &u,uint32_t b){u.set_baud_rate(b);u.load_settings();esphome::delay(100);}
+static void host_baud(UART &u,uint32_t b){goats_uart_baud::apply(u,b);esphome::delay(100);}
 static void change_receiver_to_230400(UART &u){
   auto p=ram();
   key_u4(p,0x40520001u,230400u); // UART1 baud

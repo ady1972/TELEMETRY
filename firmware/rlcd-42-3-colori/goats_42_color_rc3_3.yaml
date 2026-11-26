@@ -29,6 +29,7 @@ esphome:
     name: goats_rt.rlcd42_color
     version: "${firmware_version}"
   includes:
+    - GOATS_RLCD_COLOR_RC3_3/goats_uart_baud.h
     - GOATS_RLCD_COLOR_RC3_3/goats_m9n_cfg.h
     - GOATS_RLCD_COLOR_RC3_3/goats_recording_clock.h
     - GOATS_RLCD_COLOR_RC3_3/goats_recording_dates.h

@@ -8,7 +8,7 @@ namespace goats_diag {
 struct State {
   uint32_t bytes{0}, good{0}, bad{0}, last_pvt{0}, last_sat{0}, last_dop{0};
   uint32_t rate{230400}, nmea_valid{0}, last_valid{0};
-  uint32_t cfg_ack{0}, cfg_nak{0};
+  uint32_t cfg_ack{0}, cfg_nak{0}, poll_calls{0};
   bool locked{false}, found_ubx{false};
   uint8_t seen{0}, used{0}, fix_type{0};
   float hdop{-1.f}, pvt_hz{0.f}, speed_kmh{0.f};
@@ -45,6 +45,7 @@ inline void on_frame(uint8_t cls, uint8_t id, const std::vector<uint8_t> &payloa
 
 inline void poll(esphome::uart::UARTComponent *uart) {
   if (uart == nullptr) return;
+  ++data().poll_calls;
   goats_m9n::frame_observer = on_frame;
   goats_m9n::poll(uart); // Same UART drain, parser and expiry rules as V0.40.5.
   auto &s = data();

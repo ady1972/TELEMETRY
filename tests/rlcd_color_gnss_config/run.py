@@ -13,7 +13,9 @@ PASSIVE=ROOT/'firmware/rlcd-42/GOATS_RLCD_RC3_3'
 PORT=BASE/'GOATS_RLCD_COLOR_RC3_3'
 original=ORIGINAL.read_text()
 ported=(PORT/'goats_m9n_cfg.h').read_text()
-assert ported==original.replace('#include <Arduino.h>','#include "esphome/core/hal.h"').replace('delay(','esphome::delay(')
+expected=original.replace('#include <Arduino.h>','#include "esphome/core/hal.h"\n#include "goats_uart_baud.h"').replace('delay(','esphome::delay(')
+expected=expected.replace('u.set_baud_rate(b);u.load_settings();esphome::delay(100);','goats_uart_baud::apply(u,b);esphome::delay(100);')
+assert ported==expected
 for source in PASSIVE.glob('*.h'):
  assert source.read_bytes()==(PORT/source.name).read_bytes(),source.name
 manifest=json.loads((ROOT/'tests/rlcd_color_gnss_config/reference_manifest.json').read_text())
@@ -51,20 +53,46 @@ namespace esphome::uart {
 struct Frame {uint32_t baud,ms;std::vector<uint8_t>bytes;
 bool operator==(const Frame&other)const{return baud==other.baud&&ms==other.ms&&bytes==other.bytes;}};
 class UARTComponent {public:
-uint32_t baud=38400;unsigned flushes=0;std::vector<uint32_t> bauds;std::vector<Frame>frames;
-void set_baud_rate(uint32_t v){baud=v;}void load_settings(){bauds.push_back(baud);}
+uint32_t baud=38400;unsigned flushes=0,reloads=0;std::vector<uint8_t>pending_rx{0xB5,0x62};std::vector<uint32_t> bauds;std::vector<Frame>frames;
+void set_baud_rate(uint32_t v){baud=v;}uint32_t get_baud_rate(){return baud;}void load_settings(){bauds.push_back(baud);reloads++;pending_rx.clear();}
 void write_array(const uint8_t*d,size_t n){frames.push_back({baud,test_ms,{d,d+n}});}
 void flush(){flushes++;}
 };}
 '''}
+ files['esphome/components/uart/uart_component_esp_idf.h']='''#pragma once
+#include "esphome/components/uart/uart.h"
+inline esphome::uart::UARTComponent *test_hardware_uart=nullptr;
+namespace esphome::uart {
+class IDFUARTComponent: public UARTComponent {public:
+uint8_t get_hw_serial_number(){test_hardware_uart=this;return 1;}
+};}
+'''
+ files['driver/uart.h']='''#pragma once
+#include <cstdint>
+using uart_port_t=int;
+inline constexpr int ESP_OK=0;
+inline int test_set_error=0,test_get_error=0;
+inline uint32_t test_hw_baud=38400;
+inline unsigned test_live_sets=0,test_last_port=255;
+inline int uart_set_baudrate(uart_port_t port,uint32_t baud){
+ test_last_port=port;++test_live_sets;
+ if(test_set_error)return test_set_error;
+ test_hw_baud=baud;test_hardware_uart->bauds.push_back(baud);return ESP_OK;
+}
+inline int uart_get_baudrate(uart_port_t port,uint32_t *baud){
+ test_last_port=port;if(test_get_error)return test_get_error;*baud=test_hw_baud;return ESP_OK;
+}
+'''
  for name,data in files.items():
   p=t/name;p.parent.mkdir(parents=True,exist_ok=True);p.write_text(data)
  source=(ROOT/'tests/rlcd_color_gnss_config/test_config.cpp').read_text().replace('ACTUAL_BOOT_LAMBDA',bootcode)
  cpp=t/'test.cpp';cpp.write_text(source);exe=t/'test_config'
- subprocess.run(['g++','-std=c++17','-Wall','-Wextra','-Werror','-Wno-misleading-indentation',
-  '-fsanitize=address,undefined','-fno-omit-frame-pointer','-DORIGINAL_CFG_HEADER="'+str(ORIGINAL)+'"',
-  '-I'+str(t),'-I'+str(PORT),str(cpp),'-o',str(exe)],check=True)
- subprocess.run([str(exe)],check=True)
+ for flags in [[],['-DUSE_ESP32','-DUSE_ESP_IDF','-DTEST_LIVE_UART']]:
+  subprocess.run(['g++','-std=c++17','-Wall','-Wextra','-Werror','-Wno-misleading-indentation',
+   '-fsanitize=address,undefined','-fno-omit-frame-pointer','-DORIGINAL_CFG_HEADER="'+str(ORIGINAL)+'"',
+   *flags,'-I'+str(t),'-I'+str(PORT),str(cpp),'-o',str(exe)],check=True)
+  subprocess.run([str(exe)],check=True)
 print('PASS: V0.40.5 exact UART frames/timing; all four boot baud scenarios; UBX checksums,')
 print('RAM-only layer, rates/constellations/messages, repeated normal boot, no GNSS writes in USB MSC')
 print('PASS: RC3.3 core/layout/driver/fonts/scheduling preserved; RX1/TX2, no splash, no network/OTA')
+print('PASS: ESP-IDF live baud path: zero driver reloads, buffered RX preserved, actual baud readback and driver errors')
