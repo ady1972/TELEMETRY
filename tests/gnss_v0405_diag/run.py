@@ -3,18 +3,22 @@
 from pathlib import Path
 import subprocess
 import tempfile
+import sys
+import re
 import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
 BASE = ROOT / 'firmware/rlcd-42-3-colori'
 REF = BASE / 'GOATS_V0405_BOOT_FAST_FONT_TEST/components/goats_spi_diag'
-DIAG = BASE / 'GOATS_V0405_GPS_DIAG1/components/goats_spi_diag'
+VERSION = sys.argv[1] if len(sys.argv)>1 else '2'
+assert VERSION in ['1','2']
+DIAG = BASE / f'GOATS_V0405_GPS_DIAG{VERSION}/components/goats_spi_diag'
 assert (REF/'goats_m9n_cfg.h').read_bytes() == (DIAG/'goats_m9n_cfg.h').read_bytes()
 for filename in ['goats_laptimer.h','goats_lap_storage.h','goats_track_catalog.h',
                  'goats_font_bitmap.h','goats_layout39_font.h','goats_speed_95.h','__init__.py']:
     assert (REF/filename).read_bytes() == (DIAG/filename).read_bytes(), filename
 old = yaml.safe_load((BASE/'GOATS_V0405_BOOT_FAST_FONT_TEST/v0405_boot_fast_font_test.yaml').read_text())
-new = yaml.safe_load((BASE/'goats_42_v0405_gps_diag1.yaml').read_text())
+new = yaml.safe_load((BASE/f'goats_42_v0405_gps_diag{VERSION}.yaml').read_text())
 for section in ['esp32','logger','uart','goats_spi_diag']:
     assert old[section] == new[section], section
 src = (REF/'goats_spi_diag.cpp').read_text()
@@ -71,6 +75,11 @@ struct UARTComponent {
 #undef goats_m9n
 #include "DIAG/goats_ubx_m9n_ak97_full.h"
 using UART=esphome::uart::UARTComponent;
+namespace esphome {
+ uint32_t millis(){return clock_ms-500;}
+ namespace goats_spi_diag { uint32_t display_now(){return DISPLAY_NOW_EXPR;} }
+}
+
 void compare_state(){
  const auto &a=reference_m9n::state;const auto &b=goats_m9n::state;
  assert(a.fix==b.fix && a.used_sats==b.used_sats && a.visible_sats==b.visible_sats);
@@ -93,6 +102,21 @@ void feed(const std::vector<uint8_t>& bytes,uint32_t now){
  assert(a.writes.empty() && b.writes.empty());compare_state();
 }
 int main(){
+ // Regression: both APIs exist, but ESPHome tick epoch differs from Arduino's.
+ clock_ms=1000;
+ goats_gps_diag::Counters timing;
+ timing.byte(0xb5,::millis());
+ std::vector<uint8_t> dummy(92);
+ timing.frame(1,7,dummy.data(),dummy.size(),::millis());
+ const auto display_now=esphome::goats_spi_diag::display_now();
+ if(TEST_CLOCK_FIXED){
+   assert(display_now==1000 && display_now-timing.last_pvt_ms==0);
+   assert(std::strcmp(timing.status(display_now,false),"COMUNICAZIONE OK - NO FIX")==0);
+ }else{
+   assert(display_now==500 && uint32_t(display_now-timing.last_pvt_ms)>3000);
+   assert(std::strcmp(timing.status(display_now,false),"FLUSSO INTERROTTO")==0);
+ }
+ clock_ms=0;
  UART a,b;
  reference_cfg::configure(a);const auto expected_delays=delays;
  delays.clear();clock_ms=0;goats_cfg::configure(b);
@@ -133,9 +157,11 @@ int main(){
  d={};d.byte(0,0xfffffff0);d.frame(1,7,nav.data(),nav.size(),0xfffffff0);
  assert(std::strcmp(d.status(20,false),"COMUNICAZIONE OK - NO FIX")==0);
  d.frame(1,7,nav.data(),nav.size(),24);assert(d.max_pvt_gap_ms==40);
- std::cout<<"PASS: original config trace, identical navigation/parser outputs, single reader, counters, malformed frames, stale/no-fix and timer wrap\n";
+ std::cout<<"PASS: original config trace, identical navigation/parser outputs, single reader, counters, malformed frames, stale/no-fix, timer wrap and separate Arduino/ESPHome clock epochs\n";
 }
 '''.replace('REF/',str(REF)+'/').replace('DIAG/',str(DIAG)+'/')
+    clock_expr=re.search(r'const uint32_t now=([^;]+);',dst[dst.index('void GoatsSpiDiag::gps_diag_draw_()'):]).group(1)
+    source=source.replace('DISPLAY_NOW_EXPR',clock_expr).replace('TEST_CLOCK_FIXED','true' if VERSION=='2' else 'false')
     (p/'reference_cfg.h').write_text((REF/'goats_m9n_cfg.h').read_text().replace('#pragma once', ''))
     source=source.replace(str(REF/'goats_m9n_cfg.h'),str(p/'reference_cfg.h'))
     (p/'test.cpp').write_text(source)
