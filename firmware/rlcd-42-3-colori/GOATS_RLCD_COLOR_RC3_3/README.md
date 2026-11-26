@@ -21,7 +21,7 @@ Baseline: `firmware/rlcd-42/GOATS_RLCD_RC3_3`, commit di riferimento
   in piccoli gruppi, salvataggio/scarto e riarmo senza riavvio.
 - Catalogo circuiti, archivio, esportazione USB e modalità disco microSD.
 
-Tutte le schermate usano il rendering della RLCD RC3.3: stessa geometria,
+Tutte le schermate operative usano il rendering della RLCD RC3.3: stessa geometria,
 stesse coordinate, etichette, riquadri e dimensioni dei font. In Racing:
 
 - campo principale tempo/DELTA in alto, con settori immediatamente sotto;
@@ -36,6 +36,22 @@ l'icona senza inventare una percentuale.
 
 Le cartelle V0.40.5 e V0.40.6 TEST26 e i firmware monocromatici restano intatti.
 Questa è una nuova variante da collaudare, non una certificazione di stabilità.
+
+## Avvio senza splash
+
+Lo splash è stato eliminato su richiesta dell'utente, che ne vedeva il logo
+residuo nella schermata Racing. Il codice già ricomponeva il framebuffer
+completo, quindi non è stata identificata una causa hardware certa del residuo.
+
+Questa variante non carica né disegna più l'immagine di avvio e non attende i
+precedenti tre secondi. Il primo frame è direttamente Racing, trasmesso per
+intero; in modalità USB viene mostrata la relativa schermata. Non vengono
+aggiunti flash bianco/nero, reset periodici o cambi sperimentali ai registri
+ST7306. La versione resta visibile in Info.
+
+Dopo il caricamento, eseguire un avvio a freddo togliendo completamente
+alimentazione alla scheda, inclusa l'eventuale batteria. Verificare sul pannello
+che la schermata Racing e i caratteri rimangano puliti.
 
 ## Refresh del display
 
@@ -114,7 +130,7 @@ goats_42_color_rc3_3.yaml
 GOATS_RLCD_COLOR_RC3_3/
 ```
 
-Aprire lo YAML esterno. Componenti, TTF e splash sono locali. ESPHome,
+Aprire lo YAML esterno. Componenti e TTF sono locali. ESPHome,
 ESP-IDF e dipendenze TinyUSB richiedono il normale download alla prima build.
 
 [Pacchetti sorgenti e binario factory su GitHub](https://github.com/ady1972/TELEMETRY/tree/codex/rlcd-color-rc3-3-display/firmware/rlcd-42-3-colori/GOATS_RLCD_COLOR_RC3_3/download).
@@ -139,7 +155,7 @@ Nessun Wi-Fi o OTA. Nessun flash automatico eseguito.
 
 ## Collaudo richiesto
 
-1. Avvio a freddo: splash/Info COLOR RC3.3, colori corretti, nessun reset.
+1. Avvio a freddo: Racing diretta senza logo, Info COLOR RC3.3, colori corretti, nessun reset.
 2. Racing ferma e in movimento: osservare i piccoli refresh, contorni di cifre,
    punto e segni, nelle due modalità, specialmente quando più valori cambiano.
 3. Menu e ritorno: nessuna immagine residua; test post-giro e Best Lap.

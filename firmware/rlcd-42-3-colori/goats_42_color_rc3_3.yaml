@@ -135,11 +135,6 @@ font:
     size: 82
     bpp: 1
 
-image:
-  - file: GOATS_RLCD_COLOR_RC3_3/splash_assets/goats_splash_static.png
-    id: goats_splash_static
-    type: BINARY
-
 sensor:
   - platform: template
     id: bat_percent
@@ -157,8 +152,7 @@ display:
     data_rate: 4MHz
     update_interval: 100ms
     lambda: |-
-      // TEST 13: splash statico unico 400x300 per 3 secondi.
-      // Nessuna animazione, nessun cambio di refresh, nessuna modifica GNSS/UART.
+      // Avvio diretto: nessun logo da lasciare sul pannello, primo frame completo.
       if(goats_usb_msc::active()){
         it.fill(COLOR_OFF);
         it.print(200,55,id(f28),COLOR_ON,TextAlign::CENTER,"USB MASS STORAGE");
@@ -166,16 +160,6 @@ display:
           goats_usb_msc::failed()?"ERRORE SD / USB":"SCHEDA CONDIVISA CON PC");
         it.print(200,163,id(f20),COLOR_ON,TextAlign::CENTER,"RIMUOVI IN SICUREZZA DAL PC");
         it.print(200,204,id(f20),COLOR_ON,TextAlign::CENTER,"POI RIAVVIA IL LAPTIMER");
-        return;
-      }
-      static uint32_t splash_started=millis();
-      if((millis()-splash_started)<3000U){
-        it.image(0,0,id(goats_splash_static), COLOR_OFF, COLOR_ON);
-        // The legacy artwork includes an obsolete version below TELEMETRY.
-        Color background=id(goats_splash_static).get_pixel(0,267,COLOR_OFF,COLOR_ON);
-        const Color ink=background.is_on()?COLOR_OFF:COLOR_ON;
-        it.filled_rectangle(0,267,400,33,background);
-        it.print(200,282,id(f20),ink,TextAlign::CENTER,"COLOR ${firmware_version}");
         return;
       }
       // V1.5 FASE1 R05: layout lap time esteso con settori interni.

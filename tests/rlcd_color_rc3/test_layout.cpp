@@ -18,7 +18,18 @@ int main(int argc,char**argv){
  Probe mono,color;esphome::GPIOPin dc,reset;
  for(auto*d:{&mono,&color}){d->set_dc_pin(&dc);d->set_reset_pin(&reset);d->setup();}
  mono.writer=[&](){render_mono(mono);};color.writer=[&](){render_color(color);};
- mono.update();color.update();now_ms=14000;
+ mono.update();color.update();
+ assert(color.last_windows()==1 && color.last_transfer_bytes()==30000);
+ assert(std::find(color.trace.begin(),color.trace.end(),"rect:1,1,398,128,1")!=color.trace.end());
+ for(const auto &op:color.trace)assert(op.rfind("image:",0)!=0);
+ const auto boot_racing=color.framebuffer_;
+ // No logo, blank page or 3-second transition is ever transmitted by COLOR.
+ for(uint32_t at:{10001U,12000U,12999U,13001U,14000U}){
+  now_ms=at;color.update();
+  assert(color.framebuffer_==boot_racing && color.last_transfer_bytes()==0);
+  for(const auto &op:color.trace)assert(op.rfind("image:",0)!=0);
+ }
+
  unsigned cases=0;
  for(int page=0;page<=16;page++)for(int mode=0;mode<2;mode++)for(int cursor=0;cursor<6;cursor++){
   goats_menu::page=page;goats_menu::position=cursor;goats_screen_mode::value=mode;

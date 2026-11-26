@@ -29,6 +29,9 @@ assert 'name: goats_rt.rlcd42_color' in color and 'firmware_version: "RC3.3"' in
 assert 'FW: COLOR ${firmware_version}' in color and 'COLOR ${firmware_version}' in color
 assert 'const bool screen_delta=goats_screen_mode::delta()' in color
 assert 'best_active(now)' in color and 'text_visible' in color
+assert not re.search(r'^image:',color,re.M)
+assert all(token not in color for token in ['splash_started','goats_splash_static','it.image('])
+assert not (PORT/'splash_assets').exists()
 old=PORT.parent/'GOATS_V0406_TEST26/components/goats_st7306'
 assert (PORT/'components/goats_st7306/pixel_pack.h').read_bytes()==(old/'pixel_pack.h').read_bytes()
 def init(text):

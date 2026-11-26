@@ -19,11 +19,12 @@ di rendering della RC3.3, comprendente Racing, menu, conferme, sessioni,
 post-giro, Best Lap e USB. Il driver ora si occupa solo del trasporto dei pixel,
 senza un renderer Racing alternativo.
 
-Sono identici coordinate, riquadri, posizioni delle etichette, dimensioni e
+Sono identici, per le schermate operative, coordinate, riquadri, posizioni delle etichette, dimensioni e
 selezione dei font. Le sole differenze ammesse nel confronto sono:
 
 - identità `COLOR RC3.3` e istruzioni dei quattro tasti;
-- canale rosso nei quattro riempimenti relativi ai delta negativi.
+- canale rosso nei quattro riempimenti relativi ai delta negativi;
+- splash eliminato nella variante COLOR su richiesta dell’utente.
 
 Il sensore batteria resta non disponibile sull'hardware senza partitore, ma
 il suo riquadro/icona rimane nella posizione originale della RC3.3.
@@ -32,13 +33,13 @@ il suo riquadro/icona rimane nella posizione originale della RC3.3.
 
 - Validazione ESPHome 2026.7.3: **PASS**.
 - Compilazione/link ESP32-S3, ESP-IDF 5.5.5: **PASS**.
-- Applicazione: **625.675 byte**, 7,7% dello slot da 8.126.464 byte.
-- RAM statica: **165.555 byte**, 48,4% dei 341.760 byte riportati dal linker.
+- Applicazione: **609.155 byte**, 7,5% dello slot da 8.126.464 byte.
+- RAM statica: **165.507 byte**, 48,4% dei 341.760 byte riportati dal linker.
   I picchi di RAM durante registrazione e trasferimento non sono misurati.
 - Generati factory, app ed ELF. Il pacchetto USB contiene la factory da scrivere
   a **0x0**, esclusivamente per la scheda da 16 MB.
-- Avviso noto: formato storico `image:` deprecato da ESPHome, ancora valido
-  nella versione usata; nessun errore di compilazione.
+- La configurazione non include più il componente `image` né asset dello splash.
+  Nessun errore di compilazione.
 - Nessun firmware caricato automaticamente su un dispositivo.
 
 ## Test software
@@ -57,7 +58,7 @@ nella stessa revisione funzionale: questa correzione successiva cambia soltanto
 il rendering e i test delle schermate, con parità dei 19 header ricontrollata.
 
 - Parità RC3.3 dei sorgenti, parser GNSS passivo, configurazione UART, scheduling,
-  pinout, versione splash/Info, assenza di PSRAM/ADC inventato/Wi-Fi/OTA.
+  pinout, versione Info, assenza di PSRAM/ADC inventato/Wi-Fi/OTA.
 - Date e ora italiana/DST, metadati persistenti, massima e media per giro,
   selezione BEST, preferenza DELTA/LAP TIME in NVS.
 - Save/save/discard e nuovi passaggi sullo stesso traguardo senza riavvio,
@@ -75,7 +76,7 @@ il rendering e i test delle schermate, con parità dei 19 header ricontrollata.
 ## Confronto dei layout e anteprime
 
 `test_layout.py` confronta l'intera lambda COLOR con quella della RC3.3,
-normalizzando soltanto i testi di modello/tasti e i quattro riempimenti rossi.
+rimuovendo dal confronto lo splash del riferimento e normalizzando soltanto i testi di modello/tasti e i quattro riempimenti rossi.
 Poi esegue i due renderer effettivi su host con la classe C++ **Font originale
 di ESPHome**, glifi generati con `glyph_to_glyphinfo` e lo stesso TTF locale.
 ASan e UBSan sono abilitati anche per questo test.
@@ -95,6 +96,20 @@ Anteprime native con valori simulati, prodotte dagli YAML effettivi:
 Queste sostituiscono le anteprime con la vecchia disposizione COLOR. Non sono
 foto del pannello. La classe Font rasterizza nativamente a 1 bit: nessuna
 riscalatura orizzontale, interpolazione o riparazione dei tratti.
+
+## Avvio senza logo — test aggiunto
+
+- Configurazione priva di `image:`, riferimenti a `goats_splash_static`, timer
+  `splash_started` e chiamate `it.image`. Asset eliminato dalla nuova variante.
+- Il primo frame contiene già il riquadro principale Racing, senza chiamate
+  al disegno dell'immagine, ed è trasmesso in una sola finestra da 30.000 byte.
+- Con dati fermi, verificati istanti prima, durante e dopo la vecchia scadenza
+  dei tre secondi: nessun logo, pagina vuota o cambio ritardato; nessuna
+  ritrasmissione SPI aggiuntiva. Test sotto ASan/UBSan.
+- Il test layout continua a confrontare le schermate operative della RC3.3.
+- Il framebuffer viene ricomposto completamente anche senza lo splash. La
+  rimozione evita di disegnare il logo, ma non identifica né certifica una
+  soluzione del possibile residuo fisico del pannello. Nessuna prova hardware.
 
 ## Prove ancora richieste
 

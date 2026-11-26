@@ -19,6 +19,18 @@ class Loader(yaml.SafeLoader):pass
 Loader.add_multi_constructor('!',lambda loader,tag,node:loader.construct_scalar(node))
 mono=yaml.load((ROOT/'firmware/rlcd-42/goats_rlcd_rc3_3.yaml').read_text(),Loader=Loader)['display'][0]['lambda']
 color=yaml.load((PORT.parent/'goats_42_color_rc3_3.yaml').read_text(),Loader=Loader)['display'][0]['lambda']
+def without_splash(text):
+    # The user explicitly requested removing the COLOR boot logo. All actual
+    # runtime layouts still match RC3.3; the reference keeps its own splash.
+    text=text.replace('// TEST 13: splash statico unico 400x300 per 3 secondi.\n'
+                      '// Nessuna animazione, nessun cambio di refresh, nessuna modifica GNSS/UART.\n','')
+    text=text.replace('// Avvio diretto: nessun logo da lasciare sul pannello, primo frame completo.\n','')
+    if 'static uint32_t splash_started=millis();' in text:
+        a=text.index('static uint32_t splash_started=millis();')
+        b=text.index('// V1.5 FASE1 R05:',a)
+        text=text[:a]+text[b:]
+    return text
+
 def normalize(text):
     text=text.replace('COLOR ${firmware_version}','RLCD ${firmware_version}')
     text=text.replace('FW: RLCD ${firmware_version}','FW: MG902 ${firmware_version}')
@@ -30,7 +42,7 @@ def normalize(text):
                  'it.filled_rectangle(left+1,top+1,width-2,height-2,R)','it.filled_rectangle(85,175,230,32,R)']:
         text=text.replace(call,call[:-2]+'W)')
     return text
-assert normalize(color)==mono,'Unexpected layout or rendering change relative to RC3.3'
+assert without_splash(normalize(color))==without_splash(mono),'Unexpected layout or rendering change relative to RC3.3'
 package=Path(esphome.__file__).parent
 with tempfile.TemporaryDirectory() as temporary:
     tmp=Path(temporary)
@@ -102,4 +114,4 @@ void spi_setup(){}void enable(){}void disable(){}void write_byte(uint8_t){}void 
         out=Path(os.environ['COLOR_PREVIEW_DIR']);out.mkdir(parents=True,exist_ok=True)
         args +=[str(out/'lap.ppm'),str(out/'delta.ppm')]
     subprocess.run(args,check=True)
-print('PASS: entire render lambda matches RC3.3, except model/help text and negative red ink')
+print('PASS: direct Racing boot without image or wait; runtime layouts match RC3.3 except model/help/red ink')
