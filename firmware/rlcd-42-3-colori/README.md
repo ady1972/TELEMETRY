@@ -1,5 +1,20 @@
 # GOATS RT — RLCD 4.2 a tre colori
 
+## DIAG3 + RC3.3 STEP2 — schermata Racing
+
+**DIAG3 e STEP1 confermati sulla scheda dall'utente il 26/11/2026.**
+[STEP2](GOATS_DIAG3_RC33_STEP2/README.md) aggiunge la Racing RC3.3 al percorso
+GPS verificato: tempo giro/settori in alto, delta/BEST a sinistra, velocita'
+a destra, GPS/HDOP/circuito in basso. Nessuno splash o SD.
+BOOT breve commuta DIAG3/Racing, BOOT lungo commuta LAP TIME/DELTA in RAM.
+Disponibile anche uno YAML con avvio diretto in diagnostica.
+
+[YAML Racing](goats_42_diag3_rc33_step2.yaml) ·
+[YAML diagnostica](goats_42_diag3_rc33_step2_diag.yaml) ·
+[ZIP sorgenti e binario USB](GOATS_DIAG3_RC33_STEP2/download/GOATS_DIAG3_RC33_STEP2_ESPHOME.zip) ·
+[Anteprima software](GOATS_DIAG3_RC33_STEP2/preview/racing_lap_time.png).
+STEP2 compilato e verificato via software; da provare sul dispositivo.
+
 ## DIAG3 + RC3.3 STEP1 — primo blocco del motore
 
 La DIAG3 e' confermata dall'utente come funzionante.
@@ -10,7 +25,7 @@ Nessun nuovo avvio USB, SD, archivi o renderer Racing.
 
 [YAML ESPHome](goats_42_diag3_rc33_step1.yaml) ·
 [ZIP sorgenti e binario USB](GOATS_DIAG3_RC33_STEP1/download/GOATS_DIAG3_RC33_STEP1_ESPHOME.zip).
-Compilazione e test software superati; il nuovo blocco va verificato sulla scheda.
+Compilazione e test software superati; GPS confermato sulla scheda dall’utente il 26/11/2026.
 
 
 ## GPS DIAG3 — satelliti, HDOP, velocita' e stabilita'
