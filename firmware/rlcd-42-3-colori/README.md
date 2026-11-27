@@ -1,5 +1,19 @@
 # GOATS RT — RLCD 4.2 a tre colori
 
+## RC3.3 STEP3G — calcoli del core riutilizzati senza approssimazioni
+
+[STEP3G](GOATS_DIAG3_RC33_STEP3G_CORELOAD/README.md) riusa i coseni degli
+argomenti double identici in AUTO/proiezioni, mantenendo ogni campione a 25 Hz
+ed ogni regola RC3.3. Replay STEP3F/cache off/cache on: stessi stati e CSV
+byte per byte, meno valutazioni cos. Diagnostica con tempo core medio/massimo.
+Riscontro precedente: CORE_ONLY sfarfalla meno ma sfarfalla; TE confermato non
+collegato e non usato. Efficacia sul pannello ancora da verificare.
+
+[YAML FULL CACHE](goats_42_diag3_rc33_step3g_coreload.yaml) ·
+[YAML riferimento senza cache](goats_42_diag3_rc33_step3g_coreload_reference.yaml) ·
+[ZIP ESPHome](GOATS_DIAG3_RC33_STEP3G_CORELOAD/download/GOATS_DIAG3_RC33_STEP3G_CORELOAD_ESPHOME.zip).
+Factory FULL CACHE / Info GPS; inclusi anche CORE_ONLY e Racing FULL.
+
 ## RC3.3 STEP3F — flash e Manager separati
 
 [STEP3F](GOATS_DIAG3_RC33_STEP3F_BACKEND/README.md) aggiunge STORE_ONLY
