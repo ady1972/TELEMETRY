@@ -1,5 +1,18 @@
 # GOATS RT — RLCD 4.2 a tre colori
 
+## RC3.3 STEP3C HPM — prova contro lo sfarfallio
+
+[STEP3C](GOATS_DIAG3_RC33_STEP3C_HPM/README.md) verifica il passaggio da LPM
+8 Hz a HPM 51 Hz nominali dopo la segnalazione di sfarfallio sulla STEP3B.
+La scansione interna cambia una sola volta all'avvio; invio Racing ogni 125ms,
+GPS, layout, core, flash e Manager sono conservati. Consumo da verificare.
+
+[YAML Racing](goats_42_diag3_rc33_step3c_hpm.yaml) ·
+[YAML prova da fermo](goats_42_diag3_rc33_step3c_hpm_test.yaml) ·
+[ZIP ESPHome](GOATS_DIAG3_RC33_STEP3C_HPM/download/GOATS_DIAG3_RC33_STEP3C_HPM_ESPHOME.zip).
+`lcd_high_power: false` ripristina la sequenza LCD STEP3B per confronto.
+Efficacia sullo sfarfallio e continuita' GPS da collaudare sulla scheda.
+
 ## RC3.3 STEP3B SMOOTH — velocita' e tempo
 
 [STEP3B](GOATS_DIAG3_RC33_STEP3B_SMOOTH/README.md) porta LPM da 1 a 8 Hz
