@@ -1,5 +1,19 @@
 # GOATS RT — RLCD 4.2 a tre colori
 
+## RC3.3 STEP3D — diagnosi dello sfarfallio, LPM
+
+[STEP3D](GOATS_DIAG3_RC33_STEP3D_FLICKER/README.md) alterna automaticamente
+10 s senza traffico LCD dopo un'immagine e 10 s di riscrittura della stessa
+immagine. Mantiene LPM STEP3B, GPS, telemetria e Manager. Serve a distinguere
+lo sfarfallio presente senza scritture da quello associato all'invio.
+
+[YAML test A/B](goats_42_diag3_rc33_step3d_flicker.yaml) ·
+[YAML Racing LPM](goats_42_diag3_rc33_step3d_flicker_racing.yaml) ·
+[ZIP ESPHome](GOATS_DIAG3_RC33_STEP3D_FLICKER/download/GOATS_DIAG3_RC33_STEP3D_FLICKER_ESPHOME.zip).
+Il binario factory incluso parte nel test A/B. Diagnosi da collaudare, non
+correzione dichiarata. Riscontro utente: HPM STEP3C riduce la leggibilita' e
+non elimina lo sfarfallio; tornando LPM i caratteri tornano OK ma il difetto resta.
+
 ## RC3.3 STEP3C HPM — prova contro lo sfarfallio
 
 [STEP3C](GOATS_DIAG3_RC33_STEP3C_HPM/README.md) verifica il passaggio da LPM
