@@ -5,6 +5,33 @@ inizia uno sfarfallio leggero. Si separano ora i due servizi aggiunti dal
 backend completo. Non viene ancora dichiarata individuata la causa o risolto
 il difetto. Il carico elettrico cambia insieme ai servizi abilitati.
 
+## Riscontri hardware aggiornati
+
+Riscontri comunicati dall'utente il 27/11/2026:
+
+| Profilo | Esito riferito |
+|---|---|
+| GPS_ONLY STEP3E | Nessuno sfarfallio dopo il fix |
+| FULL STEP3F | Sfarfallio anche appena aperta la pagina |
+| STORE_ONLY STEP3F | Sfarfallio, REC=0 e W=0 |
+| USB_ONLY STEP3F | Sfarfallio |
+| CORE_ONLY nella stessa STEP3F | Esito ancora da confermare esplicitamente |
+
+I due profili separati condividono `goats_step3::start()`: caricamento dei byte
+del catalogo, cache CRC, reset dello stato iniziale e osservatore runtime PVT.
+CORE_ONLY collega il solo osservatore RC3.3 e non esegue quel percorso comune.
+Le prove non consentono ancora di attribuire la causa a USB, flash, percorso
+comune o carico elettrico. REC/W a zero escludono una registrazione/scrittura
+journal attiva nel momento riferito, non tutte le attivita' di inizializzazione.
+
+Il prossimo controllo non richiede un pacchetto nuovo: nello YAML STEP3F gia'
+usato impostare `post_fix_mode: CORE_ONLY`, ricompilare e installare via USB.
+Attendere il fix e osservare almeno 30 secondi. La pagina deve mostrare
+`STEP3F - CORE ONLY`, `CORE:ON` e C crescente, con flash/Manager esclusi.
+
+Il pacchetto ZIP rimane quello originale: questa sezione registra i riscontri
+successivi alla sua pubblicazione; nessun binario e' stato modificato.
+
 ## Prima prova: CORE+FLASH, Manager escluso
 
 Estrarre tutto mantenendo gli YAML accanto a `GOATS_DIAG3_RC33_STEP3F_BACKEND/`.

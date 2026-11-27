@@ -42,6 +42,9 @@ python tests/diag3_rc33_step3f_backend/check_build.py
 - Altri tre YAML validati, non compilati in binari separati. Il confezionamento
   verifica CRC ZIP, SHA256 di ciascun file e i quattro YAML dopo estrazione.
 
-Nessun collaudo fisico STEP3F. Il riscontro FULL con leggero sfarfallio non
-identifica ancora la causa; resta da confrontare STORE_ONLY/USB_ONLY, tenendo
-conto anche del diverso carico elettrico. Non viene dichiarato risolto il difetto.
+Riscontri hardware successivi comunicati dall'utente: FULL sfarfalla anche
+all'avvio della pagina, STORE_ONLY sfarfalla con REC=0/W=0, USB_ONLY sfarfalla.
+GPS_ONLY STEP3E era stabile dopo il fix; manca una conferma esplicita di CORE_ONLY
+nella stessa STEP3F. I test software sopra restano validi, ma il difetto sul
+pannello non e' risolto e la causa non e' identificata. Prossimo confronto
+CORE_ONLY usando lo stesso YAML/componenti; binari e ZIP restano invariati.

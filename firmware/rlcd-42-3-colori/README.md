@@ -12,8 +12,9 @@ W e delle prenotazioni ID. Il backend FULL conserva record, CSV e protocollo.
 [YAML CORE+USB](goats_42_diag3_rc33_step3f_backend_usb.yaml) ·
 [YAML FULL](goats_42_diag3_rc33_step3f_backend_full.yaml) ·
 [ZIP ESPHome](GOATS_DIAG3_RC33_STEP3F_BACKEND/download/GOATS_DIAG3_RC33_STEP3F_BACKEND_ESPHOME.zip).
-Il factory incluso e' STORE_ONLY / Info GPS. Serve il riscontro hardware;
-non viene dichiarato risolto lo sfarfallio.
+Il factory incluso e' STORE_ONLY / Info GPS. Riscontri successivi: sfarfallio
+anche in STORE_ONLY (REC=0/W=0) e USB_ONLY; prossimo confronto CORE_ONLY nella
+stessa STEP3F. Binari/ZIP invariati; causa ancora da identificare.
 
 ## RC3.3 STEP3E — isolamento software dopo il fix
 
