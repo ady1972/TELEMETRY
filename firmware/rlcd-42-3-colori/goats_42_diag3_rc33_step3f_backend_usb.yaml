@@ -1,0 +1,115 @@
+esphome:
+  name: goats-rc33-step3f-usb
+  friendly_name: GOATS RC3.3 STEP3F BACKEND USB_ONLY
+  comment: "STEP3F: LPM invariato, isolamento backend: USB_ONLY"
+
+esp32:
+  board: esp32-s3-devkitc-1
+  flash_size: 16MB
+  partitions:
+    - name: goatsfs
+      type: data
+      subtype: spiffs
+      size: 0x200000
+  framework:
+    type: arduino
+
+logger:
+  level: INFO
+  baud_rate: 0
+
+uart:
+  - id: gps_uart
+    rx_pin: GPIO1      # MG902 TX -> ESP RX
+    tx_pin: GPIO2      # MG902 RX <- ESP TX
+    baud_rate: 38400  # profilo RLCD, bootstrap a 230400 in RAM
+    rx_buffer_size: 16384
+
+external_components:
+  - source:
+      type: local
+      path: GOATS_DIAG3_RC33_STEP3F_BACKEND/components
+    components: [goats_spi_diag]
+
+goats_spi_diag:
+  id: goats_controller
+  gps_uart_id: gps_uart
+  lcd_data_swap: true    # DTFORM 0x01, XDE attivo per MY=1; false ripristina STEP3
+  fast_display: true    # invio ogni 125ms, senza attese da 16ms fra i blocchi
+  lcd_high_power: false # LPM: resa caratteri recuperata; non usare HPM STEP3C
+  flicker_test: true   # A ferma 10s / B stessa immagine 10s, nessuna variazione pilotaggio
+  post_fix_mode: USB_ONLY # confronto dopo il fix; impostato solo all avvio
+  alignment_test: false
+  start_in_diagnostics: true
+  delta_screen: false
+  font_13: f13
+  font_16: f16
+  font_20: f20
+  font_28: f28
+  font_36: f36
+  font_42: f42
+  font_44: f44
+  font_52: f52
+  font_60: f60
+  font_64: f64
+  font_72: f72
+  font_78: f78
+  font_82: f82
+
+
+font:
+  - file: GOATS_DIAG3_RC33_STEP3F_BACKEND/fonts/RobotoCondensed-Bold.ttf
+    id: f13
+    size: 13
+    bpp: 1
+  - file: GOATS_DIAG3_RC33_STEP3F_BACKEND/fonts/RobotoCondensed-Bold.ttf
+    id: f16
+    size: 16
+    bpp: 1
+  - file: GOATS_DIAG3_RC33_STEP3F_BACKEND/fonts/RobotoCondensed-Bold.ttf
+    id: f20
+    size: 20
+    bpp: 1
+  - file: GOATS_DIAG3_RC33_STEP3F_BACKEND/fonts/RobotoCondensed-Bold.ttf
+    id: f28
+    size: 28
+    bpp: 1
+  - file: GOATS_DIAG3_RC33_STEP3F_BACKEND/fonts/RobotoCondensed-Bold.ttf
+    id: f36
+    size: 36
+    bpp: 1
+  - file: GOATS_DIAG3_RC33_STEP3F_BACKEND/fonts/RobotoCondensed-Bold.ttf
+    id: f42
+    size: 42
+    bpp: 1
+  - file: GOATS_DIAG3_RC33_STEP3F_BACKEND/fonts/RobotoCondensed-Bold.ttf
+    id: f44
+    size: 44
+    bpp: 1
+  - file: GOATS_DIAG3_RC33_STEP3F_BACKEND/fonts/RobotoCondensed-Bold.ttf
+    id: f52
+    size: 52
+    bpp: 1
+  - file: GOATS_DIAG3_RC33_STEP3F_BACKEND/fonts/RobotoCondensed-Bold.ttf
+    id: f60
+    size: 60
+    bpp: 1
+  - file: GOATS_DIAG3_RC33_STEP3F_BACKEND/fonts/RobotoCondensed-Bold.ttf
+    id: f64
+    size: 64
+    bpp: 1
+  - file: GOATS_DIAG3_RC33_STEP3F_BACKEND/fonts/RobotoCondensed-Bold.ttf
+    id: f72
+    size: 72
+    bpp: 1
+  - file: GOATS_DIAG3_RC33_STEP3F_BACKEND/fonts/RobotoCondensed-Bold.ttf
+    id: f78
+    size: 78
+    bpp: 1
+  - file: GOATS_DIAG3_RC33_STEP3F_BACKEND/fonts/RobotoCondensed-Bold.ttf
+    id: f82
+    size: 82
+    bpp: 1
+
+# BOOT breve: test/DIAG3; REC/STOP: FULL/STORE_ONLY; Manager: FULL/USB_ONLY.
+# Non premere BOOT al reset. SD/ADC esclusi; Manager USB STEP3 attivo.
