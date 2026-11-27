@@ -1,0 +1,89 @@
+esphome:
+  name: goats-42-gnss-autoscan
+  friendly_name: GOATS GPS AUTOSCAN 0.1.0
+  comment: "Diagnostico indipendente; scansione UART/baud/framing; GPIO1 RX e GPIO2 TX"
+  project:
+    name: goats_rt.gnss_autoscan
+    version: "0.1.0"
+
+esp32:
+  board: esp32-s3-devkitc-1
+  flash_size: 16MB
+  partitions: GOATS_GNSS_AUTOSCAN_V010/partitions.csv
+  framework:
+    type: arduino
+    log_level: NONE
+
+logger:
+  level: NONE
+  baud_rate: 0
+
+external_components:
+  - source:
+      type: local
+      path: GOATS_GNSS_AUTOSCAN_V010/components
+    components: [goats_gnss_scan, goats_st7306]
+
+goats_gnss_scan:
+  id: gps_scan
+
+spi:
+  clk_pin: GPIO12
+  mosi_pin: GPIO11
+
+font:
+  - file: GOATS_GNSS_AUTOSCAN_V010/fonts/RobotoCondensed-Bold.ttf
+    id: title_font
+    size: 26
+    bpp: 1
+  - file: GOATS_GNSS_AUTOSCAN_V010/fonts/RobotoCondensed-Bold.ttf
+    id: row_font
+    size: 18
+    bpp: 1
+
+display:
+  - platform: goats_st7306
+    id: rlcd
+    cs_pin: GPIO10
+    dc_pin: GPIO9
+    reset_pin: GPIO8
+    data_rate: 4MHz
+    update_interval: 1s
+    lambda: |-
+      it.fill(COLOR_OFF);
+      const auto &s=id(gps_scan).data();
+      const uint32_t now=millis();
+      char text[100];
+      auto row=[&](int y){it.print(8,y,id(row_font),COLOR_ON,TextAlign::TOP_LEFT,text);};
+      it.print(200,3,id(title_font),COLOR_ON,TextAlign::TOP_CENTER,"GPS AUTOSCAN 0.1.0");
+      it.print(200,35,id(row_font),COLOR_ON,TextAlign::TOP_CENTER,id(gps_scan).status());
+      const bool details=s.phase==goats_scan::Phase::STABLE && ((now/8000)%2);
+      snprintf(text,sizeof(text),"UART%u SET:%lu HW:%lu %s %s",s.selected.port,
+        (unsigned long)s.selected.baud,(unsigned long)id(gps_scan).actual_baud(),
+        goats_scan::FORMATS[s.selected.format],s.selected.inverted?"INV":"NOR");row(61);
+      if(!details){
+        snprintf(text,sizeof(text),"PROVA %lu/%lu  CICLO %lu  APERTURE ERR:%lu",(unsigned long)(s.index+1),
+          (unsigned long)goats_scan::TRIALS,(unsigned long)s.cycle,(unsigned long)s.open_errors);row(86);
+        snprintf(text,sizeof(text),"RX ATT:%lu  TOTALE:%lu byte",(unsigned long)s.current_bytes,(unsigned long)s.bytes);row(111);
+        snprintf(text,sizeof(text),"UBX:%lu NMEA:%lu ERR:%lu UART:%lu",(unsigned long)s.current_ubx,
+          (unsigned long)s.current_nmea,(unsigned long)s.current_bad,(unsigned long)s.current_uart_errors);row(136);
+        snprintf(text,sizeof(text),"PVT:%.1f Hz SAT:%u FIX:%s",s.pvt_hz,s.sats,
+          s.last_nav && uint32_t(now-s.last_nav)<3000 && s.fix_ok?"SI":"NO");row(161);
+        snprintf(text,sizeof(text),"QUERY:%lu RISPOSTE:%lu ECHO:%lu",(unsigned long)s.tx_polls,
+          (unsigned long)s.tx_replies,(unsigned long)s.echo);row(186);
+        snprintf(text,sizeof(text),"RX1:%d FRONTI:%lu MON ERR:%d",id(gps_scan).rx_level(),
+          (unsigned long)id(gps_scan).edges(),id(gps_scan).monitor_error());row(211);
+        if((now/4000)%2 && s.raw_hex[0])snprintf(text,sizeof(text),"HEX: %.36s",s.raw_hex);
+        else snprintf(text,sizeof(text),"BUONI:%lu GAP:%lu ms PERSI:%lu",(unsigned long)s.good_run,
+          (unsigned long)s.max_gap,(unsigned long)s.lost);row(236);
+      }else{
+        snprintf(text,sizeof(text),"MODULO: %.34s",s.model[0]?s.model:"NON IDENTIFICATO");row(86);
+        snprintf(text,sizeof(text),"PORTA GPS:%u BAUD LETTO:%lu",s.receiver_port,(unsigned long)s.receiver_baud);row(111);
+        snprintf(text,sizeof(text),"UART GPS:%s MODO:0x%08lX",s.receiver_format,(unsigned long)s.receiver_mode);row(136);
+        snprintf(text,sizeof(text),"PROTO IN:0x%04X OUT:0x%04X",s.input_mask,s.output_mask);row(161);
+        snprintf(text,sizeof(text),"MISURA:%u ms NAV:%u HDOP:%.2f",s.meas_ms,s.nav_rate,s.hdop);row(186);
+        snprintf(text,sizeof(text),"%.42s",s.sample[0]?s.sample:"NESSUNA SENTENZA NMEA");row(211);
+        snprintf(text,sizeof(text),"STABILE DA:%lus POLL:%lu",(unsigned long)((now-s.stable_since)/1000),
+          (unsigned long)id(gps_scan).polls());row(236);
+      }
+      it.print(200,277,id(row_font),COLOR_ON,TextAlign::TOP_CENTER,"AUTOMATICO - RX1/TX2 - SENZA TASTI");

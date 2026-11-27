@@ -1,5 +1,13 @@
 # GOATS RT — RLCD 4.2 a tre colori
 
+## Diagnostico GPS indipendente
+
+[GPS AUTOSCAN 0.1.0](GOATS_GNSS_AUTOSCAN_V010/README.md): ricerca automatica
+UART/baud/parità/stop/polarità, riconoscimento UBX/NMEA e verifica della
+stabilità. ESPHome via USB, esito sul display, senza tasti o log seriale.
+Aprire [goats_42_gnss_autoscan_v010.yaml](goats_42_gnss_autoscan_v010.yaml).
+Le versioni di telemetria sotto restano conservate.
+
 Versione **V0.40.5 BOOT FAST + FONT TEST**, per ESP32-S3 con display
 riflettivo ST7306 rosso/nero/bianco. Importata dall'archivio
 `GOATS_V0405_BOOT_FAST_FONT_TEST_2026_11_03.zip` fornito dall'utente.
