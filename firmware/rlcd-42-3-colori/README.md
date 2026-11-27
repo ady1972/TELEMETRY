@@ -1,5 +1,20 @@
 # GOATS RT — RLCD 4.2 a tre colori
 
+## RC3.3 STEP3E — isolamento software dopo il fix
+
+[STEP3E](GOATS_DIAG3_RC33_STEP3E_POSTFIX/README.md) confronta GPS_ONLY,
+CORE_ONLY e FULL mantenendo ricezione GPS, pilotaggio LPM e schermata uguali.
+Riscontro utente: lo sfarfallio inizia dopo il fix e permane in entrambe le
+fasi STEP3D. Il primo profilo esclude core RC3.3, registrazione e Manager ma
+mantiene il fix e i dati reali a 25 Hz; parte direttamente in Info GPS.
+
+[YAML GPS ONLY, prima prova](goats_42_diag3_rc33_step3e_postfix.yaml) ·
+[YAML CORE ONLY](goats_42_diag3_rc33_step3e_postfix_core.yaml) ·
+[YAML FULL](goats_42_diag3_rc33_step3e_postfix_full.yaml) ·
+[ZIP ESPHome](GOATS_DIAG3_RC33_STEP3E_POSTFIX/download/GOATS_DIAG3_RC33_STEP3E_POSTFIX_ESPHOME.zip).
+Il factory incluso e' GPS ONLY; presente anche lo YAML Racing FULL. Prova
+diagnostica da collaudare, non una correzione dichiarata dello sfarfallio.
+
 ## RC3.3 STEP3D — diagnosi dello sfarfallio, LPM
 
 [STEP3D](GOATS_DIAG3_RC33_STEP3D_FLICKER/README.md) alterna automaticamente
