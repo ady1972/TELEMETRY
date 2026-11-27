@@ -1,5 +1,20 @@
 # GOATS RT — RLCD 4.2 a tre colori
 
+## RC3.3 STEP3F — flash e Manager separati
+
+[STEP3F](GOATS_DIAG3_RC33_STEP3F_BACKEND/README.md) aggiunge STORE_ONLY
+(core+flash senza Manager) e USB_ONLY (core+Manager senza telemetria flash).
+Riscontro utente: GPS_ONLY stabile dopo il fix, FULL con leggero sfarfallio.
+Prima prova STORE_ONLY, stessa Info GPS/LPM; nuovi contatori RAM delle scritture
+W e delle prenotazioni ID. Il backend FULL conserva record, CSV e protocollo.
+
+[YAML CORE+FLASH, prima prova](goats_42_diag3_rc33_step3f_backend.yaml) ·
+[YAML CORE+USB](goats_42_diag3_rc33_step3f_backend_usb.yaml) ·
+[YAML FULL](goats_42_diag3_rc33_step3f_backend_full.yaml) ·
+[ZIP ESPHome](GOATS_DIAG3_RC33_STEP3F_BACKEND/download/GOATS_DIAG3_RC33_STEP3F_BACKEND_ESPHOME.zip).
+Il factory incluso e' STORE_ONLY / Info GPS. Serve il riscontro hardware;
+non viene dichiarato risolto lo sfarfallio.
+
 ## RC3.3 STEP3E — isolamento software dopo il fix
 
 [STEP3E](GOATS_DIAG3_RC33_STEP3E_POSTFIX/README.md) confronta GPS_ONLY,
